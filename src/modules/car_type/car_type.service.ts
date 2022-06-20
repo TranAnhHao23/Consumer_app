@@ -23,11 +23,17 @@ export class CarTypeService {
     return await this.carType.findOne({select: ["carImage", "typeName", "typeSlogan", "firstDistanceFee", "secondDistanceFee", "thirdDistanceFee", "fourthDistanceFee", "fifthDistanceFee", "sixthDistanceFee", "seventhDistanceFee", "platformFee", "waitingFee"]});
   }
 
-  async findByLocation(location: string) {
-    return ;
+  async searchCarByLocation(longitude: number, latitude: number) {
+    await this.connection.query(
+        `update car_type set price = 0`);
+    await this.connection.query(
+        `update car_type set price = ${Math.random() * 80} where (car_type.longitude between ${longitude - 0.3} 
+            and ${longitude + 0.3}) and (latitude between ${latitude - 0.1} and ${latitude + 0.1})`);
+    return this.carType.find({select: ["typeName", "typeSlogan", "price"]});
   }
 
-  async create(car: CreateCarTypeDto) {
+  async create(carCreate: CreateCarTypeDto) {
+    const car = await this.carType.create(carCreate);
     return await this.carType.save(car);
   }
 

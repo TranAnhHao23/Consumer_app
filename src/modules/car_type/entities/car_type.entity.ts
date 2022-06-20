@@ -1,9 +1,10 @@
-import {BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn} from "typeorm";
+import {BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm";
 import { v4 as uuid4 } from 'uuid';
 
 @Entity({ name: 'car_type'})
 export class Car_typeEntity extends BaseEntity {
-    @PrimaryColumn({ name: 'car_type_id', length: 45})
+    // @ts-ignore
+    @PrimaryGeneratedColumn("uuid", { name: 'car_id', length: 55})
     id: string;
 
     @Column({ name: 'type_name'})
@@ -45,13 +46,13 @@ export class Car_typeEntity extends BaseEntity {
     @Column({ name: 'waiting_fee', nullable: true})
     waitingFee: number;
 
-    // @Column({ name: 'longtitude', nullable: true})
+    @Column({ name: 'longitude', nullable: true})
+    longitude: string;
 
+    @Column({ name: 'latitude', nullable: true})
+    latitude: string;
 
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
+    @Column({ name: 'price' , nullable: true, default: 0})
+    price: number;
+
 }
