@@ -1,0 +1,16 @@
+{
+  "HEALTH": "Good",
+  "MOBILE_EXIST": "หมายเลขโทรศัพท์นี้เคยได้รับการลงทะเบียนแล้ว ต้องการเข้าใช้งานหรือไม่? ",
+  "EMAIL_EXIST": "This email is related to an existing account. Do you want to sign in? ",
+  "BUSINESS_NAME_EXIST": "This business name is related to an existing account. Do you want to sign in? ",
+  "MOBILE_NOT_EXIST": "ไม่พบข้อมูลหมายเลขโทรศัพท์นี้ ต้องการสมัครสมาชิกหรือไม่? ",
+  "INFO_NOT_AVAILABLE": "ข้อมูลยังไม่พร้อมใช้งานในขณะนี้ กรุณาลองใหม่ในภายหลัง",
+  "INFO_NOT_AVAILABLE_2":  "ข้อมูลยังไม่พร้อมใช้งานในขณะนี้ กรุณาลองใหม่ในภายหลัง",
+  "SUCCESS": "Success",
+  "OTP_EXPIRED":  "รหัสเข้าใช้งานครั้งเดียวหมดอายุแล้ว กรุณาขอรับรหัสใหม่อีกครั้ง",
+  "PHONE_BLOCKED":  "หมายเลขนี้ถูกระงับการใช้งานจากระบบ กรุณาติดต่อ Robinhood เพื่อรับทราบรายละเอียดเพิ่มเติม",
+  "OTP_FAIL":  "รหัส OTP ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง",
+  "OTP_EXPIRE":  "รหัส OTP หมดอายุ กรุณาขอรับรหัสใหม่อีกครั้ง",
+  "OTP_NOT_VALID":  "OTP is not valid less than number of verify ????",
+  "PASSWORD_NOT_MATCH": "รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง"
+}

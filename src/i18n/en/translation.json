@@ -1,0 +1,17 @@
+{
+  "HEALTH": "Good",
+  "authentication_mobile_validation_1000": "Success",
+  "MOBILE_EXIST": "This mobile number is related to an existing account. Do you want to sign in? ",
+  "EMAIL_EXIST": "This email is related to an existing account. Do you want to sign in? ",
+  "BUSINESS_NAME_EXIST": "This business name is related to an existing account. Do you want to sign in? ",
+  "MOBILE_NOT_EXIST": "This mobile number is not exist. Do you want to sign up? ",
+  "INFO_NOT_AVAILABLE": "Information not available, please try again later. ",
+  "INFO_NOT_AVAILABLE_2": "Information not available, please try again later. ",
+  "SUCCESS": "Success",
+  "OTP_EXPIRED": "This OTP has expired. Please request a new OTP. ",
+  "PHONE_BLOCKED": "This phone number has been blocked by the system. Please contact Robinhood's call center for further information. ",
+  "OTP_FAIL": "Verify OTP code fail",
+  "OTP_EXPIRE": "Verify expire date time",
+  "OTP_NOT_VALID": "OTP is not valid less than number of verify ????",
+  "PASSWORD_NOT_MATCH": "This password is not match. Please try again. "
+}
