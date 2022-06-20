@@ -25,6 +25,7 @@ import { TripsModule } from './modules/trips/trips.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { FavouriteLocationsModule } from './modules/favourite_locations/favourite_locations.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
+import { CarTypeModule } from './modules/car_type/car_type.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
     LocationsModule,
     FavouriteLocationsModule,
     BookingsModule,
+    CarTypeModule,
   ],
   controllers: [AppController],
   providers: [

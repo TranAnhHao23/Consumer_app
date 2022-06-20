@@ -27,7 +27,7 @@ export enum UserStatus {
 
 @Entity({ name: 'user_profile' })
 export class UserEntity extends BaseEntity {
-  @PrimaryColumn({ name: 'user_id', length: 45 })
+  @PrimaryColumn({ name: 'user_id', length: 45})
   id: string;
 
   @Column({ name: 'rbh_user_id', length: 45, nullable: true })
