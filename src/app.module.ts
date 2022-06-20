@@ -21,6 +21,10 @@ import { UserSessionModule } from './modules/user_session/user_session.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorFilter } from './core/http-error.filter';
 import { LoggingInterceptor } from './core/logging.interceptor';
+import { TripsModule } from './modules/trips/trips.module';
+import { LocationsModule } from './modules/locations/locations.module';
+import { FavouriteLocationsModule } from './modules/favourite_locations/favourite_locations.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 @Module({
   imports: [
@@ -45,6 +49,10 @@ import { LoggingInterceptor } from './core/logging.interceptor';
     AddressProfileModule,
     GuestProfileModule,
     UserSessionModule,
+    TripsModule,
+    LocationsModule,
+    FavouriteLocationsModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
