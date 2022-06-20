@@ -1,32 +1,24 @@
-import {BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
-import { v4 as uuid4 } from 'uuid';
+import {BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 
 @Entity({ name: 'trip'})
 export class TripEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'trip_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ name: 'user_id', length: 45})
-    userId: string;
+    @Column({ name: 'device_id'})
+    deviceId: string;
 
     @Column({ name: 'car_type'})
-    carType: string;
+    carType: number;
 
     @Column({ name: 'is_drafting'})
     isDrafting: boolean;
 
-    @Column({ name: 'create_at'})
+    @Column({ name: 'created_at'})
     @CreateDateColumn()
-    createAt: Date;
+    createdAt: Date;
 
-    @Column({ name: 'update_at'})
+    @Column({ name: 'updated_at'})
     @UpdateDateColumn()
-    updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2,11);
-        this.id = uuid + randomNumber;
-    }
+    updatedAt: Date;
 }
