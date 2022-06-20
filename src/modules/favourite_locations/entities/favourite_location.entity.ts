@@ -1,9 +1,9 @@
-import {BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
+import {BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import { v4 as uuid4 } from 'uuid';
 
 @Entity({ name: 'favourite_location'})
 export class Favourite_locationEntity extends BaseEntity{
-    @PrimaryColumn({name: 'favourite_location_id', length: 45})
+    @PrimaryGeneratedColumn("uuid") 
     id: string;
 
     @Column({name: 'user_id', length: 45, nullable: true})
@@ -31,12 +31,4 @@ export class Favourite_locationEntity extends BaseEntity{
     @Column({ name: 'update_at'})
     @UpdateDateColumn()
     updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
-
 }
