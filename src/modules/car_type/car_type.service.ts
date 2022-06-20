@@ -3,7 +3,7 @@ import { CreateCarTypeDto } from './dto/create-car_type.dto';
 import { UpdateCarTypeDto } from './dto/update-car_type.dto';
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
 import {Car_typeEntity} from "./entities/car_type.entity";
-import {Repository} from "typeorm";
+import {Like, Repository} from "typeorm";
 import {Connection} from "mysql2";
 
 @Injectable()
@@ -14,21 +14,29 @@ export class CarTypeService {
   ) {
   }
 
-  async getCarType() {
-    // return await this.carType.find({select: ["id", "typeName"]});
-    return await this.carType.find();
+  async getCarType(name: string) {
+    // return await this.carType.find({
+    //   select: ["id", "typeName"],
+    //   order: {
+    //     ["firstDistanceFee"]: "ASC",
+    //     ["typeName"]: "ASC",
+    //   }
+    // });
+    return await this.carType.find({ where: {typeName: Like(`%${name}%`)}});
+    // return await this.carType.find();
   }
 
   async getCarDetail(id: number) {
-    return await this.carType.findOne({select: ["carImage", "typeName", "typeSlogan", "firstDistanceFee", "secondDistanceFee", "thirdDistanceFee", "fourthDistanceFee", "fifthDistanceFee", "sixthDistanceFee", "seventhDistanceFee", "platformFee", "waitingFee"]});
+    return await this.carType.findOne(id, { select: ["typeName", "typeSlogan", "firstDistanceFee",
+        "secondDistanceFee", "thirdDistanceFee", "fourthDistanceFee", "fifthDistanceFee", "sixthDistanceFee", "seventhDistanceFee", "platformFee", "waitingFee"]});
   }
 
-  async searchCarByLocation(longitude: number, latitude: number) {
+  async searchCarByLocation(longitude: number, latitude: number, searchRadius: number) {
     await this.connection.query(
         `update car_type set price = 0`);
     await this.connection.query(
-        `update car_type set price = ${Math.random() * 80} where (car_type.longitude between ${longitude - 0.3} 
-            and ${longitude + 0.3}) and (latitude between ${latitude - 0.1} and ${latitude + 0.1})`);
+        `update car_type set price = ${Math.random() * 80} where (car_type.longitude between ${longitude - searchRadius/20} 
+            and ${longitude + searchRadius/20}) and (latitude between ${latitude - searchRadius/20} and ${latitude + searchRadius/20})`);
     return this.carType.find({select: ["typeName", "typeSlogan", "price"]});
   }
 

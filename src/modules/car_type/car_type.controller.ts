@@ -12,9 +12,9 @@ export class CarTypeController {
         return this.carTypeService.create(car);
     }
 
-    @Get('getcartype')
-    findAll() {
-        return this.carTypeService.getCarType();
+    @Get('getcartype/:name')
+    findAll(@Param('name') name: string) {
+        return this.carTypeService.getCarType(name);
     }
 
     @Get('getcardetail/:id')
@@ -22,9 +22,9 @@ export class CarTypeController {
         return this.carTypeService.getCarDetail(+id);
     }
 
-    @Post('searchcarbylocation/:longitude/:latitude')
-    searchCarByLocation(@Param('longitude') longitude: string, @Param('latitude') latitude: string) {
-        return this.carTypeService.searchCarByLocation(+longitude, +latitude);
+    @Post('searchcarbylocation/:longitude/:latitude/:searchRadius')
+    searchCarByLocation(@Param('longitude') longitude: string, @Param('latitude') latitude: string, @Param('searchRadius') searchRadius: string) {
+        return this.carTypeService.searchCarByLocation(+longitude, +latitude, +searchRadius);
     }
 
 

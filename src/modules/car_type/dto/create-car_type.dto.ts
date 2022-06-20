@@ -1,4 +1,3 @@
-import {Column} from "typeorm";
 import {IsNotEmpty} from "class-validator";
 
 export class CreateCarTypeDto {
