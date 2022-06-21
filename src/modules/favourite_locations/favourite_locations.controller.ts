@@ -12,6 +12,11 @@ export class FavouriteLocationsController {
     return this.favouriteLocationsService.create(createFavouriteLocationDto);
   }
 
+  @Post('update')
+  update(@Body() updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
+    return this.favouriteLocationsService.update(updateFavouriteLocationDto.id,updateFavouriteLocationDto);
+  }
+
   @Get('getbyuserid/:userId')
   findAll(@Param('userId') userId: string) {
     return this.favouriteLocationsService.getbyuserid(userId);
