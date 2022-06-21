@@ -1,6 +1,8 @@
+import { HttpStatus } from "@nestjs/common";
+
 export class ResponseResult
 {
-    status: number = 200;
+    status: number = HttpStatus.OK;
     errorMessage: string = "";
     data:any;
 }
