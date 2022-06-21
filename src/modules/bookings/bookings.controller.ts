@@ -31,6 +31,11 @@ export class BookingsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.bookingsService.remove(+id);
+    return this.bookingsService.remove(id);
+  }
+
+  @Get('history/:deviceId')
+  getBookingHistory(@Param('deviceId') deviceId: string) {
+    return this.bookingsService.getBookingHistory(deviceId);
   }
 }

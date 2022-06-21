@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { Repository } from 'typeorm';
+import {createQueryBuilder, Repository} from 'typeorm';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingEntity } from './entities/booking.entity';
@@ -34,7 +34,7 @@ export class BookingsService {
 
   async update(id: string, updateBookingDto: UpdateBookingDto) {
      try{
-      const newobj = await this.bookingRepository.update({ id:id }, updateBookingDto);
+      await this.bookingRepository.update({ id:id }, updateBookingDto);
       this.apiResponse.data = await this.bookingRepository.findOne({ id: id });
     }catch (error) {
       this.apiResponse.errorMessage = error;
@@ -44,13 +44,19 @@ export class BookingsService {
   }
 
 
-  findAll() {
-    return `This action returns all bookings`;
+  async findAll() {
+    try {
+      this.apiResponse.data = await this.bookingRepository.find({relations: ["trip"]});
+    } catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
   }
 
   async findOne(id: string) {
     try{
-      this.apiResponse.data = await this.bookingRepository.findOne(id);
+      this.apiResponse.data = await this.bookingRepository.findOne(id, {relations: ["trip"]});
     }catch (error) {
       this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -58,7 +64,28 @@ export class BookingsService {
     return this.apiResponse;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} booking`;
+  async remove(id: string) {
+    try {
+      await this.bookingRepository.delete(id);
+    } catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.NOT_FOUND;
+    }
+    return this.apiResponse;
+  }
+
+  async getBookingHistory(deviceId: string) {
+    try {
+      const query = await this.bookingRepository.createQueryBuilder('booking')
+          .leftJoinAndSelect('booking.trip', 'trip')
+          .where("device_id = :id", {id: deviceId})
+          .getMany();
+      console.log(query)
+      this.apiResponse.data = query;
+    } catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.NOT_FOUND;
+    }
+    return this.apiResponse;
   }
 }
