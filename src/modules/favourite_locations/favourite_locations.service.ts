@@ -19,6 +19,11 @@ export class FavouriteLocationsService {
     return await this.favouriteRepository.save(newobj);
   }
 
+  async update(id: string,updateFavouriteLocationDto: Partial<UpdateFavouriteLocationDto>): Promise<Favourite_locationEntity> {
+    const newobj = this.favouriteRepository.update({ id:id }, updateFavouriteLocationDto);
+    return this.favouriteRepository.findOne({ id: id }); 
+  }
+
   async getbyuserid(userId: string) {
     return await this.favouriteRepository.find({ where: {userId: userId},order:{["createAt"]:"DESC"}});
   }
