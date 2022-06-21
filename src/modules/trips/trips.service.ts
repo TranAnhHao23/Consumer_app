@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -6,13 +6,14 @@ import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 import { TripEntity } from './entities/trip.entity';
+import { ResponseResult } from '../../shared/ResponseResult';
 
 @Injectable()
 export class TripsService {
-
   constructor(
     @InjectRepository(TripEntity)
-    private readonly tripRepo: Repository<TripEntity>
+    private readonly tripRepo: Repository<TripEntity>,
+    private readonly apiResponse: ResponseResult,
   ) {}
 
   // create(createTripDto: CreateTripDto) {
@@ -38,40 +39,45 @@ export class TripsService {
   async getDraftingTrip(getDraftingTripDto: GetDraftingTripDto) {
     const draftingTrip = await this.tripRepo.findOne({
       deviceId: getDraftingTripDto.deviceId,
-      isDrafting: true
-    })
-    console.log(draftingTrip)
-    return draftingTrip
+      isDrafting: true,
+    });
+    console.log(draftingTrip);
+    return draftingTrip;
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    let savedDraftingTrip
-    let draftingTrip = await this.getDraftingTrip({
-      deviceId: upsertDraftingTripDto.deviceId
-    })
+    let savedDraftingTrip;
+    const draftingTrip = await this.getDraftingTrip({
+      deviceId: upsertDraftingTripDto.deviceId,
+    });
 
     if (!draftingTrip) {
       const newDraftingTrip = this.tripRepo.create({
         ...upsertDraftingTripDto,
-        isDrafting: true
-      })
-      savedDraftingTrip = await newDraftingTrip.save()
+        isDrafting: true,
+      });
+      savedDraftingTrip = await newDraftingTrip.save();
     } else {
-      draftingTrip.carType = upsertDraftingTripDto.carType
-      savedDraftingTrip = await draftingTrip.save()
+      draftingTrip.carType = upsertDraftingTripDto.carType;
+      savedDraftingTrip = await draftingTrip.save();
     }
-    return savedDraftingTrip
+    return savedDraftingTrip;
   }
 
   async getTripHistory(id: number) {
-    // @ts-ignore
-    return this.tripRepo.find({
-      where: {
-        deviceId: id,
-        isDrafting: false,
-      },
-      order: {["createdAt"]: "DESC"},
-      relations: ["locations"]
-    })
+    try {
+      this.apiResponse.data = await this.tripRepo.find({
+        where: {
+          deviceId: id,
+          isDrafting: false,
+        },
+        order: { ['createdAt']: 'DESC' },
+        relations: ['locations'],
+      });
+    } catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
   }
 }

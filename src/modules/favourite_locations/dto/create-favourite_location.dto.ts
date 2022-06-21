@@ -1,9 +1,21 @@
+import { IsString } from 'class-validator';
+
 export class CreateFavouriteLocationDto {
-    id: string;
-    userId: string;
-    title: string;
-    longitude: string;
-    latitude: string;
-    address: string;
-    note: string;
+  @IsString()
+  userId: string;
+
+  @IsString()
+  title: string;
+
+  @IsString()
+  longitude: string;
+
+  @IsString()
+  latitude: string;
+
+  @IsString()
+  address: string;
+
+  @IsString()
+  note: string;
 }

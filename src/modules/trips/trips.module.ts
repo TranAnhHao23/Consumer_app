@@ -3,6 +3,7 @@ import { TripsService } from './trips.service';
 import { TripsController } from './trips.controller';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {TripEntity} from "./entities/trip.entity";
+import { ResponseResult } from "../../shared/ResponseResult";
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -10,6 +11,6 @@ import {TripEntity} from "./entities/trip.entity";
     ]),
   ],
   controllers: [TripsController],
-  providers: [TripsService]
+  providers: [TripsService, ResponseResult]
 })
 export class TripsModule {}

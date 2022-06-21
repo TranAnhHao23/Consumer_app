@@ -1,12 +1,51 @@
-import {IsNotEmpty} from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCarTypeDto {
-    @IsNotEmpty()
-    typeName: string;
+  @IsString()
+  typeName: string;
 
-    @IsNotEmpty()
-    typeSlogan: string;
+  @IsString()
+  typeSlogan: string;
 
-    @IsNotEmpty()
-    carImage: string;
+  @IsString()
+  carImage: string;
+
+  @IsString()
+  carIcon: string;
+
+  @IsString()
+  firstDistanceFee;
+
+  @IsNumber()
+  secondDistanceFee;
+
+  @IsNumber()
+  thirdDistanceFee;
+
+  @IsNumber()
+  fourthDistanceFee;
+
+  @IsNumber()
+  fifthDistanceFee;
+
+  @IsNumber()
+  sixthDistanceFee;
+
+  @IsNumber()
+  seventhDistanceFee;
+
+  @IsNumber()
+  platformFee;
+
+  @IsNumber()
+  waitingFee;
+
+  @IsNumber()
+  longitude;
+
+  @IsNumber()
+  latitude;
+
+  @IsNumber()
+  price;
 }
