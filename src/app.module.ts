@@ -26,6 +26,7 @@ import { LocationsModule } from './modules/locations/locations.module';
 import { FavouriteLocationsModule } from './modules/favourite_locations/favourite_locations.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { CarTypeModule } from './modules/car_type/car_type.module';
+import { ResponseResult } from './shared/ResponseResult';
 
 @Module({
   imports: [
