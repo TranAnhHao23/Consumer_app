@@ -15,31 +15,31 @@ export class TripsService {
     private readonly tripRepo: Repository<TripEntity>
   ) {}
 
-  create(createTripDto: CreateTripDto) {
-    return 'This action adds a new trip';
-  }
+  // create(createTripDto: CreateTripDto) {
+  //   return 'This action adds a new trip';
+  // }
 
-  findAll() {
-    return `This action returns all trips`;
-  }
+  // findAll() {
+  //   return `This action returns all trips`;
+  // }
 
-  findOne(id: number) {
-    return `This action returns a #${id} trip`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} trip`;
+  // }
 
-  update(id: number, updateTripDto: UpdateTripDto) {
-    return `This action updates a #${id} trip`;
-  }
+  // update(id: number, updateTripDto: UpdateTripDto) {
+  //   return `This action updates a #${id} trip`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} trip`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} trip`;
+  // }
 
   async getDraftingTrip(getDraftingTripDto: GetDraftingTripDto) {
     const draftingTrip = await this.tripRepo.findOne({
       deviceId: getDraftingTripDto.deviceId,
       isDrafting: true
-    })
+    }, { relations: ['locations'] })
     return draftingTrip
   }
 
