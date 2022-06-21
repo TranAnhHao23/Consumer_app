@@ -1,26 +1,27 @@
 import {
-    BaseEntity, BeforeInsert,
+    BaseEntity,
     Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
+    PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn
 } from "typeorm";
-import {TripEntity} from "../../trips/entities/trip.entity";
-import { v4 as uuid4 } from 'uuid';
+import { TripEntity } from "src/modules/trips/entities/trip.entity";
 
 @Entity({ name: 'location'})
+@Unique('unique_trip_id_milestone', ['milestone', 'trip.id'])
 export class LocationEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'location_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ name: 'longitude'})
-    longitude: string;
+    longitude: number;
 
     @Column({ name: 'latitude'})
-    latitude: string;
+    latitude: number;
 
     @Column({ name: 'address', length: 255})
     address: string;
@@ -28,25 +29,18 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'note', length: 255, nullable: true})
     note: string;
 
-    @ManyToOne(() => TripEntity, {nullable: true})
-    @JoinColumn({name: 'trip_id'})
+    @ManyToOne(() => TripEntity , { nullable: false })
+    @JoinColumn({ name: 'trip_id', referencedColumnName: 'id' })
     trip: TripEntity;
 
     @Column({ name: 'milestone'})
-    milestone: string;
+    milestone: number;
 
-    @Column({ name: 'create_at'})
+    @Column({ name: 'created_at'})
     @CreateDateColumn()
-    createAt: Date;
+    createdAt: Date;
 
-    @Column({ name: 'update_at'})
+    @Column({ name: 'updated_at'})
     @UpdateDateColumn()
-    updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
+    updatedAt: Date;
 }
