@@ -15,25 +15,25 @@ export class TripsService {
     private readonly tripRepo: Repository<TripEntity>
   ) {}
 
-  create(createTripDto: CreateTripDto) {
-    return 'This action adds a new trip';
-  }
-
-  findAll() {
-    return `This action returns all trips`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} trip`;
-  }
-
-  update(id: number, updateTripDto: UpdateTripDto) {
-    return `This action updates a #${id} trip`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} trip`;
-  }
+  // create(createTripDto: CreateTripDto) {
+  //   return 'This action adds a new trip';
+  // }
+  //
+  // findAll() {
+  //   return `This action returns all trips`;
+  // }
+  //
+  // findOne(id: number) {
+  //   return `This action returns a #${id} trip`;
+  // }
+  //
+  // update(id: number, updateTripDto: UpdateTripDto) {
+  //   return `This action updates a #${id} trip`;
+  // }
+  //
+  // remove(id: number) {
+  //   return `This action removes a #${id} trip`;
+  // }
 
   async getDraftingTrip(getDraftingTripDto: GetDraftingTripDto) {
     const draftingTrip = await this.tripRepo.findOne({
@@ -59,7 +59,18 @@ export class TripsService {
       draftingTrip.carType = upsertDraftingTripDto.carType
       savedDraftingTrip = await draftingTrip.save()
     }
-
     return savedDraftingTrip
+  }
+
+  async getTripHistory(deviceId: number) {
+    // @ts-ignore
+    return this.tripRepo.find({
+      where: {
+        deviceId: deviceId,
+        isDrafting: false,
+      },
+      order: {["createdAt"]: "DESC"},
+
+    })
   }
 }

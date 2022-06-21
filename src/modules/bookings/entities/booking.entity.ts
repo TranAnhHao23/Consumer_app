@@ -1,5 +1,15 @@
-import {BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
+import {
+    BaseEntity,
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity, JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+    UpdateDateColumn
+} from "typeorm";
 import { v4 as uuid4 } from 'uuid';
+import {TripEntity} from "../../trips/entities/trip.entity";
 
 @Entity({ name: 'booking'})
 export class BookingEntity extends BaseEntity{
@@ -8,6 +18,10 @@ export class BookingEntity extends BaseEntity{
 
     @Column({ name: 'car_id', length: 45})
     carId: string;
+
+    @ManyToOne(() => TripEntity, {nullable: true})
+    @JoinColumn({name: 'trip_id'})
+    trip: TripEntity;
 
     @Column({ name: 'driver_id', length: 45})
     driverId: string;

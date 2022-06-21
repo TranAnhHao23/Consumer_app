@@ -5,7 +5,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
+    PrimaryColumn, PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {TripEntity} from "../../trips/entities/trip.entity";
@@ -13,7 +13,7 @@ import { v4 as uuid4 } from 'uuid';
 
 @Entity({ name: 'location'})
 export class LocationEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'location_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ name: 'longitude'})
@@ -42,11 +42,4 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'update_at'})
     @UpdateDateColumn()
     updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
 }

@@ -54,4 +54,12 @@ export class TripsController {
       data: savedDraftingTrip
     }
   }
+
+  @Get('history/:id')
+  getTripHistory(@Param('deviceId') id: string){
+    return {
+      data: this.tripsService.getTripHistory(+id),
+    }
+  }
+
 }
