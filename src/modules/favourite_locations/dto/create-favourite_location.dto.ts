@@ -1,4 +1,5 @@
 export class CreateFavouriteLocationDto {
+    id: string;
     userId: string;
     title: string;
     longitude: string;
