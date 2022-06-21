@@ -12,23 +12,23 @@ export class FavouriteLocationsController {
     return this.favouriteLocationsService.create(createFavouriteLocationDto);
   }
 
-  @Get()
-  findAll() {
-    return this.favouriteLocationsService.findAll();
+  @Post('update')
+  update(@Body() updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
+    return this.favouriteLocationsService.update(updateFavouriteLocationDto.id,updateFavouriteLocationDto);
+  }
+
+  @Get('getbyuserid/:userId')
+  findAll(@Param('userId') userId: string) {
+    return this.favouriteLocationsService.getbyuserid(userId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.favouriteLocationsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
-    return this.favouriteLocationsService.update(+id, updateFavouriteLocationDto);
+    return this.favouriteLocationsService.findOne(id);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.favouriteLocationsService.remove(+id);
+    return this.favouriteLocationsService.remove(id);
   }
 }
