@@ -1,10 +1,14 @@
-import {BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
-import { v4 as uuid4 } from 'uuid';
+import { TripEntity } from "src/modules/trips/entities/trip.entity";
+import {BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 
 @Entity({ name: 'booking'})
 export class BookingEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'location_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
+
+    @ManyToOne(() => TripEntity, {nullable: false})
+    @JoinColumn({name: 'trip_id'})
+    trip: TripEntity;
 
     @Column({ name: 'car_id', length: 45})
     carId: string;
@@ -36,20 +40,11 @@ export class BookingEntity extends BaseEntity{
     @Column({ name: 'arrived_time', nullable: true})
     arrivedTime: Date;
 
-    @Column({ name: 'create_at'})
+    @Column({ name: 'created_at'})
     @CreateDateColumn()
-    createAt: Date;
+    createdAt: Date;
 
-    @Column({ name: 'update_at'})
+    @Column({ name: 'updated_at'})
     @UpdateDateColumn()
-    updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
-
-
+    updatedAt: Date;
 }
