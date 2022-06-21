@@ -40,6 +40,7 @@ export class TripsService {
       deviceId: getDraftingTripDto.deviceId,
       isDrafting: true
     })
+    console.log(draftingTrip)
     return draftingTrip
   }
 
@@ -62,11 +63,11 @@ export class TripsService {
     return savedDraftingTrip
   }
 
-  async getTripHistory(deviceId: number) {
+  async getTripHistory(id: number) {
     // @ts-ignore
     return this.tripRepo.find({
       where: {
-        deviceId: deviceId,
+        deviceId: id,
         isDrafting: false,
       },
       order: {["createdAt"]: "DESC"},

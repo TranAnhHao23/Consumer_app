@@ -1,19 +1,17 @@
 import {
     BaseEntity,
-    BeforeInsert,
     Column,
     CreateDateColumn,
     Entity, JoinColumn,
     ManyToOne,
-    PrimaryColumn,
+    PrimaryColumn, PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import { v4 as uuid4 } from 'uuid';
 import {TripEntity} from "../../trips/entities/trip.entity";
 
 @Entity({ name: 'booking'})
 export class BookingEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'location_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ name: 'car_id', length: 45})
@@ -57,13 +55,5 @@ export class BookingEntity extends BaseEntity{
     @Column({ name: 'update_at'})
     @UpdateDateColumn()
     updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
-
 
 }

@@ -56,10 +56,8 @@ export class TripsController {
   }
 
   @Get('history/:id')
-  getTripHistory(@Param('deviceId') id: string){
-    return {
-      data: this.tripsService.getTripHistory(+id),
-    }
+  getTripHistory(@Param('id') id: string){
+    return this.tripsService.getTripHistory(+id);
   }
 
 }

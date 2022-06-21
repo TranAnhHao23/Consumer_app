@@ -1,4 +1,13 @@
-import {BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity, JoinColumn, JoinTable,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+import {LocationEntity} from "../../locations/entities/location.entity";
 
 @Entity({ name: 'trip'})
 export class TripEntity extends BaseEntity{
@@ -13,6 +22,9 @@ export class TripEntity extends BaseEntity{
 
     @Column({ name: 'is_drafting'})
     isDrafting: boolean;
+
+    @OneToMany(() => LocationEntity, (location) => location.tripId, {eager: true})
+    locations: LocationEntity[];
 
     @Column({ name: 'created_at'})
     @CreateDateColumn()
