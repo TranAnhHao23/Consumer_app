@@ -23,7 +23,7 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'is_drafting'})
     isDrafting: boolean;
 
-    @OneToMany(() => LocationEntity, (location) => location.tripId, {eager: true})
+    @OneToMany(() => LocationEntity, (location) => location.tripId)
     locations: LocationEntity[];
 
     @Column({ name: 'created_at'})

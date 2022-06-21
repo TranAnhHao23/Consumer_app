@@ -9,6 +9,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {TripEntity} from "../../trips/entities/trip.entity";
+import {map} from "rxjs";
 @Unique("trip_unique", ["tripId","milestone"])
 
 @Entity({ name: 'location'})
@@ -31,6 +32,7 @@ export class LocationEntity extends BaseEntity{
     // @Column({ name: 'trip_id'})
     // tripId: string;
 
+    // @ts-ignore
     @ManyToOne(() => TripEntity)
     @JoinColumn({ name: 'trip_id'})
     tripId: TripEntity;

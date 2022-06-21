@@ -24,7 +24,7 @@ export class LocationsService {
 
     async findOne(id: number) {
         const location = await this.locationRepo.findOne(id);
-        await console.log(typeof location.tripId);
+        await console.log(typeof  location.tripId);
         return location;
     }
 

@@ -3,7 +3,7 @@ import {
     Column,
     CreateDateColumn,
     Entity, JoinColumn,
-    ManyToOne,
+    ManyToOne, OneToOne,
     PrimaryColumn, PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -17,7 +17,7 @@ export class BookingEntity extends BaseEntity{
     @Column({ name: 'car_id', length: 45})
     carId: string;
 
-    @ManyToOne(() => TripEntity, {nullable: true})
+    @OneToOne(() => TripEntity, {nullable: true})
     @JoinColumn({name: 'trip_id'})
     trip: TripEntity;
 

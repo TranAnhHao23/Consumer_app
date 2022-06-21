@@ -71,7 +71,7 @@ export class TripsService {
         isDrafting: false,
       },
       order: {["createdAt"]: "DESC"},
-
+      relations: ["locations"]
     })
   }
 }
