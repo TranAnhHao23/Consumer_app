@@ -36,7 +36,7 @@ export class LocationsService {
   //   return `This action updates a #${id} location`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} location`;
-  // }
+  async remove(id: string) {
+    await this.locationRepo.delete({id: id})
+  }
 }
