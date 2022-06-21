@@ -14,7 +14,7 @@ export class CarTypeService {
   ) {
   }
 
-  async getCarType(name: string) {
+  async getCarType() {
     // return await this.carType.find({
     //   select: ["id", "typeName"],
     //   order: {
@@ -22,8 +22,8 @@ export class CarTypeService {
     //     ["typeName"]: "ASC",
     //   }
     // });
-    return await this.carType.find({ where: {typeName: Like(`%${name}%`)}});
-    // return await this.carType.find();
+    // return await this.carType.find({ where: {typeName: Like(`%${name}%`)}});
+    return await this.carType.find();
   }
 
   async getCarDetail(id: number) {

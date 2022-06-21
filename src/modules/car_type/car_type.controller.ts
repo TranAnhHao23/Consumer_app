@@ -12,9 +12,9 @@ export class CarTypeController {
         return this.carTypeService.create(car);
     }
 
-    @Get('getcartype/:name')
-    findAll(@Param('name') name: string) {
-        return this.carTypeService.getCarType(name);
+    @Get('getcartype')
+    findAll() {
+        return this.carTypeService.getCarType();
     }
 
     @Get('getcardetail/:id')
