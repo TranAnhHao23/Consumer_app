@@ -1,26 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';  
+import { ResponseResult } from 'src/shared/ResponseResult';
+import { Repository } from 'typeorm';
 import { CreateFavouriteLocationDto } from './dto/create-favourite_location.dto';
 import { UpdateFavouriteLocationDto } from './dto/update-favourite_location.dto';
+import { Favourite_locationEntity } from './entities/favourite_location.entity'; 
 
 @Injectable()
 export class FavouriteLocationsService {
-  create(createFavouriteLocationDto: CreateFavouriteLocationDto) {
-    return 'This action adds a new favouriteLocation';
+  constructor(
+    @InjectRepository(Favourite_locationEntity)
+    private readonly favouriteRepository: Repository<Favourite_locationEntity>,
+    private readonly apiResponse: ResponseResult,
+    ) {}
+   
+  async create(createFavouriteLocationDto: Partial<CreateFavouriteLocationDto>) {
+    try{
+      const newobj = this.favouriteRepository.create(createFavouriteLocationDto);
+      this.apiResponse.data = await this.favouriteRepository.save(newobj);
+    }catch (error) {
+
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      }
+    return this.apiResponse;
   }
 
-  findAll() {
-    return `This action returns all favouriteLocations`;
+  async update(id: string,updateFavouriteLocationDto: Partial<UpdateFavouriteLocationDto>)  {
+    try{
+      const newobj = await this.favouriteRepository.update({ id:id }, updateFavouriteLocationDto);
+      this.apiResponse.data = await this.favouriteRepository.findOne({ id: id }); 
+    }catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      }
+    return this.apiResponse;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} favouriteLocation`;
+  async getbyuserid(userId: string) {
+    try{
+      this.apiResponse.data = await this.favouriteRepository.find({ where: {userId: userId},order:{["createAt"]:"DESC"}});
+    }catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      }
+    return this.apiResponse;
   }
 
-  update(id: number, updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
-    return `This action updates a #${id} favouriteLocation`;
+  async findOne(id: string) {
+    try{
+      this.apiResponse.data = await this.favouriteRepository.findOne(id);
+    }catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      }
+    return this.apiResponse;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} favouriteLocation`;
+  async remove(id: string) {
+    try{
+      this.apiResponse.data = await this.favouriteRepository.delete(id);
+    }catch (error) {
+      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      }
+    return this.apiResponse;
   }
 }
