@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus} from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 
@@ -14,13 +14,13 @@ export class LocationsController {
     private readonly apiResponse: ResponseResult
   ) {}
 
-  @Post()
-  async create(@Body() createLocationDto: CreateLocationDto) {
-    const savedLocation = await this.locationsService.create(createLocationDto);
-    return {
-      data: savedLocation
-    }
-  }
+  // @Post()
+  // async create(@Body() createLocationDto: CreateLocationDto) {
+  //   const savedLocation = await this.locationsService.create(createLocationDto);
+  //   return {
+  //     data: savedLocation
+  //   }
+  // }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
@@ -33,6 +33,11 @@ export class LocationsController {
     }
 
     return this.apiResponse
+  }
+
+  @Get('history/:deviceId')
+  async getLocationHistory(@Param('deviceId') deviceId: string) {
+    return this.locationsService.getLocationHistory(deviceId);
   }
 
   // @Get()

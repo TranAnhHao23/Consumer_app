@@ -26,10 +26,8 @@ export class FavouriteLocationsController {
 
   @Post('update')
   update(@Body() updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
-    return this.favouriteLocationsService.update(
-      updateFavouriteLocationDto.id,
-      updateFavouriteLocationDto,
-    );
+    // @ts-ignore
+    return this.favouriteLocationsService.update(updateFavouriteLocationDto);
   }
 
   @Get('getbyuserid/:userId')

@@ -1,15 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { TripsService } from './trips.service';
-import { CreateTripDto } from './dto/create-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
 import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
+import { ResponseResult } from 'src/shared/ResponseResult';
 
-@ApiTags('trips')
+@ApiTags('trip')
 @Controller('v1/rhc/trips')
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+    
+    private readonly apiResponse: ResponseResult
+  ) {}
 
 
   // @Post()
@@ -36,9 +39,9 @@ export class TripsController {
   // remove(@Param('id') id: string) {
   //   return this.tripsService.remove(+id);
 
-  @Get('drafting')
-  async getDraftingTrip(@Query() getDraftingTripDto: GetDraftingTripDto ) {
-    const draftingTrip = await this.tripsService.getDraftingTrip(getDraftingTripDto)
+  @Get('getdraftingtripbydeviceid')
+  async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto ) {
+    const draftingTrip = await this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
     if (!draftingTrip) {
       throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
     }
@@ -47,12 +50,15 @@ export class TripsController {
     }
   }
   
-  @Post('drafting')
+  @Post('upsertdraftingtrip')
   async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto) {
-    const savedDraftingTrip = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
-    return {
-      data: savedDraftingTrip
+    try {
+      const savedDraftingTrip = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
+      this.apiResponse.status = HttpStatus.CREATED
+    } catch {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
     }
+    return this.apiResponse
   }
 
   @Get('history/:id')

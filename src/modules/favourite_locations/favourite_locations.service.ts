@@ -15,6 +15,7 @@ export class FavouriteLocationsService {
   ) {}
 
   async create(createFavouriteLocationDto: CreateFavouriteLocationDto) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       const newFavouriteLocation = this.favouriteRepository.create(
         createFavouriteLocationDto,
@@ -23,16 +24,13 @@ export class FavouriteLocationsService {
         newFavouriteLocation,
       );
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
-  async update(
-    id: string,
-    updateFavouriteLocationDto: UpdateFavouriteLocationDto,
-  ) {
+  async update(id: string,updateFavouriteLocationDto: UpdateFavouriteLocationDto,  ) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       const updateFavouriteLocation = await this.favouriteRepository.update(
         { id: id },
@@ -42,13 +40,13 @@ export class FavouriteLocationsService {
         id: id,
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
   async getFavouriteLocationByUserId(userId: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.favouriteRepository.find({
         where: { userId: userId },
@@ -62,6 +60,7 @@ export class FavouriteLocationsService {
   }
 
   async findOne(id: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.favouriteRepository.findOne(id);
     } catch (error) {
@@ -72,6 +71,7 @@ export class FavouriteLocationsService {
   }
 
   async remove(id: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.favouriteRepository.delete(id);
     } catch (error) {
