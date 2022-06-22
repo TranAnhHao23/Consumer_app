@@ -5,8 +5,8 @@ import { I18n, I18nContext } from 'nestjs-i18n';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('health')
-  async getHello(@I18n() i18n: I18nContext) {
-    return await i18n.t('translation.HEALTH');
-  }
+  // @Get('health')
+  // async getHello(@I18n() i18n: I18nContext) {
+  //   return await i18n.t('translation.HEALTH');
+  // }
 }
