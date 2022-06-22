@@ -5,17 +5,25 @@ import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
 import {LocationEntity} from "./entities/location.entity";
 import {Repository} from "typeorm";
 import {Connection} from "mysql2";
+import { TripEntity } from '../trips/entities/trip.entity'
 
 @Injectable()
 export class LocationsService {
     constructor(
         @InjectRepository(LocationEntity) private readonly locationRepo: Repository<LocationEntity>,
-        @InjectConnection() private readonly connection: Connection
+
+        @InjectRepository(TripEntity)
+        private readonly tripRepo: Repository<TripEntity>,
+
+        @InjectConnection() private readonly connection: Connection,
     ) {
     }
 
-    create(createLocationDto: CreateLocationDto) {
-        return 'This action adds a new location';
+    async create(createLocationDto: CreateLocationDto) {
+      const trip = await this.tripRepo.findOne(createLocationDto.tripId)
+      const newLocation = this.locationRepo.create({...createLocationDto, trip})
+      const savedLocation = await newLocation.save()
+      return savedLocation
     }
 
     findAll() {
@@ -24,7 +32,7 @@ export class LocationsService {
 
     async findOne(id: number) {
         const location = await this.locationRepo.findOne(id);
-        await console.log(typeof  location.tripId);
+        await console.log(typeof  location.trip);
         return location;
     }
 
@@ -32,7 +40,7 @@ export class LocationsService {
         return `This action updates a #${id} location`;
     }
 
-    remove(id: number) {
+    remove(id: string) {
         return `This action removes a #${id} location`;
     }
 

@@ -32,6 +32,7 @@ export class TripsService {
   //   return `This action updates a #${id} trip`;
   // }
   //
+
   // remove(id: number) {
   //   return `This action removes a #${id} trip`;
   // }
@@ -39,10 +40,9 @@ export class TripsService {
   async getDraftingTrip(getDraftingTripDto: GetDraftingTripDto) {
     const draftingTrip = await this.tripRepo.findOne({
       deviceId: getDraftingTripDto.deviceId,
-      isDrafting: true,
-    });
-    console.log(draftingTrip);
-    return draftingTrip;
+      isDrafting: true
+    }, { relations: ['locations'] })
+    return draftingTrip
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
@@ -64,7 +64,7 @@ export class TripsService {
     return savedDraftingTrip;
   }
 
-  async getTripHistory(id: number) {
+  async getTripHistory(id: string) {
     try {
       this.apiResponse.data = await this.tripRepo.find({
         where: {
