@@ -20,10 +20,10 @@ export class LocationsService {
     }
 
     async create(createLocationDto: CreateLocationDto) {
-      // const trip = await this.tripRepo.findOne(createLocationDto.tripId)
-      // const newLocation = this.locationRepo.create({...createLocationDto, trip})
-      // const savedLocation = await newLocation.save()
-      // return savedLocation
+      const trip = await this.tripRepo.findOne(createLocationDto.tripId)
+      const newLocation = this.locationRepo.create({...createLocationDto, trip})
+      const savedLocation = await newLocation.save()
+      return savedLocation
     }
 
     findAll() {
