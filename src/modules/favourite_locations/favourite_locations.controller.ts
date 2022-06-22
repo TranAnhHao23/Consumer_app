@@ -10,8 +10,10 @@ import {
 import { FavouriteLocationsService } from './favourite_locations.service';
 import { CreateFavouriteLocationDto } from './dto/create-favourite_location.dto';
 import { UpdateFavouriteLocationDto } from './dto/update-favourite_location.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('favourite-locations')
+@ApiTags('favourite-locations')
+@Controller('v1/rhc/favourite-locations')
 export class FavouriteLocationsController {
   constructor(
     private readonly favouriteLocationsService: FavouriteLocationsService,

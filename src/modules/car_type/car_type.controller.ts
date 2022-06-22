@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CarTypeService } from './car_type.service';
 import { CreateCarTypeDto } from './dto/create-car_type.dto';
 
-@Controller('car-type')
+@ApiTags('car-type')
+@Controller('v1/rhc/car-type')
 export class CarTypeController {
   constructor(private readonly carTypeService: CarTypeService) {}
 
