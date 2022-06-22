@@ -57,7 +57,7 @@ export class TripsController {
 
   @Get('history/:id')
   getTripHistory(@Param('id') id: string){
-    return this.tripsService.getTripHistory(+id);
+    return this.tripsService.getTripHistory(id);
   }
 
 }

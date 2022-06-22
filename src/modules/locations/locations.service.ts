@@ -1,23 +1,29 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateLocationDto} from './dto/create-location.dto';
 import {UpdateLocationDto} from './dto/update-location.dto';
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
 import {LocationEntity} from "./entities/location.entity";
-import {createQueryBuilder, Repository} from "typeorm";
+import {Repository} from "typeorm";
 import {Connection} from "mysql2";
-import {ResponseResult} from "../../shared/ResponseResult";
+import { TripEntity } from '../trips/entities/trip.entity'
 
 @Injectable()
 export class LocationsService {
     constructor(
         @InjectRepository(LocationEntity) private readonly locationRepo: Repository<LocationEntity>,
+
+        @InjectRepository(TripEntity)
+        private readonly tripRepo: Repository<TripEntity>,
+
         @InjectConnection() private readonly connection: Connection,
-        private readonly apiResponse: ResponseResult,
     ) {
     }
 
-    create(createLocationDto: CreateLocationDto) {
-        return 'This action adds a new location';
+    async create(createLocationDto: CreateLocationDto) {
+      const trip = await this.tripRepo.findOne(createLocationDto.tripId)
+      const newLocation = this.locationRepo.create({...createLocationDto, trip})
+      const savedLocation = await newLocation.save()
+      return savedLocation
     }
 
     findAll() {
@@ -25,20 +31,16 @@ export class LocationsService {
     }
 
     async findOne(id: number) {
-        try {
-            this.apiResponse.data = await this.locationRepo.findOne(id)
-        } catch (error) {
-            this.apiResponse.errorMessage = error;
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
+        const location = await this.locationRepo.findOne(id);
+        await console.log(typeof  location.trip);
+        return location;
     }
 
     update(id: number, updateLocationDto: UpdateLocationDto) {
         return `This action updates a #${id} location`;
     }
 
-    remove(id: number) {
+    remove(id: string) {
         return `This action removes a #${id} location`;
     }
 
