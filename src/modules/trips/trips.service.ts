@@ -53,7 +53,6 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    
     let savedDraftingTrip;
     const draftingTrip = await this.getDraftingTripByDeviceId({
       deviceId: upsertDraftingTripDto.deviceId,
@@ -80,6 +79,13 @@ export class TripsService {
         await this.locationService.create(location)
       }));
     }
+
+    return await this.tripRepo.findOne({
+      where: {
+        deviceId: savedDraftingTrip.id 
+      }, 
+      relations: ['locations'],
+    });
   }
 
   async getTripHistory(id: string) {
@@ -93,7 +99,6 @@ export class TripsService {
         relations: ['locations'],
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;

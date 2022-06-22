@@ -104,8 +104,27 @@ export class BookingsService {
     return this.apiResponse;
   }
 
+  async getCancelBooking(userId: string,top:number) {
+    this.apiResponse.status = HttpStatus.OK;
+    if(top == 0)
+      top = 5;
+    try {
+      this.apiResponse.data = await this.bookingRepository.find({
+        where: { userId: userId,status:BookingStatus.CANCELED },
+        order: { ['createAt']: 'DESC' },
+        relations: ['trip','trip.locations'],
+        take:top
+      });
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
   async getBookingHistory(userId: string,top:number) {
     this.apiResponse.status = HttpStatus.OK;
+    if(top == 0)
+      top = 5;
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
