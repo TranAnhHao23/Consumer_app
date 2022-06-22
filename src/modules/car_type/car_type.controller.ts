@@ -19,11 +19,16 @@ export class CarTypeController {
     return this.carTypeService.getCarType();
   }
 
-  @Get('getcardetail/:id')
-  findOne(@Param('id') id: string) {
-    return this.carTypeService.getCarDetail(id);
+  @Get('getcardetail/:idCar')
+  getCarDetailByIdCar(@Param('idCar') idCar: string) {
+    return this.carTypeService.getCarDetailByIdCar(idCar);
   }
-  //
+
+  @Get('getcartype/:idCar')
+  getCarTypeByIdCar(@Param('idCar') idCar: string) {
+    return this.carTypeService.getCarTypeByIdCar(idCar);
+  }
+
   @Post('searchcarbylocation')
   searchCarByLocation(@Body() searchCarByLocationDto: SearchCarByLocationDto) {
     console.log(searchCarByLocationDto);

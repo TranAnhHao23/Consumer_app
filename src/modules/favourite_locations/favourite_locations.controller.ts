@@ -26,6 +26,7 @@ export class FavouriteLocationsController {
 
   @Post('update')
   update(@Body() updateFavouriteLocationDto: UpdateFavouriteLocationDto) {
+    // @ts-ignore
     return this.favouriteLocationsService.update(updateFavouriteLocationDto);
   }
 

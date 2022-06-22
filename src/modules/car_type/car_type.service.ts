@@ -42,24 +42,39 @@ export class CarTypeService {
         return this.apiResponse;
     }
 
-    async getCarDetail(id: string) {
+    async getCarTypeByIdCar(idCar: string) {
         try {
-            // @ts-ignore
-            this.apiResponse.data = await this.carRepo.findOne(id, {
-                relations: ["carDetails"],
+            this.apiResponse.data = await this.carRepo.findOne(idCar, {
+                select:['typeName', 'typeSlogan', 'carImage'],
                 order: {
-                    // carDetails: {['orders']: 'ASC'},
-                    orders: 'ASC'
+                    ['orders']: 'ASC'
                 },
             })
+        } catch (error) {
+            this.apiResponse.errorMessage = error;
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
 
-            // const query = await this.carDetailRepo.createQueryBuilder('car_detail')
-            //     .innerJoinAndSelect('car_type', 'car_type')
-            //     .where("car_detail.car_type_id = :id", {id: id})
-            //     .orderBy({'car_detail.orders': 'ASC'})
-            //     .getMany()
-            // // console.log(query)
-            // this.apiResponse.data = query;
+    async getCarDetailByIdCar(idCar: string) {
+        try {
+            // @ts-ignore
+            // this.apiResponse.data = await this.carRepo.findOne(id, {
+            //     relations: ['carDetails'],
+            //     order: {
+            //         // ['carDetails.orders']: 'ASC',
+            //         ['orders']: 'ASC'
+            //     },
+            // })
+
+            const query = await this.carDetailRepo.createQueryBuilder('car_detail')
+                .innerJoinAndSelect('car_type', 'car_type')
+                .where("car_detail.car_type_id = :id", {id: idCar})
+                .orderBy({'car_detail.orders': 'ASC'})
+                .getMany()
+            // console.log(query)
+            this.apiResponse.data = query;
         } catch (error) {
             this.apiResponse.errorMessage = error;
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
