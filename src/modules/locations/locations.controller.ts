@@ -7,7 +7,7 @@ import {ApiTags} from "@nestjs/swagger";
 import { ResponseResult } from 'src/shared/ResponseResult';
 
 @ApiTags('location')
-@Controller('locations')
+@Controller('v1/rhc/locations')
 export class LocationsController {
   constructor(
     private readonly locationsService: LocationsService,

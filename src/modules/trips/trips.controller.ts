@@ -7,7 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 
 @ApiTags('trips')
-@Controller('trips')
+@Controller('v1/rhc/trips')
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 

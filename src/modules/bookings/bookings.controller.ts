@@ -5,7 +5,7 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import {ApiTags} from "@nestjs/swagger";
 
 @ApiTags('booking')
-@Controller('bookings')
+@Controller('v1/rhc/bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
