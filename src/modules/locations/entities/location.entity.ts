@@ -5,15 +5,16 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryColumn,
+    PrimaryColumn, PrimaryGeneratedColumn, Unique,
     UpdateDateColumn
 } from "typeorm";
 import {TripEntity} from "../../trips/entities/trip.entity";
-import { v4 as uuid4 } from 'uuid';
+import {map} from "rxjs";
+@Unique("trip_unique", ["tripId","milestone"])
 
 @Entity({ name: 'location'})
 export class LocationEntity extends BaseEntity{
-    @PrimaryColumn({ name: 'location_id', length: 45})
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ name: 'longitude'})
@@ -28,9 +29,13 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'note', length: 255, nullable: true})
     note: string;
 
-    @ManyToOne(() => TripEntity, {nullable: true})
-    @JoinColumn({name: 'trip_id'})
-    trip: TripEntity;
+    // @Column({ name: 'trip_id'})
+    // tripId: string;
+
+    // @ts-ignore
+    @ManyToOne(() => TripEntity)
+    @JoinColumn({ name: 'trip_id'})
+    tripId: TripEntity;
 
     @Column({ name: 'milestone'})
     milestone: string;
@@ -42,11 +47,4 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'update_at'})
     @UpdateDateColumn()
     updateAt: Date;
-
-    @BeforeInsert()
-    generateId() {
-        const uuid = uuid4();
-        const randomNumber = Math.random().toString().slice(2, 11);
-        this.id = uuid + randomNumber;
-    }
 }

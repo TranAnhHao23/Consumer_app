@@ -1,8 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CarTypeService } from './car_type.service';
 import { CreateCarTypeDto } from './dto/create-car_type.dto';
-import { UpdateCarTypeDto } from './dto/update-car_type.dto';
-import {Car_typeEntity} from "./entities/car_type.entity";
 
 @Controller('car-type')
 export class CarTypeController {
@@ -15,7 +13,7 @@ export class CarTypeController {
 
   @Get('getcartype')
   findAll() {
-    return this.carTypeService. getCarType();
+    return this.carTypeService.getCarType();
   }
 
   @Get('getcardetail/:id')
@@ -23,4 +21,16 @@ export class CarTypeController {
     return this.carTypeService.getCarDetail(+id);
   }
 
+  @Post('searchcarbylocation/:longitude/:latitude/:searchRadius')
+  searchCarByLocation(
+    @Param('longitude') longitude: string,
+    @Param('latitude') latitude: string,
+    @Param('searchRadius') searchRadius: string,
+  ) {
+    return this.carTypeService.searchCarByLocation(
+      +longitude,
+      +latitude,
+      +searchRadius,
+    );
+  }
 }
