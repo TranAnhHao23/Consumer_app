@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  Long,
   ManyToOne,
   OneToOne,
   PrimaryColumn,
@@ -20,6 +21,9 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
+  @Column({ name: 'user_Id', length: 45 })
+  userId: string;
+
   @OneToOne(() => TripEntity, { nullable: true })
   @JoinColumn({ name: 'trip_id' })
   trip: TripEntity;
@@ -28,13 +32,16 @@ export class BookingEntity extends BaseEntity {
   driverId: string;
 
   @Column({ name: 'status' })
-  status: string;
+  status: number;
+ 
+  @Column({type: "decimal", scale: 2,name: 'price',  default: 0})
+  price: number;
 
-  @Column({ name: 'price', nullable: true })
-  price: string;
+  @Column({type: "decimal", scale: 2,name: 'tip_amount',  default: 0}) 
+  tipAmount: number;
 
-  @Column({ name: 'tip_amount', default: 0 })
-  tipAmount: string;
+  @Column({type: "decimal", scale: 2,name: 'distance',  default: 0}) 
+  distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })
   tipReason: string;

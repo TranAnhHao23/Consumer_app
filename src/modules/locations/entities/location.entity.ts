@@ -18,10 +18,10 @@ export class LocationEntity extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ name: 'longitude'})
+    @Column({ type: 'decimal', name: 'longitude'})
     longitude: number;
 
-    @Column({ name: 'latitude'})
+    @Column({ type: 'decimal', name: 'latitude'})
     latitude: number;
 
     @Column({ name: 'address', length: 255})
