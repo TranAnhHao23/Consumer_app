@@ -6,6 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { createQueryBuilder, Repository } from 'typeorm';
+import { TripEntity } from '../trips/entities/trip.entity';
+import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingEntity } from './entities/booking.entity';
@@ -16,20 +18,43 @@ export class BookingsService {
     @InjectRepository(BookingEntity)
     private readonly bookingRepository: Repository<BookingEntity>,
     private readonly apiResponse: ResponseResult,
+    @InjectRepository(TripEntity)
+    private readonly tripRepository: Repository<TripEntity>,
   ) {}
 
   async create(createBookingDto: CreateBookingDto) {
     try {
       const newobj = this.bookingRepository.create(createBookingDto);
-      this.apiResponse.data = await this.bookingRepository.save(newobj);
-      // const trip = await this.tripRepository.findOne(createBookingDto.trip_id);
-      // if(Object.keys(trip).length !== 0)
-      //   this.apiResponse.data = await this.bookingRepository.save(newobj);
-      //  else
-      //   throw new InternalServerErrorException();
-    } catch (error) {
-      this.apiResponse.errorMessage = error;
-      this.apiResponse.status = 500;
+       const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
+       if(Object.keys(getTrip).length !== 0)
+       {
+        newobj.trip = getTrip;
+        newobj.bookingStartTime = new Date(new Date().toUTCString()); 
+        newobj.startTime = new Date(new Date().toUTCString()); 
+        newobj.updateAt = new Date(new Date().toUTCString()); 
+        this.apiResponse.data = await this.bookingRepository.save(newobj);
+       }
+        else
+        throw new InternalServerErrorException();
+    } catch (error) { 
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+    }
+    return this.apiResponse;
+  }
+
+  async cancelBooking(cancelBookingDto: CancelBookingDto) {
+    try {
+      var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
+       if(Object.keys(booking).length !== 0)
+       {
+        booking.cancelReason = cancelBookingDto.cancelReason;
+        booking.updateAt = new Date(new Date().toUTCString()); 
+        this.apiResponse.data = await this.bookingRepository.update(cancelBookingDto.id,booking);
+       }
+        else
+        throw new InternalServerErrorException();
+    } catch (error) { 
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
     }
     return this.apiResponse;
   }
@@ -39,19 +64,47 @@ export class BookingsService {
       await this.bookingRepository.update({ id: id }, updateBookingDto);
       this.apiResponse.data = await this.bookingRepository.findOne({ id: id });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
-      this.apiResponse.status = 500;
+      this.apiResponse.status = HttpStatus.NOT_FOUND;;
     }
     return this.apiResponse;
   }
 
-  async findAll() {
+  async getbyUserId(userId: string) {
     try {
       this.apiResponse.data = await this.bookingRepository.find({
-        relations: ['trip'],
+        where: { userId: userId },
+        order: { ['createAt']: 'DESC' },
+        relations: ['trip','trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
+  async getBookingHistory(userId: string,top:number) {
+    try {
+      this.apiResponse.data = await this.bookingRepository.find({
+        where: { userId: userId },
+        order: { ['createAt']: 'DESC' },
+        relations: ['trip','trip.locations'],
+        take:top
+      });
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
+  async getFavouriteBooking(userId: string,top:number) {
+    try {
+      this.apiResponse.data = await this.bookingRepository.find({
+        where: { userId: userId },
+        order: { ['createAt']: 'DESC' },
+        relations: ['trip','trip.locations'],
+        take:top
+      });
+    } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
@@ -60,10 +113,9 @@ export class BookingsService {
   async findOne(id: string) {
     try {
       this.apiResponse.data = await this.bookingRepository.findOne(id, {
-        relations: ['trip'],
+        relations: ['trip','trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
@@ -73,26 +125,25 @@ export class BookingsService {
     try {
       await this.bookingRepository.delete(id);
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.NOT_FOUND;
     }
     return this.apiResponse;
   }
 
-  async getBookingHistory(deviceId: string) {
-    try {
-      const query = await this.bookingRepository
-        .createQueryBuilder('booking')
-        .innerJoinAndSelect('booking.trip', 'trip')
-        .where('device_id = :id', { id: deviceId })
-        .orderBy('createdAt', 'DESC')
-        .getMany();
-      console.log(query);
-      this.apiResponse.data = query;
-    } catch (error) {
-      this.apiResponse.errorMessage = error;
-      this.apiResponse.status = HttpStatus.NOT_FOUND;
-    }
-    return this.apiResponse;
-  }
+  // async getBookingHistory(deviceId: string) {
+  //   try {
+  //     const query = await this.bookingRepository
+  //       .createQueryBuilder('booking')
+  //       .innerJoinAndSelect('booking.trip', 'trip')
+  //       .where('device_id = :id', { id: deviceId })
+  //       .orderBy('createdAt', 'DESC')
+  //       .getMany();
+  //     console.log(query);
+  //     this.apiResponse.data = query;
+  //   } catch (error) {
+  //     this.apiResponse.errorMessage = error;
+  //     this.apiResponse.status = HttpStatus.NOT_FOUND;
+  //   }
+  //   return this.apiResponse;
+  // }
 }
