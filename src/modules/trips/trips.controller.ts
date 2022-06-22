@@ -7,7 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 
 @ApiTags('trips')
-@Controller('trips')
+@Controller('v1/rhc/trips')
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
@@ -54,4 +54,10 @@ export class TripsController {
       data: savedDraftingTrip
     }
   }
+
+  @Get('history/:id')
+  getTripHistory(@Param('id') id: string){
+    return this.tripsService.getTripHistory(id);
+  }
+
 }

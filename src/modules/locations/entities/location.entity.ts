@@ -5,14 +5,15 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    PrimaryGeneratedColumn,
-    Unique,
+
+    PrimaryColumn, PrimaryGeneratedColumn, Unique,
     UpdateDateColumn
 } from "typeorm";
-import { TripEntity } from "src/modules/trips/entities/trip.entity";
+import {TripEntity} from "../../trips/entities/trip.entity";
+import {map} from "rxjs";
 
 @Entity({ name: 'location'})
-@Unique('unique_trip_id_milestone', ['milestone', 'trip.id'])
+@Unique("trip_unique", ["trip.id","milestone"])
 export class LocationEntity extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -29,8 +30,8 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'note', length: 255, nullable: true})
     note: string;
 
-    @ManyToOne(() => TripEntity , { nullable: false })
-    @JoinColumn({ name: 'trip_id', referencedColumnName: 'id' })
+    @ManyToOne(() => TripEntity)
+    @JoinColumn({ name: 'trip_id'})
     trip: TripEntity;
 
     @Column({ name: 'milestone'})
@@ -42,5 +43,5 @@ export class LocationEntity extends BaseEntity{
 
     @Column({ name: 'updated_at'})
     @UpdateDateColumn()
-    updatedAt: Date;
+    updateAt: Date;
 }

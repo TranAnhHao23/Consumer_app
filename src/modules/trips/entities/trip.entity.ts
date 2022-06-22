@@ -1,5 +1,13 @@
-import { LocationEntity } from "src/modules/locations/entities/location.entity";
-import {BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity, JoinColumn, JoinTable,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+import {LocationEntity} from "../../locations/entities/location.entity";
 
 @Entity({ name: 'trip'})
 export class TripEntity extends BaseEntity{
@@ -15,8 +23,8 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'is_drafting'})
     isDrafting: boolean;
 
-    @OneToMany(() => LocationEntity, location => location.trip)
-    locations: Location[];
+    @OneToMany(() => LocationEntity, (location) => location.trip)
+    locations: LocationEntity[];
 
     @Column({ name: 'created_at'})
     @CreateDateColumn()
