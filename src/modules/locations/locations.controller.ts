@@ -14,13 +14,13 @@ export class LocationsController {
     private readonly apiResponse: ResponseResult
   ) {}
 
-  @Post()
-  async create(@Body() createLocationDto: CreateLocationDto) {
-    const savedLocation = await this.locationsService.create(createLocationDto);
-    return {
-      data: savedLocation
-    }
-  }
+  // @Post()
+  // async create(@Body() createLocationDto: CreateLocationDto) {
+  //   const savedLocation = await this.locationsService.create(createLocationDto);
+  //   return {
+  //     data: savedLocation
+  //   }
+  // }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
