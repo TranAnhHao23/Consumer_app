@@ -37,7 +37,7 @@ export class TripsService {
   //   return `This action removes a #${id} trip`;
   // }
 
-  async getDraftingTrip(getDraftingTripDto: GetDraftingTripDto) {
+  async getDraftingTripByDeviceId(getDraftingTripDto: GetDraftingTripDto) {
     const draftingTrip = await this.tripRepo.findOne({
       deviceId: getDraftingTripDto.deviceId,
       isDrafting: true
@@ -47,7 +47,7 @@ export class TripsService {
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
     let savedDraftingTrip;
-    const draftingTrip = await this.getDraftingTrip({
+    const draftingTrip = await this.getDraftingTripByDeviceId({
       deviceId: upsertDraftingTripDto.deviceId,
     });
 

@@ -36,9 +36,9 @@ export class TripsController {
   // remove(@Param('id') id: string) {
   //   return this.tripsService.remove(+id);
 
-  @Get('drafting')
-  async getDraftingTrip(@Query() getDraftingTripDto: GetDraftingTripDto ) {
-    const draftingTrip = await this.tripsService.getDraftingTrip(getDraftingTripDto)
+  @Get('getdraftingtripbydeviceid')
+  async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto ) {
+    const draftingTrip = await this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
     if (!draftingTrip) {
       throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
     }
