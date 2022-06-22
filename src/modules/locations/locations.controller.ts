@@ -1,15 +1,17 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
-import { ApiTags } from '@nestjs/swagger';
+
+import { UpdateLocationDto } from './dto/update-location.dto';
+import {ApiTags} from "@nestjs/swagger";
 import { ResponseResult } from 'src/shared/ResponseResult';
 
-@ApiTags('locations')
+@ApiTags('location')
 @Controller('locations')
 export class LocationsController {
   constructor(
     private readonly locationsService: LocationsService,
-    private readonly apiResponse: ResponseResult  
+    private readonly apiResponse: ResponseResult
   ) {}
 
   @Post()
@@ -47,5 +49,4 @@ export class LocationsController {
   // update(@Param('id') id: string, @Body() updateLocationDto: UpdateLocationDto) {
   //   return this.locationsService.update(+id, updateLocationDto);
   // }
-
 }
