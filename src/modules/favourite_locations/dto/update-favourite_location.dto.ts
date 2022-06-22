@@ -1,14 +1,15 @@
-import { PartialType } from '@nestjs/swagger';
+
 import { CreateFavouriteLocationDto } from './create-favourite_location.dto';
 import { IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateFavouriteLocationDto extends PartialType(
-  CreateFavouriteLocationDto,
-) {
+export class UpdateFavouriteLocationDto extends CreateFavouriteLocationDto {
+  @ApiProperty()
   @IsString()
   id: string;
 
   createAt: Date;
 
+  @ApiProperty()
   updateAt: Date;
 }
