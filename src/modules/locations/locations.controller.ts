@@ -34,8 +34,8 @@ export class LocationsController {
     return this.locationsService.remove(+id);
   }
 
-  @Get('history/:id')
-  getLocationHistory(@Param('id') id: string){
-    return this.locationsService.getLocationHistory(+id);
+  @Get('history/:deviceId')
+  getLocationHistory(@Param('deviceId') deviceId: string){
+    return this.locationsService.getLocationHistory(+deviceId);
   }
 }

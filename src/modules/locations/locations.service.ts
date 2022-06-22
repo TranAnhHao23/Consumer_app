@@ -1,16 +1,18 @@
-import {Injectable} from '@nestjs/common';
+import {HttpStatus, Injectable} from '@nestjs/common';
 import {CreateLocationDto} from './dto/create-location.dto';
 import {UpdateLocationDto} from './dto/update-location.dto';
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
 import {LocationEntity} from "./entities/location.entity";
-import {Repository} from "typeorm";
+import {createQueryBuilder, Repository} from "typeorm";
 import {Connection} from "mysql2";
+import {ResponseResult} from "../../shared/ResponseResult";
 
 @Injectable()
 export class LocationsService {
     constructor(
         @InjectRepository(LocationEntity) private readonly locationRepo: Repository<LocationEntity>,
-        @InjectConnection() private readonly connection: Connection
+        @InjectConnection() private readonly connection: Connection,
+        private readonly apiResponse: ResponseResult,
     ) {
     }
 
@@ -23,9 +25,13 @@ export class LocationsService {
     }
 
     async findOne(id: number) {
-        const location = await this.locationRepo.findOne(id);
-        await console.log(typeof  location.tripId);
-        return location;
+        try {
+            this.apiResponse.data = await this.locationRepo.findOne(id)
+        } catch (error) {
+            this.apiResponse.errorMessage = error;
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
     }
 
     update(id: number, updateLocationDto: UpdateLocationDto) {
@@ -37,9 +43,15 @@ export class LocationsService {
     }
 
     async getLocationHistory(deviceId: number) {
-        let locationsHistory = await this.connection.query(`select * from location inner join trip on location.trip_id = trip.id 
-                        where trip.device_id = ${deviceId} and location.milestone <> 0 and is_drafting = 0 order by trip.createdAt desc`);
-        return locationsHistory;
-
+        const query = this.locationRepo
+            .createQueryBuilder('location')
+            .innerJoinAndSelect('trip', 'trip')
+            .where('trip.device_id = :id', {id: deviceId})
+            .andWhere('milestone <> 0')
+            .andWhere('is_drafting = 1')
+            .orderBy('location.createAt', 'DESC')
+            .getMany();
+        console.log(query)
+        return query;
     }
 }
