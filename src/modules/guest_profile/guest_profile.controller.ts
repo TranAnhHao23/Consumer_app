@@ -15,33 +15,33 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('guest-profiles')
 @Controller('guest-profiles')
 export class GuestProfileController {
-  constructor(private readonly guestProfileService: GuestProfileService) {}
+  // constructor(private readonly guestProfileService: GuestProfileService) {}
 
-  @Post()
-  create(@Body() createGuestProfileDto: CreateGuestProfileDto) {
-    return this.guestProfileService.create(createGuestProfileDto);
-  }
+  // @Post()
+  // create(@Body() createGuestProfileDto: CreateGuestProfileDto) {
+  //   return this.guestProfileService.create(createGuestProfileDto);
+  // }
 
-  @Get()
-  findAll() {
-    return this.guestProfileService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.guestProfileService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.guestProfileService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.guestProfileService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateGuestProfileDto: UpdateGuestProfileDto,
-  ) {
-    return this.guestProfileService.update(+id, updateGuestProfileDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateGuestProfileDto: UpdateGuestProfileDto,
+  // ) {
+  //   return this.guestProfileService.update(+id, updateGuestProfileDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.guestProfileService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.guestProfileService.remove(+id);
+  // }
 }

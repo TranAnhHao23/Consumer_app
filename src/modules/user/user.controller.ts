@@ -22,26 +22,26 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  // constructor(private readonly userService: UserService) {}
 
-  @Get()
+  // @Get()
+  // // @UseGuards(JwtAuthGuard)
+  // findAll(@User() user) {
+  //   return this.userService.findAllUsers();
+  // }
+
+  // @Put(':id')
   // @UseGuards(JwtAuthGuard)
-  findAll(@User() user) {
-    return this.userService.findAllUsers();
-  }
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() user: UserDto,
+  // ): Promise<CreateUserDto> {
+  //   return this.userService.updateUser(id, user);
+  // }
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id') id: string,
-    @Body() user: UserDto,
-  ): Promise<CreateUserDto> {
-    return this.userService.updateUser(id, user);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  delete(@Param('id') id: string): Promise<CreateUserDto> {
-    return this.userService.deleteUser(id);
-  }
+  // @Delete(':id')
+  // @UseGuards(JwtAuthGuard)
+  // delete(@Param('id') id: string): Promise<CreateUserDto> {
+  //   return this.userService.deleteUser(id);
+  // }
 }
