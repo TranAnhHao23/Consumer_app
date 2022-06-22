@@ -35,6 +35,11 @@ export class LocationsController {
     return this.apiResponse
   }
 
+  @Get('history/:deviceId')
+  async getLocationHistory(@Param('deviceId') deviceId: string) {
+    return this.locationsService.getLocationHistory(deviceId);
+  }
+
   // @Get()
   // findAll() {
   //   return this.locationsService.findAll();

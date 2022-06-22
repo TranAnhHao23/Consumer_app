@@ -7,7 +7,7 @@ import {ApiTags} from "@nestjs/swagger";
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
 export class BookingsController {
-  // constructor(private readonly bookingsService: BookingsService) {}
+  constructor(private readonly bookingsService: BookingsService) {}
 
   // @Post()
   // create(@Body() createBookingDto: CreateBookingDto) {
@@ -34,8 +34,8 @@ export class BookingsController {
   //   return this.bookingsService.remove(id);
   // }
 
-  // @Get('history/:deviceId')
-  // getBookingHistory(@Param('deviceId') deviceId: string) {
-  //   return this.bookingsService.getBookingHistory(deviceId);
-  // }
+  @Get('history/:deviceId')
+  getBookingHistory(@Param('deviceId') deviceId: string) {
+    return this.bookingsService.getBookingHistory(deviceId);
+  }
 }
