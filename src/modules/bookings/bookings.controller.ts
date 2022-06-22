@@ -3,6 +3,7 @@ import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import {ApiTags} from "@nestjs/swagger";
+import { CancelBookingDto } from './dto/CancelBookingDto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -41,6 +42,11 @@ export class BookingsController {
     @Param('top') top: number
   ) {
     return this.bookingsService.getCancelBooking(userId,+top);
+  }
+
+  @Post('cancelbooking')
+  cancelBooking( @Body() cancelBookingDto: CancelBookingDto  ) {
+    return this.bookingsService.cancelBooking(cancelBookingDto);
   }
 
   @Post('getbookinghistory/:userId/:top')
