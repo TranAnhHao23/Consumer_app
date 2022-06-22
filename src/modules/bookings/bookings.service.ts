@@ -46,11 +46,12 @@ export class BookingsService {
       // Calculate price
       
         this.apiResponse.data = await this.bookingRepository.save(newobj);
+        await this.bookingRepository.update(newobj.id,newobj);
 
         // update trip = isDrafting = false
         getTrip.isDrafting = false;
         getTrip.updatedAt = new Date();
-        await this.bookingRepository.update(newobj.id,newobj);
+        await this.tripRepository.update(getTrip.id,getTrip);
        }
         else
         throw new InternalServerErrorException();
@@ -67,7 +68,8 @@ export class BookingsService {
        if(Object.keys(booking).length !== 0)
        {
         booking.cancelReason = cancelBookingDto.cancelReason;
-        booking.updateAt = new Date(new Date().toUTCString()); 
+        booking.status = BookingStatus.CANCELED;
+        booking.updateAt = new Date(); 
         this.apiResponse.data = await this.bookingRepository.update(cancelBookingDto.id,booking);
        }
         else
@@ -173,21 +175,4 @@ export class BookingsService {
     }
     return this.apiResponse;
   }
-
-  // async getBookingHistory(deviceId: string) {
-  //   try {
-  //     const query = await this.bookingRepository
-  //       .createQueryBuilder('booking')
-  //       .innerJoinAndSelect('booking.trip', 'trip')
-  //       .where('device_id = :id', { id: deviceId })
-  //       .orderBy('createdAt', 'DESC')
-  //       .getMany();
-  //     console.log(query);
-  //     this.apiResponse.data = query;
-  //   } catch (error) {
-  //     this.apiResponse.errorMessage = error;
-  //     this.apiResponse.status = HttpStatus.NOT_FOUND;
-  //   }
-  //   return this.apiResponse;
-  // }
 }
