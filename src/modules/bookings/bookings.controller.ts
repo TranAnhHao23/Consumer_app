@@ -15,7 +15,7 @@ export class BookingsController {
     return this.bookingsService.create(createBookingDto);
   }
 
-  
+
   @Post('update')
   update(@Body() updateBookingDto: UpdateBookingDto) {
     return this.bookingsService.update(
@@ -27,7 +27,7 @@ export class BookingsController {
   getbyUserId(@Param('userId') userId: string) {
     return this.bookingsService.getbyUserId(userId);
   }
-   
+
   @Post('getfavourite/:userId/:top')
   getFavouriteBooking(
     @Param('userId') userId: string,

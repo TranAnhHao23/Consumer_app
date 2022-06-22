@@ -1,35 +1,35 @@
-import { ApiProperty } from "@nestjs/swagger"; 
-import { isDecimal } from "class-validator";
+import {ApiProperty} from "@nestjs/swagger";
+import {isDecimal} from "class-validator";
 
 export class CreateBookingDto {
-  @ApiProperty({
-      maxLength: 45,
-      required: true
+    @ApiProperty({
+        maxLength: 45,
+        required: true
     })
-  carId: string;
+    carId: string;
 
-  @ApiProperty({
-    maxLength: 45,
-    required: true
+    @ApiProperty({
+        maxLength: 45,
+        required: true
     })
-  userId: string;
-  
-  @ApiProperty({
-    maxLength: 45,
-    required: true
-    })
-  tripId: string;
+    userId: string;
 
-  @ApiProperty({
-    maxLength: 45,
-    required: true
+    @ApiProperty({
+        maxLength: 45,
+        required: true
     })
-  driverId: string; 
+    tripId: string;
 
-  @ApiProperty({ 
-    required: true 
+    @ApiProperty({
+        maxLength: 45,
+        required: true
     })
-  distance: number; 
- 
+    driverId: string;
+
+    @ApiProperty({
+        required: true
+    })
+    distance: number;
+
 }
  
