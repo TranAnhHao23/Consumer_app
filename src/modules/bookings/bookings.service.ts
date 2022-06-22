@@ -12,6 +12,14 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingEntity } from './entities/booking.entity';
 
+enum BookingStatus {
+  CANCELED =-1,
+  APPROVED = 0,
+  DECLINED = 1,
+  PROCESSING = 2,
+  COMPLETED = 3,
+}
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -23,26 +31,37 @@ export class BookingsService {
   ) {}
 
   async create(createBookingDto: CreateBookingDto) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       const newobj = this.bookingRepository.create(createBookingDto);
        const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
        if(Object.keys(getTrip).length !== 0)
        {
+        newobj.status = BookingStatus.PROCESSING;
         newobj.trip = getTrip;
         newobj.bookingStartTime = new Date(new Date().toUTCString()); 
-        newobj.startTime = new Date(new Date().toUTCString()); 
-        newobj.updateAt = new Date(new Date().toUTCString()); 
+        newobj.startTime = new Date(); 
+        newobj.updateAt = new Date(); 
+
+      // Calculate price
+      
         this.apiResponse.data = await this.bookingRepository.save(newobj);
+
+        // update trip = isDrafting = false
+        getTrip.isDrafting = false;
+        getTrip.updatedAt = new Date();
+        await this.bookingRepository.update(newobj.id,newobj);
        }
         else
         throw new InternalServerErrorException();
     } catch (error) { 
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
   async cancelBooking(cancelBookingDto: CancelBookingDto) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
        if(Object.keys(booking).length !== 0)
@@ -54,12 +73,13 @@ export class BookingsService {
         else
         throw new InternalServerErrorException();
     } catch (error) { 
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;;
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
   async update(id: string, updateBookingDto: UpdateBookingDto) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       await this.bookingRepository.update({ id: id }, updateBookingDto);
       this.apiResponse.data = await this.bookingRepository.findOne({ id: id });
@@ -70,6 +90,7 @@ export class BookingsService {
   }
 
   async getbyUserId(userId: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
@@ -83,6 +104,7 @@ export class BookingsService {
   }
 
   async getBookingHistory(userId: string,top:number) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
@@ -97,6 +119,7 @@ export class BookingsService {
   }
 
   async getFavouriteBooking(userId: string,top:number) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
@@ -111,6 +134,7 @@ export class BookingsService {
   }
 
   async findOne(id: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       this.apiResponse.data = await this.bookingRepository.findOne(id, {
         relations: ['trip','trip.locations'],
@@ -122,6 +146,7 @@ export class BookingsService {
   }
 
   async remove(id: string) {
+    this.apiResponse.status = HttpStatus.OK;
     try {
       await this.bookingRepository.delete(id);
     } catch (error) {
