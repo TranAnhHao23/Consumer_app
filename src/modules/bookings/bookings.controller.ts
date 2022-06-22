@@ -35,6 +35,14 @@ export class BookingsController {
     return this.bookingsService.getFavouriteBooking(userId,+top);
   }
 
+  @Post('getcancelbooking/:userId/:top')
+  getCancelBooking(
+    @Param('userId') userId: string,
+    @Param('top') top: number
+  ) {
+    return this.bookingsService.getCancelBooking(userId,+top);
+  }
+
   @Post('getbookinghistory/:userId/:top')
   getBookingHistory(
     @Param('userId') userId: string,
