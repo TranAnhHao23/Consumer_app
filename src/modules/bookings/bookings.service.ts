@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { createQueryBuilder, Repository } from 'typeorm';
+import { createQueryBuilder, In, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -138,21 +138,33 @@ export class BookingsService {
     return this.apiResponse;
   }
 
-  // TODO
+   
   async getFavouriteBooking(userId: string,top:number) {
     this.apiResponse = new ResponseResult();
     try {
-      this.apiResponse.data = await this.bookingRepository.find({
-        where: { userId: userId },
-        order: { ['createAt']: 'DESC' },
-        relations: ['trip','trip.locations'],
-        take:top
-      });
+        const tripIds = await this.tripRepository.createQueryBuilder('trip')
+            .innerJoinAndSelect('booking', 'booking','booking.trip_id = trip.id')
+            .select('trip.id')
+            .groupBy('trip.id')
+            .where('booking.user_Id = :user_Id', {user_Id: userId})
+            .orderBy({'sum(trip.id)': 'DESC','trip.createdat': 'DESC'})
+            .limit(top)
+            .getMany()
+
+         // Get booking by tripId
+         const query = await this.bookingRepository.find({
+              relations: ['trip','trip.locations'],
+              where: {
+                  'trip': { id: In(tripIds.map(ele => ele.id))},
+              },
+          }); 
+             
+        this.apiResponse.data = query;
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
-  }
+}
 
   async findOne(id: string) {
     this.apiResponse = new ResponseResult();

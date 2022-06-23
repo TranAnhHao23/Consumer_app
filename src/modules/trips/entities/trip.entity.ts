@@ -26,7 +26,7 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'start_time', nullable: true })
     startTime: Date;
 
-    @Column({ name: 'copy_trip_id', nullable: true })
+    @Column({ name: 'copy_trip_id', type: 'uuid', length: 36, nullable: true })
     copyTripId: string
 
     @OneToMany(() => LocationEntity, (location) => location.trip)
