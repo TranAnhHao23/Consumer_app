@@ -80,12 +80,7 @@ export class TripsService {
       }));
     }
 
-    return await this.tripRepo.findOne({
-      where: {
-        deviceId: savedDraftingTrip.id 
-      }, 
-      relations: ['locations'],
-    });
+    return await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
   }
 
   async getTripHistory(id: string) {
