@@ -32,7 +32,7 @@ export class BookingsController {
   getFavouriteBooking(
     @Param('userId') userId: string,
     @Param('top') top: number
-  ) {
+  ) { 
     return this.bookingsService.getFavouriteBooking(userId,+top);
   }
 
