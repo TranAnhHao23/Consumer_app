@@ -55,6 +55,7 @@ export class TripsController {
     try {
       const savedDraftingTrip = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
       this.apiResponse.status = HttpStatus.CREATED
+      this.apiResponse.data = savedDraftingTrip
     } catch {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
     }
