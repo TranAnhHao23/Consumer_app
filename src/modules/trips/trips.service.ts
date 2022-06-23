@@ -88,7 +88,10 @@ export class TripsService {
     }
     
     if (upsertDraftingTripDto.locations) {
-      await this.locationRepo.delete({ trip: savedDraftingTrip })
+      await Promise.all([
+        this.locationRepo.delete({ trip: savedDraftingTrip }),
+        this.tripRepo.update(savedDraftingTrip.id, { copyTripId: null })
+      ])
 
       await Promise.all(upsertDraftingTripDto.locations.map(async (location: CreateLocationDto, index) => {
         location.tripId = savedDraftingTrip.id;
