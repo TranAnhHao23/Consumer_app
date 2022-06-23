@@ -30,7 +30,7 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'note', length: 255, nullable: true})
     note: string;
 
-    @ManyToOne(() => TripEntity)
+    @ManyToOne(() => TripEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'trip_id'})
     trip: TripEntity;
 
