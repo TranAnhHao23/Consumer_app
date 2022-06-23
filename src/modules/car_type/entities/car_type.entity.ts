@@ -28,11 +28,11 @@ export class Car_typeEntity extends BaseEntity {
   @Column({ name: 'car_icon', nullable: true })
   carIcon: string;
 
-  @Column({ name: 'longitude', nullable: true })
-  longitude: string;
+  @Column({type: 'decimal',scale: 5, name: 'longitude', nullable: true })
+  longitude: number;
 
-  @Column({ name: 'latitude', nullable: true })
-  latitude: string;
+  @Column({type: 'decimal',scale: 5, name: 'latitude', nullable: true })
+  latitude: number;
 
   @Column({ name: 'price', nullable: true, default: 0 })
   price: number;

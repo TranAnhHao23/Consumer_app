@@ -11,11 +11,11 @@ export class FavouriteLocationsService {
   constructor(
     @InjectRepository(Favourite_locationEntity)
     private readonly favouriteRepository: Repository<Favourite_locationEntity>,
-    private readonly apiResponse: ResponseResult,
+    private apiResponse: ResponseResult,
   ) {}
 
   async create(createFavouriteLocationDto: CreateFavouriteLocationDto) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       const newFavouriteLocation = this.favouriteRepository.create(
         createFavouriteLocationDto,
@@ -30,7 +30,7 @@ export class FavouriteLocationsService {
   }
 
   async update(id: string,updateFavouriteLocationDto: UpdateFavouriteLocationDto,  ) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       const updateFavouriteLocation = await this.favouriteRepository.update(
         { id: id },
@@ -46,36 +46,33 @@ export class FavouriteLocationsService {
   }
 
   async getFavouriteLocationByUserId(userId: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.favouriteRepository.find({
         where: { userId: userId },
         order: { ['createAt']: 'DESC' },
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
   async findOne(id: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.favouriteRepository.findOne(id);
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
 
   async remove(id: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.favouriteRepository.delete(id);
     } catch (error) {
-      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;

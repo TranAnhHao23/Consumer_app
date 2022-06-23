@@ -17,11 +17,14 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'device_id'})
     deviceId: string;
 
-    @Column({ name: 'car_type'})
+    @Column({ name: 'car_type', nullable: true })
     carType: number;
 
     @Column({ name: 'is_drafting'})
     isDrafting: boolean;
+
+    @Column({ name: 'start_time', nullable: true })
+    startTime: Date;
 
     @OneToMany(() => LocationEntity, (location) => location.trip)
     locations: LocationEntity[];
