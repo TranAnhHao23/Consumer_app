@@ -25,13 +25,13 @@ export class BookingsService {
   constructor(
     @InjectRepository(BookingEntity)
     private readonly bookingRepository: Repository<BookingEntity>,
-    private readonly apiResponse: ResponseResult,
+    private apiResponse: ResponseResult,
     @InjectRepository(TripEntity)
     private readonly tripRepository: Repository<TripEntity>,
   ) {}
 
   async create(createBookingDto: CreateBookingDto) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       const newobj = this.bookingRepository.create(createBookingDto);
        const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
@@ -63,7 +63,7 @@ export class BookingsService {
   }
 
   async cancelBooking(cancelBookingDto: CancelBookingDto) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
        if(Object.keys(booking).length !== 0)
@@ -82,7 +82,7 @@ export class BookingsService {
   }
 
   async update(id: string, updateBookingDto: UpdateBookingDto) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       await this.bookingRepository.update({ id: id }, updateBookingDto);
       this.apiResponse.data = await this.bookingRepository.findOne({ id: id });
@@ -93,7 +93,7 @@ export class BookingsService {
   }
 
   async getbyUserId(userId: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
@@ -107,7 +107,7 @@ export class BookingsService {
   }
 
   async getCancelBooking(userId: string,top:number) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     if(top == 0)
       top = 5;
     try {
@@ -124,7 +124,7 @@ export class BookingsService {
   }
 
   async getBookingHistory(userId: string,top:number) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     if(top == 0)
       top = 5;
     try {
@@ -141,7 +141,7 @@ export class BookingsService {
   }
 
   async getFavouriteBooking(userId: string,top:number) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.bookingRepository.find({
         where: { userId: userId },
@@ -156,7 +156,7 @@ export class BookingsService {
   }
 
   async findOne(id: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.bookingRepository.findOne(id, {
         relations: ['trip','trip.locations'],
@@ -168,7 +168,7 @@ export class BookingsService {
   }
 
   async remove(id: string) {
-    this.apiResponse.status = HttpStatus.OK;
+    this.apiResponse = new ResponseResult();
     try {
       await this.bookingRepository.delete(id);
     } catch (error) {
