@@ -21,10 +21,10 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'title', length: 255 })
   title: string;
 
-  @Column({type: "decimal", scale: 5, name: 'longitude' })
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude' })
   longitude: string;
 
-  @Column({type: "decimal", scale: 5, name: 'latitude' })
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude' })
   latitude: string;
 
   @Column({ name: 'address', length: 255 })

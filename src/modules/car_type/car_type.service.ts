@@ -37,12 +37,17 @@ export class CarTypeService {
     async getCarTypeByIdCar(idCar: string) {
         this.apiResponse = new ResponseResult();
         try {
-            this.apiResponse.data = await this.carRepo.findOne(idCar, {
+            let carTypeEntity = await this.carRepo.findOne(idCar, {
                 select: ['typeName', 'typeSlogan', 'carImage'],
+                relations: ['carDetails'],
                 order: {
                     ['orders']: 'ASC'
                 },
             })
+            let carDetails = await this.getCarDetailByIdCar(idCar);
+            // @ts-ignore
+            carTypeEntity.carDetails = carDetails.data;
+            this.apiResponse.data = carTypeEntity;
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }

@@ -19,10 +19,6 @@ export class CarTypeController {
     return this.carTypeService.getCarType();
   }
 
-  @Get('getcardetail/:idCar')
-  getCarDetailByIdCar(@Param('idCar') idCar: string) {
-    return this.carTypeService.getCarDetailByIdCar(idCar);
-  }
 
   @Get('getcartype/:idCar')
   getCarTypeByIdCar(@Param('idCar') idCar: string) {
