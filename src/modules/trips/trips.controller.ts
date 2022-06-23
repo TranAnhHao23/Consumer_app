@@ -4,6 +4,7 @@ import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 import { ResponseResult } from 'src/shared/ResponseResult';
+import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
@@ -72,6 +73,11 @@ export class TripsController {
         }
       }
     }
+  }
+
+  @Post('copytriptodrafting')
+  async copyTripToDrafting(@Query() copyTriptoDraftDto: CopyTripToDrafting) {
+    return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
   }
 
   @Get('history/:id')

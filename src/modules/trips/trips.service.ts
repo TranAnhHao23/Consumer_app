@@ -8,6 +8,7 @@ import { ResponseResult } from '../../shared/ResponseResult';
 import { LocationEntity } from '../locations/entities/location.entity';
 import { LocationsService } from '../locations/locations.service';
 import { CreateLocationDto } from '../locations/dto/create-location.dto';
+import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 
 @Injectable()
 export class TripsService {
@@ -20,7 +21,7 @@ export class TripsService {
 
     private readonly locationService: LocationsService,
 
-    private readonly apiResponse: ResponseResult,
+    private apiResponse: ResponseResult,
   ) {}
 
   // create(createTripDto: CreateTripDto) {
@@ -97,6 +98,53 @@ export class TripsService {
     }
 
     return await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+  }
+
+  async copyTripToDrafting(copyTriptoDraftDto: CopyTripToDrafting) {
+    this.apiResponse = new ResponseResult()
+    try {
+      const trip = await this.tripRepo.findOne(copyTriptoDraftDto.tripId)
+
+      const locations = await this.locationRepo.find({ trip: trip })
+
+      this.tripRepo.delete({ deviceId: copyTriptoDraftDto.deviceId, isDrafting: true })
+
+      const copyTrip = this.tripRepo.create({
+        deviceId: copyTriptoDraftDto.deviceId,
+        carType: trip.carType,
+        isDrafting: true,
+        startTime: null,
+        copyTripId: trip.copyTripId || trip.id
+      })
+
+      const savedDraftingTrip = await copyTrip.save()
+
+
+      const copyLocations = locations.map(location => {
+        return {
+          longitude: location.longitude,
+          latitude: location.latitude,
+          address: location.address,
+          note: location.note,
+          trip: savedDraftingTrip
+        }
+      })
+
+      await Promise.all(copyLocations.map(async(copyLocation, index) => {
+        await this.locationService.create({
+          ...copyLocation,
+          tripId: savedDraftingTrip.id,
+          milestone: index
+        })
+      }))
+
+      this.apiResponse.status = HttpStatus.CREATED
+      this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    return this.apiResponse
   }
 
   async getTripHistory(id: string) {
