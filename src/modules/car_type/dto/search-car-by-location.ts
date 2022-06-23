@@ -1,16 +1,16 @@
-import {IsDecimal, IsString} from "class-validator";
+import {IsDecimal, IsNumber, IsString} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 
 export class SearchCarByLocationDto {
     @ApiProperty()
-    @IsDecimal()
+    @IsNumber()
     longitude: number;
 
     @ApiProperty()
-    @IsDecimal()
+    @IsNumber()
     latitude: number;
 
     @ApiProperty()
-    @IsDecimal()
+    @IsNumber()
     searchRadius: number;
 }
