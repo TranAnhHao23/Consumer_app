@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
@@ -53,6 +53,16 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
+    if (upsertDraftingTripDto.startTime) {
+      const now = (new Date()).getTime()
+      const startTime = (new Date(upsertDraftingTripDto.startTime)).getTime()
+
+      const difftime = startTime - now
+      if (difftime < 1 * 60 * 60 * 1000) {
+        throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
+      }
+    }
+    
     let savedDraftingTrip;
     const draftingTrip = await this.getDraftingTripByDeviceId({
       deviceId: upsertDraftingTripDto.deviceId,
@@ -62,11 +72,17 @@ export class TripsService {
       const newDraftingTrip = this.tripRepo.create({
         deviceId: upsertDraftingTripDto.deviceId,
         carType: upsertDraftingTripDto.carType,
+        startTime: upsertDraftingTripDto.startTime,
         isDrafting: true
       });
       savedDraftingTrip = await newDraftingTrip.save();
     } else {
-      draftingTrip.carType = upsertDraftingTripDto.carType;
+      if ('carType' in upsertDraftingTripDto) {
+        draftingTrip.carType = upsertDraftingTripDto.carType
+      }
+      if ('startTime' in upsertDraftingTripDto) {
+        draftingTrip.startTime = upsertDraftingTripDto.startTime
+      }
       savedDraftingTrip = await draftingTrip.save();
     }
     
