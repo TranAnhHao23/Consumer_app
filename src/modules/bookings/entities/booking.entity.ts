@@ -34,13 +34,13 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'status' })
   status: number;
  
-  @Column({type: "decimal", scale: 2,name: 'price',  default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0})
   price: number;
 
-  @Column({type: "decimal", scale: 2,name: 'tip_amount',  default: 0}) 
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0})
   tipAmount: number;
 
-  @Column({type: "decimal", scale: 2,name: 'distance',  default: 0}) 
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0})
   distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })

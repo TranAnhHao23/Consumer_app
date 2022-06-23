@@ -28,13 +28,13 @@ export class Car_typeEntity extends BaseEntity {
   @Column({ name: 'car_icon', nullable: true })
   carIcon: string;
 
-  @Column({type: 'decimal', precision: 10, scale: 5, name: 'longitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'longitude', nullable: true })
   longitude: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 5, name: 'latitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'latitude', nullable: true })
   latitude: number;
 
-  @Column({ name: 'price', nullable: true, default: 0 })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true})
   price: number;
 
   @Column({ name: 'orders'})
