@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus} from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 
@@ -33,6 +33,11 @@ export class LocationsController {
     }
 
     return this.apiResponse
+  }
+
+  @Get('history/:deviceId')
+  async getLocationHistory(@Param('deviceId') deviceId: string) {
+    return this.locationsService.getLocationHistory(deviceId);
   }
 
   // @Get()
