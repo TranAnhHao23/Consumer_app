@@ -31,7 +31,11 @@ export class CarTypeController {
 
   @Post('searchcarbylocation')
   searchCarByLocation(@Body() searchCarByLocationDto: SearchCarByLocationDto) {
-    console.log(searchCarByLocationDto);
     return this.carTypeService.searchCarByLocation(searchCarByLocationDto);
+  }
+
+  @Get('getpricebycartype/:distance')
+  getPriceByCarType(@Param('distance') distance: string) {
+    return this.carTypeService.getPriceByCarType(+distance);
   }
 }
