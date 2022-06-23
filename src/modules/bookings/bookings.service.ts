@@ -13,11 +13,9 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingEntity } from './entities/booking.entity';
 
 enum BookingStatus {
-  CANCELED =-1,
-  APPROVED = 0,
-  DECLINED = 1,
-  PROCESSING = 2,
-  COMPLETED = 3,
+  CANCELED =-1, 
+  PROCESSING = 0,
+  COMPLETED = 1,
 }
 
 @Injectable()
@@ -140,6 +138,7 @@ export class BookingsService {
     return this.apiResponse;
   }
 
+  // TODO
   async getFavouriteBooking(userId: string,top:number) {
     this.apiResponse = new ResponseResult();
     try {

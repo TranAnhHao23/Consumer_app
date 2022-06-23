@@ -17,57 +17,41 @@ export class CarTypeService {
         @InjectRepository(Car_detailEntity)
         private readonly carDetailRepo: Repository<Car_detailEntity>,
         @InjectConnection() private readonly connection: Connection,
-        private readonly apiResponse: ResponseResult,
+        private apiResponse: ResponseResult,
     ) {
     }
 
     async getCarType() {
-        // return await this.carRepo.find({
-        //   select: ["id", "typeName"],
-        //   order: {
-        //     ["firstDistanceFee"]: "ASC",
-        //     ["typeName"]: "ASC",
-        //   }
-        // });
-        // return await this.carRepo.find({ where: {typeName: Like(`%${name}%`)}});
+        this.apiResponse = new ResponseResult();
         try {
             // @ts-ignore
             this.apiResponse.data = await this.carRepo.find({
                 order: {['orders']: 'ASC'}
             });
         } catch (error) {
-            this.apiResponse.errorMessage = error;
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return this.apiResponse;
     }
 
     async getCarTypeByIdCar(idCar: string) {
+        this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.carRepo.findOne(idCar, {
-                select:['typeName', 'typeSlogan', 'carImage'],
+                select: ['typeName', 'typeSlogan', 'carImage'],
                 order: {
                     ['orders']: 'ASC'
                 },
             })
         } catch (error) {
-            this.apiResponse.errorMessage = error;
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return this.apiResponse;
     }
 
     async getCarDetailByIdCar(idCar: string) {
+        this.apiResponse = new ResponseResult();
         try {
-            // @ts-ignore
-            // this.apiResponse.data = await this.carRepo.findOne(id, {
-            //     relations: ['carDetails'],
-            //     order: {
-            //         // ['carDetails.orders']: 'ASC',
-            //         ['orders']: 'ASC'
-            //     },
-            // })
-
             const query = await this.carDetailRepo.createQueryBuilder('car_detail')
                 .innerJoinAndSelect('car_type', 'car_type')
                 .where("car_detail.car_type_id = :id", {id: idCar})
@@ -76,40 +60,108 @@ export class CarTypeService {
             // console.log(query)
             this.apiResponse.data = query;
         } catch (error) {
-            this.apiResponse.errorMessage = error;
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return this.apiResponse;
     }
 
     async searchCarByLocation(searchCarByLocationDto: SearchCarByLocationDto) {
-      try {
-        await this.connection.query(`update car_type set price = 0`);
-        await this.connection.query(
-          `update car_type set price = ${Math.random() * 80} 
-              where (car_type.longitude between ${+searchCarByLocationDto.longitude - (searchCarByLocationDto.searchRadius / 20)}
-              and ${+searchCarByLocationDto.longitude + (searchCarByLocationDto.searchRadius / 20)})
-              and (latitude between ${+searchCarByLocationDto.latitude - searchCarByLocationDto.searchRadius / 20}
-              and ${+searchCarByLocationDto.latitude + searchCarByLocationDto.searchRadius / 20})`);
-        this.apiResponse.data = await this.carRepo.find({
-          select: ['typeName', 'typeSlogan', 'price'],
-        });
-      } catch (error) {
-        this.apiResponse.errorMessage = error;
-        this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-      }
-      return this.apiResponse;
+        this.apiResponse = new ResponseResult();
+        try {
+            const cars = await this.carRepo.find({
+                select: ['typeName', 'carIcon', 'latitude', 'longitude'],
+            });
+            for (let i = 0; i < (cars).length; i++) {
+                console.log(cars.length)
+                // console.log(cars[i])
+                let distance =await this.calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto, cars[i])
+                await console.log(distance);
+                if (distance > searchCarByLocationDto.searchRadius) {
+                    cars.splice(i, 1);
+                    i--;
+                }
+                // await console.log(cars);
+            }
+            this.apiResponse.data = cars;
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
     }
-    //
-    // async create(carCreate: CreateCarTypeDto) {
-    //   try {
-    //     const car = await this.carRepo.create(carCreate);
-    //     await this.carRepo.save(car);
-    //     this.apiResponse.data = await this.carRepo.find();
-    //   } catch (error) {
-    //     this.apiResponse.errorMessage = error;
-    //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-    //   }
-    //   return this.apiResponse;
-    // }
+
+    async getPriceByCarType(distance: number) {
+        this.apiResponse = new ResponseResult();
+        try {
+            let cars = await this.carRepo.find();
+            for (let car of cars) {
+                car.price = await this.calculatePrice(distance, car.id);
+                await this.carRepo.update({id: car.id}, car);
+            }
+            this.apiResponse.data = await this.carRepo.find({
+                order: {
+                    orders: 'ASC',
+                }
+            });
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
+
+    async calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto: SearchCarByLocationDto, car: Car_typeEntity) {
+        let dLat = Math.abs((searchCarByLocationDto.latitude - car.latitude) * (Math.PI / 180));
+        let dLong = Math.abs((searchCarByLocationDto.longitude - car.longitude) * (Math.PI / 180));
+        let la1ToRad = searchCarByLocationDto.latitude * (Math.PI / 180);
+        let la2ToRad = car.latitude * (Math.PI / 180);
+
+        let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(la1ToRad) * Math.cos(la2ToRad) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return 6371 * c;
+    }
+
+    async calculatePrice(distance: number, carId: string) {
+        let totalPrice = 20; // platform fee
+        switch (carId) {
+            case "1": //Robinhood Taxi
+                if (distance <= 1) {
+                    totalPrice += 35;
+                } else if (distance <= 10) {
+                    totalPrice += 5.5 * (distance - 1);
+                } else if (distance <= 20) {
+                    totalPrice += 6.5 * (distance - 10);
+                } else if (distance <= 40) {
+                    totalPrice += 7.5 * (distance - 20);
+                } else if (distance <= 60) {
+                    totalPrice += 8 * (distance - 40);
+                } else if (distance <= 80) {
+                    totalPrice += 9 * (distance - 60);
+                } else {
+                    totalPrice += 10.5 * (distance - 80);
+                }
+                break;
+            case "2": // Robinhood EV Car
+            case "6": // Robinhood Car
+            case "4": // Robinhood Lady
+                if (distance <= 2) {
+                    totalPrice += 45;
+                } else if (distance <= 6) {
+                    totalPrice += 8 * (distance - 2);
+                } else if (distance <=39) {
+                    totalPrice += 7 * (distance - 6);
+                } else {
+                    totalPrice += 10 * (distance - 39);
+                }
+                break;
+            case "3": // Robinhood EV Car Premium
+            case "5": // Robinhood Premium Car
+            case "7": // Robinhood SUV
+                if (distance <= 2) {
+                    totalPrice += 110;
+                } else {
+                    totalPrice += 12 * (distance - 2);
+                }
+                break;
+        }
+        return totalPrice;
+    }
 }
