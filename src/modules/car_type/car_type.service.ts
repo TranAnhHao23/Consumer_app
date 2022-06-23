@@ -17,11 +17,12 @@ export class CarTypeService {
         @InjectRepository(Car_detailEntity)
         private readonly carDetailRepo: Repository<Car_detailEntity>,
         @InjectConnection() private readonly connection: Connection,
-        private readonly apiResponse: ResponseResult,
+        private apiResponse: ResponseResult,
     ) {
     }
 
     async getCarType() {
+        this.apiResponse = new ResponseResult();
         try {
             // @ts-ignore
             this.apiResponse.data = await this.carRepo.find({
@@ -34,6 +35,7 @@ export class CarTypeService {
     }
 
     async getCarTypeByIdCar(idCar: string) {
+        this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.carRepo.findOne(idCar, {
                 select: ['typeName', 'typeSlogan', 'carImage'],
@@ -48,6 +50,7 @@ export class CarTypeService {
     }
 
     async getCarDetailByIdCar(idCar: string) {
+        this.apiResponse = new ResponseResult();
         try {
             const query = await this.carDetailRepo.createQueryBuilder('car_detail')
                 .innerJoinAndSelect('car_type', 'car_type')
@@ -63,6 +66,7 @@ export class CarTypeService {
     }
 
     async searchCarByLocation(searchCarByLocationDto: SearchCarByLocationDto) {
+        this.apiResponse = new ResponseResult();
         try {
             const cars = await this.carRepo.find({
                 select: ['typeName', 'carIcon', 'latitude', 'longitude'],
@@ -86,6 +90,7 @@ export class CarTypeService {
     }
 
     async getPriceByCarType(distance: number) {
+        this.apiResponse = new ResponseResult();
         try {
             let cars = await this.carRepo.find();
             for (let car of cars) {
