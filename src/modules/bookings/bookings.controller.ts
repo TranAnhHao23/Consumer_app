@@ -61,34 +61,4 @@ export class BookingsController {
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.remove(id);
-  }
-
-  // @Get()
-  // findAll() {
-  //   return this.bookingsService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.bookingsService.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
-  //   return this.bookingsService.update(id, updateBookingDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.bookingsService.remove(id);
-  // }
-
-  // @Get('history/:deviceId')
-  // getBookingHistory(@Param('deviceId') deviceId: string) {
-  //   return this.bookingsService.getBookingHistory(deviceId);
-  // }
 }
