@@ -32,6 +32,12 @@ export class CreateLocationDto {
     @IsUUID()
     tripId: string
 
+    @ApiProperty()
+    googleId: string
+
+    @ApiProperty()
+    referenceId: string
+
     @ApiProperty({
         description: "0 – source, 1 – first destination, 2 – second destination, 3 – third destination",
         minimum: 0,

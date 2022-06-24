@@ -9,6 +9,7 @@ import { LocationEntity } from '../locations/entities/location.entity';
 import { LocationsService } from '../locations/locations.service';
 import { CreateLocationDto } from '../locations/dto/create-location.dto';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
+import { stringify } from 'querystring';
 
 @Injectable()
 export class TripsService {
@@ -129,6 +130,8 @@ export class TripsService {
           latitude: location.latitude,
           address: location.address,
           note: location.note,
+          googleId: location.googleId,
+          referenceId: location.referenceId,
           trip: savedDraftingTrip
         }
       })
@@ -150,11 +153,11 @@ export class TripsService {
     return this.apiResponse
   }
 
-  async getTripHistory(id: string) {
+  async getTripHistory(deviceId: string) {
     try {
       this.apiResponse.data = await this.tripRepo.find({
         where: {
-          deviceId: id,
+          deviceId: deviceId,
           isDrafting: false,
         },
         order: { ['createdAt']: 'DESC' },

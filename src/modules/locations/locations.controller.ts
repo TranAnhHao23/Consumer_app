@@ -22,18 +22,18 @@ export class LocationsController {
   //   }
   // }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    try {
-      await this.locationsService.remove(id);
-      this.apiResponse.status = HttpStatus.OK
-    } catch (error) {
-      this.apiResponse.errorMessage = error
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-    }
+  // @Delete(':id')
+  // async remove(@Param('id') id: string) {
+  //   try {
+  //     await this.locationsService.remove(id);
+  //     this.apiResponse.status = HttpStatus.OK
+  //   } catch (error) {
+  //     this.apiResponse.errorMessage = error
+  //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+  //   }
 
-    return this.apiResponse
-  }
+  //   return this.apiResponse
+  // }
 
   @Get('history/:deviceId')
   async getLocationHistory(@Param('deviceId') deviceId: string) {
