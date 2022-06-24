@@ -1,3 +1,4 @@
+import { IsNumber } from 'class-validator';
 import {
   BaseEntity,
   BeforeInsert,
@@ -22,10 +23,10 @@ export class Favourite_locationEntity extends BaseEntity {
   title: string;
 
   @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude' })
-  longitude: string;
+  longitude: number;
 
   @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude' })
-  latitude: string;
+  latitude: number;
 
   @Column({ name: 'address', length: 255 })
   address: string;
@@ -40,4 +41,11 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'update_at' })
   @UpdateDateColumn()
   updateAt: Date;
+  
+  @Column({ name: 'google_id' })
+  googleId: string;
+
+  @Column({ name: 'reference_id' })
+  referenceId: string;
+
 }

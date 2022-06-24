@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateFavouriteLocationDto{
   @ApiProperty()
@@ -11,12 +11,12 @@ export class CreateFavouriteLocationDto{
   title: string;
 
   @ApiProperty()
-  @IsString()
-  longitude: string;
+  @IsNumber()
+  longitude: number;
 
   @ApiProperty()
-  @IsString()
-  latitude: string;
+  @IsNumber()
+  latitude: number;
 
   @ApiProperty()
   @IsString()
@@ -25,4 +25,10 @@ export class CreateFavouriteLocationDto{
   @ApiProperty()
   @IsString()
   note: string;
+
+  @ApiProperty()
+  googleId: string
+
+  @ApiProperty()
+  referenceId: string
 }
