@@ -33,10 +33,10 @@ export class CreateLocationDto {
     tripId: string
 
     @ApiProperty()
-    google_id: string
+    googleId: string
 
     @ApiProperty()
-    reference_id: string
+    referenceId: string
 
     @ApiProperty({
         description: "0 – source, 1 – first destination, 2 – second destination, 3 – third destination",

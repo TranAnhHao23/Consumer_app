@@ -20,13 +20,17 @@ export class UpsertDraftingTripDto {
                 "longitude": 0,
                 "latitude": 0,
                 "address": "string",
-                "note": "string"
+                "note": "string",
+                "googleId": "string",
+                "referenceId": "string",
             },
             {
                 "longitude": 1,
                 "latitude": 1,
                 "address": "string",
-                "note": "string"
+                "note": "string",
+                "googleId": "string",
+                "referenceId": "string",
             }
         ],
         required: false
