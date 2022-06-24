@@ -61,4 +61,24 @@ export class LocationsService {
         }
         return this.apiResponse;
     }
+
+    async getThreeFrequentLocation(userId: string) {
+        try {
+            const query = await this.locationRepo.createQueryBuilder('location')
+                .select([
+                    'location.id',
+                    'location.address',
+                ])
+                .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
+                .where('user_Id = :userId', {userId: userId})
+                .groupBy('longitude').addGroupBy('latitude')
+                .orderBy('count(*)', 'DESC')
+                .limit(3)
+                .getMany()
+            this.apiResponse.data = query;
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND;
+        }
+        return this.apiResponse;
+    }
 }
