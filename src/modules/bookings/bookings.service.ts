@@ -147,7 +147,7 @@ export class BookingsService {
             .select('trip.id')
             .groupBy('trip.id')
             .where('booking.user_Id = :user_Id', {user_Id: userId})
-            .orderBy({'sum(trip.id)': 'DESC','trip.createdat': 'DESC'})
+            .orderBy({'sum(trip.copy_trip_id)': 'DESC','trip.createdat': 'DESC'})
             .limit(top)
             .getMany()
 
