@@ -11,19 +11,31 @@ export class Car_detailEntity extends BaseEntity{
     @Column({ name: 'label', length: 255})
     label: string;
 
-    @Column({ name: 'min_distance', nullable: true})
+    @Column({ name: 'min_distance', nullable: true,
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     minDistance: number;
 
-    @Column({ name: 'max_distance', nullable: true})
+    @Column({ name: 'max_distance', nullable: true,
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     maxDistance: number;
 
-    @Column({type: 'decimal', precision: 5, scale: 2, name: 'price'})
+    @Column({type: 'decimal', precision: 5, scale: 2, name: 'price',
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     price: number;
 
     @Column({name: 'currency'})
     currency: string;
 
-    @Column({ name: 'orders'})
+    @Column({ name: 'orders',
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     orders: number;
 
     @ManyToOne(() => Car_typeEntity)

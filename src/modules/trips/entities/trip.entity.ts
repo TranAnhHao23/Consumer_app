@@ -17,7 +17,10 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'device_id'})
     deviceId: string;
 
-    @Column({ name: 'car_type', nullable: true })
+    @Column({ name: 'car_type', nullable: true,
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     carType: number;
 
     @Column({ name: 'is_drafting'})

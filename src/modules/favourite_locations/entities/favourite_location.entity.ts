@@ -22,10 +22,16 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'title', length: 255 })
   title: string;
 
-  @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude' })
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude',
+      transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+      }, })
   longitude: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude' })
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude',
+      transformer: {
+          to(value) {return value}, from(value) {return parseFloat(value)}
+      },})
   latitude: number;
 
   @Column({ name: 'address', length: 255 })
@@ -47,5 +53,8 @@ export class Favourite_locationEntity extends BaseEntity {
 
   @Column({ name: 'reference_id' })
   referenceId: string;
+
+  @Column({ name: 'address_name'})
+  addressName: string;
 
 }
