@@ -27,6 +27,7 @@ import { FavouriteLocationsModule } from './modules/favourite_locations/favourit
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { CarTypeModule } from './modules/car_type/car_type.module';
 import { ResponseResult } from './shared/ResponseResult';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ResponseResult } from './shared/ResponseResult';
     FavouriteLocationsModule,
     BookingsModule,
     CarTypeModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
