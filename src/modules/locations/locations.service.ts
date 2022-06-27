@@ -71,7 +71,7 @@ export class LocationsService {
                 ])
                 .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
                 .where('user_Id = :userId', {userId: userId})
-                .groupBy('longitude').addGroupBy('latitude')
+                .groupBy('location.google_id')
                 .orderBy('count(*)', 'DESC')
                 .limit(3)
                 .getMany()
