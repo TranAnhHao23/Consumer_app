@@ -234,4 +234,33 @@ export class BookingsService {
         }
         return this.apiResponse;
     }
+
+    async getCancelReasonList() {
+        this.apiResponse = new ResponseResult();
+        try {
+            // It's possible if we đon't use reason# to be a keys
+            this.apiResponse.data = Object.keys(CancelReason).map(key => CancelReason[key]);
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND;
+        }
+        return this.apiResponse;
+    }
+
+    async cancelBooking2 (cancelBookingDto: CancelBookingDto) {
+        this.apiResponse = new ResponseResult();
+        try {
+            let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
+            if  (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
+                bookingCancel.cancelReason = cancelBookingDto.cancelReason;
+                bookingCancel.status = BookingStatus.CANCELED;
+                await this.bookingRepository.update(bookingCancel.id,bookingCancel);
+                this.apiResponse.data = bookingCancel;
+            } else {
+                throw new InternalServerErrorException();
+            }
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND;
+        }
+        return this.apiResponse;
+    }
 }

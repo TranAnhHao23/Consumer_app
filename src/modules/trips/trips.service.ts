@@ -132,6 +132,7 @@ export class TripsService {
           note: location.note,
           googleId: location.googleId,
           referenceId: location.referenceId,
+          addressName: location.addressName, // Anh thêm 1 dòng này nhé Cảnh
           trip: savedDraftingTrip
         }
       })
