@@ -28,16 +28,28 @@ export class Car_typeEntity extends BaseEntity {
   @Column({ name: 'car_icon', nullable: true })
   carIcon: string;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'longitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'longitude', nullable: true,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   longitude: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'latitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'latitude', nullable: true,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   latitude: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true})
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   price: number;
 
-  @Column({ name: 'orders'})
+  @Column({ name: 'orders',
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   orders: number;
 
   @OneToMany(() => Car_detailEntity, carDetail => carDetail.carType)

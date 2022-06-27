@@ -31,16 +31,29 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
 
-  @Column({ name: 'status' })
+  @Column({ name: 'status' ,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },
+  })
   status: number;
  
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   price: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   tipAmount: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0,
+    transformer: {
+      to(value) {return value}, from(value) {return parseFloat(value)}
+    },})
   distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })
