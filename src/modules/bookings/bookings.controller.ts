@@ -61,4 +61,9 @@ export class BookingsController {
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
+
+  @Get('cancelreason/list')
+  getCancelReasonList() {
+     return this.bookingsService.getCancelReasonList();
+  }
 }
