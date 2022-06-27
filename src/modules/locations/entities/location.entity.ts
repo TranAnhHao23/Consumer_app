@@ -40,6 +40,9 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'google_id' })
     googleId: string;
 
+    @Column({ name: 'reference_id' })
+    referenceId: string;
+
     @Column({ name: 'created_at'})
     @CreateDateColumn()
     createdAt: Date;

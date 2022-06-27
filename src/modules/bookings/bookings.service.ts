@@ -32,20 +32,22 @@ export class BookingsService {
     this.apiResponse = new ResponseResult();
     try {
       const newobj = this.bookingRepository.create(createBookingDto);
-       const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
+      const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
        if(Object.keys(getTrip).length !== 0)
        {
          // @ts-ignore
-         newobj.status = BookingStatus.PROCESSING;
+        newobj.status = BookingStatus.PROCESSING;
         newobj.trip = getTrip;
         newobj.bookingStartTime = new Date(new Date().toUTCString()); 
         newobj.startTime = new Date(); 
         newobj.updateAt = new Date(); 
 
-      // Calculate price
-      
+        // Calculate price
+        newobj.price = await this.calculatePrice(newobj.distance,getTrip.carType.toString());
+
         this.apiResponse.data = await this.bookingRepository.save(newobj);
-        await this.bookingRepository.update(newobj.id,newobj);
+       
+        // this.apiResponse.data =  await this.bookingRepository.update(newobj.id,newobj);
 
         // update trip = isDrafting = false
         getTrip.isDrafting = false;
@@ -59,6 +61,52 @@ export class BookingsService {
     }
     return this.apiResponse;
   }
+
+  async calculatePrice(distance: number, carId: string) {
+    let totalPrice = 20; // platform fee
+    switch (carId) {
+        case "1": //Robinhood Taxi
+            if (distance <= 1) {
+                totalPrice += 35;
+            } else if (distance <= 10) {
+                totalPrice += 5.5 * (distance - 1);
+            } else if (distance <= 20) {
+                totalPrice += 6.5 * (distance - 10);
+            } else if (distance <= 40) {
+                totalPrice += 7.5 * (distance - 20);
+            } else if (distance <= 60) {
+                totalPrice += 8 * (distance - 40);
+            } else if (distance <= 80) {
+                totalPrice += 9 * (distance - 60);
+            } else {
+                totalPrice += 10.5 * (distance - 80);
+            }
+            break;
+        case "2": // Robinhood EV Car
+        case "6": // Robinhood Car
+        case "4": // Robinhood Lady
+            if (distance <= 2) {
+                totalPrice += 45;
+            } else if (distance <= 6) {
+                totalPrice += 8 * (distance - 2);
+            } else if (distance <=39) {
+                totalPrice += 7 * (distance - 6);
+            } else {
+                totalPrice += 10 * (distance - 39);
+            }
+            break;
+        case "3": // Robinhood EV Car Premium
+        case "5": // Robinhood Premium Car
+        case "7": // Robinhood SUV
+            if (distance <= 2) {
+                totalPrice += 110;
+            } else {
+                totalPrice += 12 * (distance - 2);
+            }
+            break;
+    }
+    return totalPrice;
+}
 
   async cancelBooking(cancelBookingDto: CancelBookingDto) {
     this.apiResponse = new ResponseResult();

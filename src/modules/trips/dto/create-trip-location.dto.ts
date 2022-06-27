@@ -27,4 +27,10 @@ export class CreateTripLocationDto {
     @IsOptional()
     @Length(0, 255)
     note: string
+
+    @ApiProperty()
+    googleId: string
+
+    @ApiProperty()
+    referenceId: string
 }
