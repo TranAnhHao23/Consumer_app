@@ -2,6 +2,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
@@ -14,8 +15,9 @@ import { BookingEntity } from './entities/booking.entity';
 
 enum BookingStatus {
   CANCELED =-1, 
-  PROCESSING = 0,
-  COMPLETED = 1,
+  WAITING = 0,
+  PROCESSING = 1,
+  COMPLETED = 2,
 }
 
 @Injectable()
@@ -36,7 +38,7 @@ export class BookingsService {
        if(Object.keys(getTrip).length !== 0)
        {
          // @ts-ignore
-        newobj.status = BookingStatus.PROCESSING;
+        newobj.status = BookingStatus.WAITING;
         newobj.trip = getTrip;
         newobj.bookingStartTime = new Date(new Date().toUTCString()); 
         newobj.startTime = new Date(); 
@@ -58,6 +60,26 @@ export class BookingsService {
         throw new InternalServerErrorException();
     } catch (error) { 
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
+  async pickupGuest(id: string) {
+    this.apiResponse = new ResponseResult();
+    try {
+      var booking = await this.bookingRepository.findOne(id);
+       if(Object.keys(booking).length !== 0)
+       {
+        booking.status = BookingStatus.PROCESSING;
+        booking.updateAt = new Date(); 
+        this.apiResponse.data = await this.bookingRepository.update(id,booking);
+       }
+       else
+        throw new NotFoundException();
+     
+      this.apiResponse.data = booking;
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.NOT_FOUND;;
     }
     return this.apiResponse;
   }
