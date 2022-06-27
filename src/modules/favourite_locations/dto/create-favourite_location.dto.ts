@@ -31,4 +31,8 @@ export class CreateFavouriteLocationDto{
 
   @ApiProperty()
   referenceId: string
+
+  @ApiProperty()
+  @IsString()
+  addressName: string;
 }

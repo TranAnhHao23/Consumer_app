@@ -18,10 +18,16 @@ export class LocationEntity extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'longitude'})
+    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'longitude',
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     longitude: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'latitude'})
+    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'latitude',
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     latitude: number;
 
     @Column({ name: 'address', length: 255})
@@ -34,7 +40,10 @@ export class LocationEntity extends BaseEntity{
     @JoinColumn({ name: 'trip_id'})
     trip: TripEntity;
 
-    @Column({ name: 'milestone'})
+    @Column({ name: 'milestone',
+        transformer: {
+            to(value) {return value}, from(value) {return parseFloat(value)}
+        },})
     milestone: number;
 
     @Column({ name: 'google_id' })
@@ -50,4 +59,7 @@ export class LocationEntity extends BaseEntity{
     @Column({ name: 'updated_at'})
     @UpdateDateColumn()
     updateAt: Date;
+
+    @Column({ name: 'address_name'})
+    addressName: string;
 }
