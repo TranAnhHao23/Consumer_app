@@ -154,6 +154,7 @@ export class TripsService {
   }
 
   async getTripHistory(deviceId: string) {
+    this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.tripRepo.find({
         where: {

@@ -8,8 +8,8 @@ export class UpdateFavouriteLocationDto extends CreateFavouriteLocationDto {
   @IsString()
   id: string;
 
-  createAt: Date;
-
-  @ApiProperty()
-  updateAt: Date;
+  // createAt: Date;
+  //
+  // @ApiProperty()
+  // updateAt: Date;
 }

@@ -29,15 +29,15 @@ export class FavouriteLocationsService {
     return this.apiResponse;
   }
 
-  async update(id: string,updateFavouriteLocationDto: UpdateFavouriteLocationDto,  ) {
+  async update(updateFavouriteLocationDto: UpdateFavouriteLocationDto,  ) {
     this.apiResponse = new ResponseResult();
     try {
-      const updateFavouriteLocation = await this.favouriteRepository.update(
-        { id: id },
+      await this.favouriteRepository.update(
+        { id: updateFavouriteLocationDto.id },
         updateFavouriteLocationDto,
       );
       this.apiResponse.data = await this.favouriteRepository.findOne({
-        id: id,
+        id: updateFavouriteLocationDto.id,
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;

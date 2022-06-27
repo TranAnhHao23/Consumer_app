@@ -40,9 +40,9 @@ export class LocationsController {
     return this.locationsService.getLocationHistory(deviceId);
   }
 
-  @Get('frequent/:deviceId')
-  async getThreeFrequentLocation(@Param('deviceId') deviceId: string) {
-    return this.locationsService.getThreeFrequentLocation(deviceId);
+  @Get('frequent/:userId')
+  async getThreeFrequentLocation(@Param('userId') userId: string) {
+    return this.locationsService.getThreeFrequentLocation(userId);
   }
 
   // @Get()
