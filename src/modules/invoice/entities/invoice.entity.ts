@@ -25,7 +25,7 @@ export class Invoice extends BaseEntity {
   @Column({type: "decimal", precision: 10, scale: 5, name: 'amount', default: 0, transformer: new ToNumericTrans})
   amount: number;
 
-  @Column({ name: 'invoice_status'})
+  @Column({ name: 'invoice_status', transformer: new ToNumericTrans})
   invoiceStatus: number;
 
   @Column({ name: 'note', length: 255, nullable: true })
