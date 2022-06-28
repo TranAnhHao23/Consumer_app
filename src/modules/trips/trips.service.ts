@@ -11,6 +11,7 @@ import { CreateLocationDto } from '../locations/dto/create-location.dto';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 import { stringify } from 'querystring';
 import { CreateTripLocationDto } from './dto/create-trip-location.dto';
+import {TripAgainDto} from "./dto/trip-again.dto";
 
 @Injectable()
 export class TripsService {
@@ -83,11 +84,11 @@ export class TripsService {
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
     this.apiResponse = new ResponseResult()
-    try {  
+    try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
       }
-      
+
       let savedDraftingTrip;
       const draftingTrip = await this.getDraftingTripByDeviceId({
         deviceId: upsertDraftingTripDto.deviceId,
@@ -110,7 +111,7 @@ export class TripsService {
         }
         savedDraftingTrip = await draftingTrip.save();
       }
-      
+
       if (upsertDraftingTripDto.locations) {
         await this.upsertLocationsForTrip(savedDraftingTrip, upsertDraftingTripDto.locations)
       }
@@ -195,4 +196,46 @@ export class TripsService {
     }
     return this.apiResponse;
   }
+
+  // async getTripAgain(tripAgainDto: TripAgainDto) {
+  //   this.apiResponse = new ResponseResult();
+  //   try {
+  //       let trip = await this.tripRepo.findOne(tripAgainDto.tripId);
+  //       let locations = await this.locationRepo.find({
+  //         where: {trip: trip}
+  //       })
+  //       await this.tripRepo.delete({
+  //         deviceId: trip.deviceId,
+  //         isDrafting: true
+  //       })
+  //       let tripSave = await this.tripRepo.create({
+  //           deviceId: trip.deviceId,
+  //           carType: trip.carType,
+  //           isDrafting: true,
+  //           copyTripId: trip.id
+  //       })
+  //       await this.tripRepo.save(tripSave);
+  //       let locationsSave = locations.map((data, index) => {
+  //           return {
+  //             address: data.address,
+  //             note: data.note,
+  //             milestone: index,
+  //             trip: tripSave,
+  //             longitude: data.longitude,
+  //             latitude: data.latitude,
+  //             googleId: data.googleId,
+  //             referenceId: data.referenceId,
+  //             addressName: data.addressName
+  //           }
+  //       })
+  //       let locationSaveToRepo = this.locationRepo.create(locationsSave);
+  //       await this.locationRepo.save(locationSaveToRepo);
+  //       this.apiResponse.data = await this.tripRepo.findOne(tripSave.id, {
+  //         relations: ['locations']
+  //       });
+  //   } catch (error) {
+  //       this.apiResponse.status = HttpStatus.NOT_FOUND;
+  //   }
+  //   return this.apiResponse;
+  // }
 }

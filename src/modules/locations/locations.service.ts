@@ -48,10 +48,10 @@ export class LocationsService {
     async getLocationHistory(userId: string) {
         try {
             const frequentLocation: LocationEntity[] = [];
-            let googleIdLatests = (await this.getThreeLatestLocation(userId)).map(data => data.googleId);
-            for (const googleIdLatest of googleIdLatests) {
+            let latestGoogleIds = (await this.getLatestLocation(userId)).map(data => data.googleId);
+            for (const latestGoogleId of latestGoogleIds) {
                 const query = await this.locationRepo.createQueryBuilder('location')
-                    .where('google_id = :googleId', {googleId: googleIdLatest})
+                    .where('google_id = :googleId', {googleId: latestGoogleId})
                     .orderBy('createdAt', 'DESC')
                     .getOne();
                 frequentLocation.push(query);
@@ -100,7 +100,7 @@ export class LocationsService {
         return query;
     }
 
-    async getThreeLatestLocation(userId: string) {
+    async getLatestLocation(userId: string) {
         const query = await this.locationRepo
             .createQueryBuilder('location')
             .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
