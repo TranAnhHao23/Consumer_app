@@ -53,26 +53,7 @@ export class TripsController {
   
   @Post('upsertdraftingtrip')
   async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto) {
-    try {
-      const savedDraftingTrip = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
-      return {
-        status: HttpStatus.CREATED,
-        errorMessage: "",
-        data: savedDraftingTrip
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        return {
-          status: error.getStatus(),
-          errorMessage: error.message
-        }
-      } else {
-        return {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          errorMessage: error.message
-        }
-      }
-    }
+    return this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
   }
 
   @Post('copytriptodrafting')
