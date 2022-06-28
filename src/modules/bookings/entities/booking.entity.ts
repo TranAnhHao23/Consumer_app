@@ -1,3 +1,4 @@
+import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
   BaseEntity,
   Column,
@@ -31,29 +32,16 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
 
-  @Column({ name: 'status' ,
-    transformer: {
-      to(value) {return value}, from(value) {return parseFloat(value)}
-    },
-  })
+  @Column({ name: 'status' })
   status: number;
  
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0,
-    transformer: {
-      to(value) {return value}, from(value) {return parseFloat(value)}
-    },})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0,
-    transformer: {
-      to(value) {return value}, from(value) {return parseFloat(value)}
-    },})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
   tipAmount: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0,
-    transformer: {
-      to(value) {return value}, from(value) {return parseFloat(value)}
-    },})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
   distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })

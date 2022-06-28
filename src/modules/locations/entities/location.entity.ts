@@ -5,29 +5,22 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-
-    PrimaryColumn, PrimaryGeneratedColumn, Unique,
+    PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn
 } from "typeorm";
 import {TripEntity} from "../../trips/entities/trip.entity";
-import {map} from "rxjs";
-
+import { ToNumericTrans } from "src/shared/column-numeric-transformer";
 @Entity({ name: 'location'})
 @Unique("trip_unique", ["trip.id","milestone"])
 export class LocationEntity extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'longitude',
-        transformer: {
-            to(value) {return value}, from(value) {return parseFloat(value)}
-        },})
+    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'longitude', transformer: new ToNumericTrans })
     longitude: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'latitude',
-        transformer: {
-            to(value) {return value}, from(value) {return parseFloat(value)}
-        },})
+    @Column({ type: 'decimal', precision: 10, scale: 5 , name: 'latitude', transformer: new ToNumericTrans })
     latitude: number;
 
     @Column({ name: 'address', length: 255})
@@ -40,10 +33,7 @@ export class LocationEntity extends BaseEntity{
     @JoinColumn({ name: 'trip_id'})
     trip: TripEntity;
 
-    @Column({ name: 'milestone',
-        transformer: {
-            to(value) {return value}, from(value) {return parseFloat(value)}
-        },})
+    @Column({ name: 'milestone' })
     milestone: number;
 
     @Column({ name: 'google_id' })
