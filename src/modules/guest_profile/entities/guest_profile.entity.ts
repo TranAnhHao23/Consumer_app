@@ -18,7 +18,7 @@ export class GuestProfileEntity extends BaseEntity {
   @JoinColumn({ name: 'device_id' })
   device: DeviceEntity;
 
-  @Column({ name: 'create_date' })
+  @Column({ name: 'created_date' })
   @CreateDateColumn()
-  createDate: Date;
+  createdDate: Date;
 }

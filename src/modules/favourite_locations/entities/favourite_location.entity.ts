@@ -35,13 +35,13 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'note', length: 255, nullable: true })
   note: string;
 
-  @Column({ name: 'create_at' })
+  @Column({ name: 'created_at' })
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
-  @Column({ name: 'update_at' })
+  @Column({ name: 'updated_at' })
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
   
   @Column({ name: 'google_id' })
   googleId: string;
