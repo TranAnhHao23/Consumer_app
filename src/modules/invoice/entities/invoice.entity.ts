@@ -1,5 +1,6 @@
 import { BookingEntity } from "src/modules/bookings/entities/booking.entity";
 import { PaymentMethod } from "src/modules/paymentmethod/entities/paymentmethod.entity";
+import { ToNumericTrans } from "src/shared/column-numeric-transformer";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity("Invoice")
@@ -21,7 +22,7 @@ export class Invoice extends BaseEntity {
   @JoinColumn({ name: 'payment_method_id' })
   paymentMethod: PaymentMethod;
  
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'amount', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'amount', default: 0, transformer: new ToNumericTrans})
   amount: number;
 
   @Column({ name: 'invoice_status'})
@@ -41,9 +42,9 @@ export class Invoice extends BaseEntity {
 
   @Column({ name: 'created_at'})
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @Column({ name: 'updated_at'})
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 }
