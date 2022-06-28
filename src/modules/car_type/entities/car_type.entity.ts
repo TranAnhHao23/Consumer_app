@@ -38,7 +38,7 @@ export class Car_typeEntity extends BaseEntity {
   @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({ name: 'orders', transformer: new ToNumericTrans })
+  @Column({ name: 'orders' })
   orders: number;
 
   @OneToMany(() => Car_detailEntity, carDetail => carDetail.carType)
