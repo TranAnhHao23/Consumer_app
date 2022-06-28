@@ -45,40 +45,72 @@ export class LocationsService {
         return `This action removes a #${id} location`;
     }
 
-    async getLocationHistory(deviceId: string) {
+    async getLocationHistory(userId: string) {
         try {
-            const query = await this.locationRepo
-                .createQueryBuilder('location')
-                .innerJoinAndSelect('location.trip', 'trip')
-                .where('device_id = :deviceId', {deviceId: deviceId})
-                .andWhere('milestone <> 0')
-                .andWhere('is_drafting = 0')
-                .orderBy('location.createdAt', 'DESC')
-                .getMany();
-            this.apiResponse.data = query;
+            const frequentLocation: LocationEntity[] = [];
+            let googleIdLatests = (await this.getThreeLatestLocation(userId)).map(data => data.googleId);
+            for (const googleIdLatest of googleIdLatests) {
+                const query = await this.locationRepo.createQueryBuilder('location')
+                    .where('google_id = :googleId', {googleId: googleIdLatest})
+                    .orderBy('createdAt', 'DESC')
+                    .getOne();
+                frequentLocation.push(query);
+            }
+            this.apiResponse.data = frequentLocation;
         } catch (error) {
             this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
         return this.apiResponse;
     }
 
-    async getThreeFrequentLocation(userId: string) {
+    async getThreeFrequentLocationByGoogleId(userId: string) {
         try {
-            const query = await this.locationRepo.createQueryBuilder('location')
-                .select([
-                    'location.id',
-                    'location.address',
-                ])
-                .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
-                .where('user_Id = :userId', {userId: userId})
-                .groupBy('location.google_id')
-                .orderBy('count(*)', 'DESC')
-                .limit(3)
-                .getMany()
-            this.apiResponse.data = query;
+            const frequentLocation: LocationEntity[] = [];
+            let googleIdFrequents = (await this.getThreeFrequentGoogleId(userId)).map(data => data.googleId);
+            for (const googleIdFrequent of googleIdFrequents) {
+                const query = await this.locationRepo.createQueryBuilder('location')
+                    .where('google_id = :googleId', {googleId: googleIdFrequent})
+                    .orderBy('createdAt', 'DESC')
+                    .getOne();
+                frequentLocation.push(query);
+            }
+            this.apiResponse.data = frequentLocation;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
         }
         return this.apiResponse;
     }
+
+    async getThreeFrequentGoogleId(userId: string) {
+        const query = await this.locationRepo
+            .createQueryBuilder('location')
+            .select([
+                'location.googleId',
+                // 'location.address',
+            ])
+            .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
+            .where('user_Id = :userId', {userId: userId})
+            .andWhere('milestone<>0')
+            .andWhere('')
+            .groupBy('location.google_id')
+            .orderBy('count(*)', 'DESC')
+            .limit(3)
+            .getMany()
+        console.log(query)
+        return query;
+    }
+
+    async getThreeLatestLocation(userId: string) {
+        const query = await this.locationRepo
+            .createQueryBuilder('location')
+            .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
+            .where('user_Id = :userId', {userId: userId})
+            .andWhere('milestone <> 0')
+            .groupBy('location.google_id')
+            .orderBy('createdAt', 'DESC')
+            .getMany();
+        console.log(query);
+        return query;
+    }
+
 }
