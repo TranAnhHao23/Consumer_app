@@ -5,6 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
+import {TripAgainDto} from "./dto/trip-again.dto";
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
@@ -65,5 +66,10 @@ export class TripsController {
   getTripHistory(@Param('deviceId') deviceId: string){
     return this.tripsService.getTripHistory(deviceId);
   }
+
+  // @Post('tripagain')
+  // getTripAgain(@Body() tripAgainDto: TripAgainDto) {
+  //   return this.tripsService.getTripAgain(tripAgainDto);
+  // }
 
 }
