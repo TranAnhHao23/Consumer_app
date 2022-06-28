@@ -5,10 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  Long,
-  ManyToOne,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -59,11 +56,11 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'arrived_time', nullable: true })
   arrivedTime: Date;
 
-  @Column({ name: 'create_at' })
+  @Column({ name: 'created_at' })
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
-  @Column({ name: 'update_at' })
+  @Column({ name: 'updated_at' })
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 }

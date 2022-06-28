@@ -48,7 +48,7 @@ export class LocationEntity extends BaseEntity{
 
     @Column({ name: 'updated_at'})
     @UpdateDateColumn()
-    updateAt: Date;
+    updatedAt: Date;
 
     @Column({ name: 'address_name'})
     addressName: string;
