@@ -51,7 +51,7 @@ export class BookingsService {
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
-                newobj.updateAt = new Date();
+                newobj.updatedAt = new Date();
 
                 // Calculate price
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
@@ -125,7 +125,7 @@ export class BookingsService {
             if (Object.keys(booking).length !== 0) {
                 booking.cancelReason = cancelBookingDto.cancelReason;
                 booking.status = BookingStatus.CANCELED;
-                booking.updateAt = new Date();
+                booking.updatedAt = new Date();
                 this.apiResponse.data = await this.bookingRepository.update(cancelBookingDto.id, booking);
             } else
                 throw new InternalServerErrorException();
@@ -152,7 +152,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
             });
         } catch (error) {
@@ -168,7 +168,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId, status: BookingStatus.CANCELED},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
                 take: top
             });
@@ -185,7 +185,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
                 take: top
             });

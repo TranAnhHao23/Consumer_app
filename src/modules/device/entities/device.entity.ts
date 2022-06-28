@@ -48,19 +48,19 @@ export class DeviceEntity extends BaseEntity {
   @Column({ name: 'device_token', length: 200, nullable: true })
   deviceToken: string;
 
-  @Column({ name: 'create_date' })
+  @Column({ name: 'created_date' })
   @CreateDateColumn()
-  createDate: Date;
+  createdDate: Date;
 
-  @Column({ name: 'update_date' })
+  @Column({ name: 'updated_date' })
   @UpdateDateColumn()
-  updateDate: Date;
+  updatedDate: Date;
 
-  @Column({ name: 'create_by', length: 45, default: 'Anonymous' })
-  createBy: string;
+  @Column({ name: 'created_by', length: 45, default: 'Anonymous' })
+  createdBy: string;
 
-  @Column({ name: 'update_by', length: 45, default: 'Anonymous' })
-  updateBy: string;
+  @Column({ name: 'updated_by', length: 45, default: 'Anonymous' })
+  updatedBy: string;
 
   @BeforeInsert()
   generateId() {

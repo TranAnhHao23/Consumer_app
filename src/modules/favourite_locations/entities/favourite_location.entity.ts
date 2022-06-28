@@ -1,4 +1,5 @@
 import { IsNumber } from 'class-validator';
+import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
   BaseEntity,
   BeforeInsert,
@@ -22,16 +23,10 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'title', length: 255 })
   title: string;
 
-  @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude',
-      transformer: {
-      to(value) {return value}, from(value) {return parseFloat(value)}
-      }, })
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'longitude', transformer: new ToNumericTrans })
   longitude: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude',
-      transformer: {
-          to(value) {return value}, from(value) {return parseFloat(value)}
-      },})
+  @Column({type: "decimal", precision: 10, scale: 5 , name: 'latitude', transformer: new ToNumericTrans })
   latitude: number;
 
   @Column({ name: 'address', length: 255 })
@@ -40,13 +35,13 @@ export class Favourite_locationEntity extends BaseEntity {
   @Column({ name: 'note', length: 255, nullable: true })
   note: string;
 
-  @Column({ name: 'create_at' })
+  @Column({ name: 'created_at' })
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
-  @Column({ name: 'update_at' })
+  @Column({ name: 'updated_at' })
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
   
   @Column({ name: 'google_id' })
   googleId: string;
