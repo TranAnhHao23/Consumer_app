@@ -62,9 +62,8 @@ export class BookingsController {
     return this.bookingsService.findOne(id);
   }
 
-  
-  @Post('pickupGuest/:id')
-  pickupGuest(@Param('id') id: string) {
-    return this.bookingsService.pickupGuest(id);
+  @Get('cancelreason/list')
+  getCancelReasonList() {
+     return this.bookingsService.getCancelReasonList();
   }
 }

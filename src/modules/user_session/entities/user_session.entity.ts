@@ -26,9 +26,9 @@ export class UserSessionEntity extends BaseEntity {
   @Column({ name: 'token', default: 'NuLL', nullable: true })
   token: string;
 
-  @Column({ name: 'create_date', length: 45 })
+  @Column({ name: 'created_date', length: 45 })
   @CreateDateColumn()
-  createDate: Date;
+  createdDate: Date;
 
   @BeforeInsert()
   generateId() {

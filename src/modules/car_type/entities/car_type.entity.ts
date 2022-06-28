@@ -1,3 +1,4 @@
+import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
   BaseEntity,
   BeforeInsert,
@@ -28,16 +29,16 @@ export class Car_typeEntity extends BaseEntity {
   @Column({ name: 'car_icon', nullable: true })
   carIcon: string;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'longitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'longitude', nullable: true, transformer: new ToNumericTrans })
   longitude: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'latitude', nullable: true })
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'latitude', nullable: true, transformer: new ToNumericTrans })
   latitude: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true})
+  @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({ name: 'orders'})
+  @Column({ name: 'orders' })
   orders: number;
 
   @OneToMany(() => Car_detailEntity, carDetail => carDetail.carType)

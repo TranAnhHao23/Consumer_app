@@ -10,6 +10,7 @@ import { LocationsService } from '../locations/locations.service';
 import { CreateLocationDto } from '../locations/dto/create-location.dto';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 import { stringify } from 'querystring';
+import { CreateTripLocationDto } from './dto/create-trip-location.dto';
 
 @Injectable()
 export class TripsService {
@@ -54,54 +55,78 @@ export class TripsService {
     return draftingTrip
   }
 
-  async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    if (upsertDraftingTripDto.startTime) {
-      const now = (new Date()).getTime()
-      const startTime = (new Date(upsertDraftingTripDto.startTime)).getTime()
+  private isValidStartTime(startTime: Date) {
+    const nowInMsec = (new Date()).getTime()
+    const startTimeInMsec = (new Date(startTime)).getTime()
+    const difftime = startTimeInMsec - nowInMsec
+    return difftime >= 1 * 3600 * 1000
+  }
 
-      const difftime = startTime - now
-      if (difftime < 1 * 60 * 60 * 1000) {
+  private async upsertLocationsForTrip(trip: TripEntity, locations: [CreateTripLocationDto]) {
+    if (locations.length >= 4) {
+      throw new HttpException('Exceed number of destinations', HttpStatus.BAD_REQUEST)
+    }
+    if (locations.length < 2) {
+      throw new HttpException('Missing destinations', HttpStatus.BAD_REQUEST)
+    }
+    await Promise.all([
+      this.locationRepo.delete({ trip: trip }),
+      this.tripRepo.update(trip.id, { copyTripId: null })
+    ])
+
+    await Promise.all(locations.map(async (location: CreateLocationDto, index) => {
+      location.tripId = trip.id;
+      location.milestone = index
+      await this.locationService.create(location)
+    }));
+  }
+
+  async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
+    this.apiResponse = new ResponseResult()
+    try {  
+      if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
       }
-    }
-    
-    let savedDraftingTrip;
-    const draftingTrip = await this.getDraftingTripByDeviceId({
-      deviceId: upsertDraftingTripDto.deviceId,
-    });
-
-    if (!draftingTrip) {
-      const newDraftingTrip = this.tripRepo.create({
+      
+      let savedDraftingTrip;
+      const draftingTrip = await this.getDraftingTripByDeviceId({
         deviceId: upsertDraftingTripDto.deviceId,
-        carType: upsertDraftingTripDto.carType,
-        startTime: upsertDraftingTripDto.startTime,
-        isDrafting: true
       });
-      savedDraftingTrip = await newDraftingTrip.save();
-    } else {
-      if ('carType' in upsertDraftingTripDto) {
-        draftingTrip.carType = upsertDraftingTripDto.carType
-      }
-      if ('startTime' in upsertDraftingTripDto) {
-        draftingTrip.startTime = upsertDraftingTripDto.startTime
-      }
-      savedDraftingTrip = await draftingTrip.save();
-    }
-    
-    if (upsertDraftingTripDto.locations) {
-      await Promise.all([
-        this.locationRepo.delete({ trip: savedDraftingTrip }),
-        this.tripRepo.update(savedDraftingTrip.id, { copyTripId: null })
-      ])
 
-      await Promise.all(upsertDraftingTripDto.locations.map(async (location: CreateLocationDto, index) => {
-        location.tripId = savedDraftingTrip.id;
-        location.milestone = index
-        await this.locationService.create(location)
-      }));
+      if (!draftingTrip) {
+        const newDraftingTrip = this.tripRepo.create({
+          deviceId: upsertDraftingTripDto.deviceId,
+          carType: upsertDraftingTripDto.carType,
+          startTime: upsertDraftingTripDto.startTime,
+          isDrafting: true
+        });
+        savedDraftingTrip = await newDraftingTrip.save();
+      } else {
+        if ('carType' in upsertDraftingTripDto) {
+          draftingTrip.carType = upsertDraftingTripDto.carType
+        }
+        if ('startTime' in upsertDraftingTripDto) {
+          draftingTrip.startTime = upsertDraftingTripDto.startTime
+        }
+        savedDraftingTrip = await draftingTrip.save();
+      }
+      
+      if (upsertDraftingTripDto.locations) {
+        await this.upsertLocationsForTrip(savedDraftingTrip, upsertDraftingTripDto.locations)
+      }
+
+      this.apiResponse.status = HttpStatus.CREATED
+      this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+    } catch (error) {
+      if (error instanceof HttpException) {
+        this.apiResponse.status = error.getStatus()
+        this.apiResponse.errorMessage = error.getResponse().toString()
+      } else {
+        this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+      }
     }
 
-    return await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+    return this.apiResponse
   }
 
   async copyTripToDrafting(copyTriptoDraftDto: CopyTripToDrafting) {
@@ -132,6 +157,7 @@ export class TripsService {
           note: location.note,
           googleId: location.googleId,
           referenceId: location.referenceId,
+          addressName: location.addressName, // Anh thêm 1 dòng này nhé Cảnh
           trip: savedDraftingTrip
         }
       })

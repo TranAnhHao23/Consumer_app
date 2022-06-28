@@ -33,4 +33,7 @@ export class CreateTripLocationDto {
 
     @ApiProperty()
     referenceId: string
+
+    @ApiProperty()
+    addressName: string;
 }

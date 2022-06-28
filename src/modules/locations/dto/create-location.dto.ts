@@ -47,4 +47,7 @@ export class CreateLocationDto {
     @Min(0)
     @Max(3)
     milestone: number
+
+    @ApiProperty()
+    addressName: string;
 }

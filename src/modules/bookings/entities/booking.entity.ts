@@ -1,13 +1,11 @@
+import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
-  Long,
-  ManyToOne,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -34,13 +32,13 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'status' })
   status: number;
  
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
   tipAmount: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0})
+  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
   distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })
@@ -58,11 +56,11 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'arrived_time', nullable: true })
   arrivedTime: Date;
 
-  @Column({ name: 'create_at' })
+  @Column({ name: 'created_at' })
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
-  @Column({ name: 'update_at' })
+  @Column({ name: 'updated_at' })
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 }

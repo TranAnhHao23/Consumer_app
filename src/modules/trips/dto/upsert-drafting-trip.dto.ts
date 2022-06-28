@@ -23,6 +23,7 @@ export class UpsertDraftingTripDto {
                 "note": "string",
                 "googleId": "string",
                 "referenceId": "string",
+                "addressName": "string"
             },
             {
                 "longitude": 1,
@@ -31,6 +32,7 @@ export class UpsertDraftingTripDto {
                 "note": "string",
                 "googleId": "string",
                 "referenceId": "string",
+                "addressName": "string"
             }
         ],
         required: false

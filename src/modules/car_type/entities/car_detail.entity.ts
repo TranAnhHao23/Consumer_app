@@ -1,5 +1,5 @@
+import { ToNumericTrans } from "src/shared/column-numeric-transformer";
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {TripEntity} from "../../trips/entities/trip.entity";
 import {Car_typeEntity} from "./car_type.entity";
 
 @Entity({name: 'car_detail'})
@@ -11,19 +11,19 @@ export class Car_detailEntity extends BaseEntity{
     @Column({ name: 'label', length: 255})
     label: string;
 
-    @Column({ name: 'min_distance', nullable: true})
+    @Column({ name: 'min_distance', nullable: true, transformer: new ToNumericTrans })
     minDistance: number;
 
-    @Column({ name: 'max_distance', nullable: true})
+    @Column({ name: 'max_distance', nullable: true, transformer: new ToNumericTrans })
     maxDistance: number;
 
-    @Column({type: 'decimal', precision: 5, scale: 2, name: 'price'})
+    @Column({type: 'decimal', precision: 5, scale: 2, name: 'price', transformer: new ToNumericTrans })
     price: number;
 
     @Column({name: 'currency'})
     currency: string;
 
-    @Column({ name: 'orders'})
+    @Column({ name: 'orders', transformer: new ToNumericTrans })
     orders: number;
 
     @ManyToOne(() => Car_typeEntity)
