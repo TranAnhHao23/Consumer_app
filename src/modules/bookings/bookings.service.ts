@@ -30,7 +30,7 @@ export class BookingsService {
     private readonly tripRepository: Repository<TripEntity>,
   ) {}
 
-  async create(createBookingDto: CreateBookingDto) {
+  async create(createBookingDto: CreateBookingDto) { 
     this.apiResponse = new ResponseResult();
     try {
       const newobj = this.bookingRepository.create(createBookingDto);

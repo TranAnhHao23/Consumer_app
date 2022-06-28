@@ -26,8 +26,9 @@ import { LocationsModule } from './modules/locations/locations.module';
 import { FavouriteLocationsModule } from './modules/favourite_locations/favourite_locations.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { CarTypeModule } from './modules/car_type/car_type.module';
-import { ResponseResult } from './shared/ResponseResult';
-import { PaymentsModule } from './modules/payments/payments.module';
+import { ResponseResult } from './shared/ResponseResult'; 
+import { InvoiceModule } from './modules/invoice/invoice.module';
+import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.module';
 
 @Module({
   imports: [
@@ -57,7 +58,8 @@ import { PaymentsModule } from './modules/payments/payments.module';
     FavouriteLocationsModule,
     BookingsModule,
     CarTypeModule,
-    PaymentsModule,
+    InvoiceModule,
+    PaymentmethodModule
   ],
   controllers: [AppController],
   providers: [

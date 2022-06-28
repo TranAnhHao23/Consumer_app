@@ -39,7 +39,7 @@ export class FavouriteLocationsService {
       this.apiResponse.data = await this.favouriteRepository.findOne({
         id: updateFavouriteLocationDto.id,
       });
-    } catch (error) {
+    } catch (error) { 
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
