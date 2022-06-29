@@ -52,6 +52,9 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'cancel_reason', length: 255, nullable: true })
   cancelReason: string;
 
+  @Column({ name: 'cancel_time', nullable: true})
+  cancelTime: Date;
+
   @Column({ name: 'booking_start_time', nullable: true })
   bookingStartTime: Date;
 
