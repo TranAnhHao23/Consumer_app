@@ -64,6 +64,7 @@ import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.modul
   controllers: [AppController],
   providers: [
     AppService,
+    ResponseResult,
     {
       provide: APP_FILTER,
       useClass: HttpErrorFilter,
