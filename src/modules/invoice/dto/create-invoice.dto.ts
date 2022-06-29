@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsUUID } from "class-validator";
 
 export class CreateInvoiceDto {
-    OrderNo: string;
+  OrderNo: string;
   
   @ApiProperty({
     maxLength: 45,
@@ -13,6 +14,7 @@ export class CreateInvoiceDto {
     maxLength: 45,
     required: true
   })
+  @IsUUID()
   bookingId: string;
 
   
@@ -20,10 +22,11 @@ export class CreateInvoiceDto {
     maxLength: 45,
     required: true
   })
+  @IsUUID()
   paymentMethodId: string;
   
   @ApiProperty({
-    required: true
+    required: true,
   }) 
   amount: number;
  

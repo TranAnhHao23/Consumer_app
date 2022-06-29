@@ -45,6 +45,8 @@ export class BookingsService {
     async create(createBookingDto: CreateBookingDto) {
         this.apiResponse = new ResponseResult();
         try {
+            // Validate Promotion
+            
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
@@ -59,8 +61,6 @@ export class BookingsService {
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
 
                 this.apiResponse.data = await this.bookingRepository.save(newobj);
-
-                // this.apiResponse.data =  await this.bookingRepository.update(newobj.id,newobj);
 
                 // update trip = isDrafting = false
                 getTrip.isDrafting = false;
@@ -261,6 +261,12 @@ export class BookingsService {
     async cancelBooking2 (cancelBookingDto: CancelBookingDto) {
         this.apiResponse = new ResponseResult();
         try {
+            let cancelTimes = await this.bookingRepository.createQueryBuilder('booking')
+                .select('count(booking.status)')
+                .where('user_Id = :userId', {userId: cancelBookingDto.userId})
+                .andWhere('status = -1')
+                .getMany();
+            console.log(cancelTimes);
             let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
             if  (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
                 bookingCancel.cancelReason = cancelBookingDto.cancelReason;

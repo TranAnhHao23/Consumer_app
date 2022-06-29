@@ -29,6 +29,7 @@ import { CarTypeModule } from './modules/car_type/car_type.module';
 import { ResponseResult } from './shared/ResponseResult'; 
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.module';
+import { PromotionModule } from './modules/promotion/promotion.module'; 
 
 @Module({
   imports: [
@@ -59,7 +60,8 @@ import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.modul
     BookingsModule,
     CarTypeModule,
     InvoiceModule,
-    PaymentmethodModule
+    PaymentmethodModule,
+    PromotionModule 
   ],
   controllers: [AppController],
   providers: [
