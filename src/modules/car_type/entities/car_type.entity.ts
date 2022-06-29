@@ -8,13 +8,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid4 } from 'uuid';
-import {Car_detailEntity} from "./car_detail.entity";
+import {CarDetailEntity} from "./car_detail.entity";
 
 @Entity({ name: 'car_type' })
-export class Car_typeEntity extends BaseEntity {
+export class CarTypeEntity extends BaseEntity {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  @PrimaryGeneratedColumn('uuid', { name: 'car_type_id', length: 45 })
+  @PrimaryGeneratedColumn('uuid', { name: 'id', length: 45 })
   id: string;
 
   @Column({ name: 'type_name' })
@@ -41,6 +41,9 @@ export class Car_typeEntity extends BaseEntity {
   @Column({ name: 'orders' })
   orders: number;
 
-  @OneToMany(() => Car_detailEntity, carDetail => carDetail.carType)
-  carDetails: Car_detailEntity[]
+  @Column({ name: 'category'})
+  category: string;
+
+  @OneToMany(() => CarDetailEntity, carDetail => carDetail.carType)
+  carDetails: CarDetailEntity[]
 }
