@@ -15,12 +15,12 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 export class BookingEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
+ 
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
   @Column({ name: 'user_Id', length: 45 })
-  userId: string;
+  userId: string; 
 
   @OneToOne(() => TripEntity, { nullable: true })
   @JoinColumn({ name: 'trip_id' })
