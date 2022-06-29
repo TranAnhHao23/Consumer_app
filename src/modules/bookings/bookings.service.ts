@@ -261,6 +261,12 @@ export class BookingsService {
     async cancelBooking2 (cancelBookingDto: CancelBookingDto) {
         this.apiResponse = new ResponseResult();
         try {
+            let cancelTimes = await this.bookingRepository.createQueryBuilder('booking')
+                .select('count(booking.status)')
+                .where('user_Id = :userId', {userId: cancelBookingDto.userId})
+                .andWhere('status = -1')
+                .getMany();
+            console.log(cancelTimes);
             let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
             if  (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
                 bookingCancel.cancelReason = cancelBookingDto.cancelReason;
