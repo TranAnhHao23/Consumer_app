@@ -113,18 +113,18 @@ export class CarTypeService {
             let result: any[] = [];
             for (const carCategory of carCategories) {
                 let cars = await this.carRepo.createQueryBuilder('car_type')
-                    .select([
-                        'car_type.id',
-                        'car_type.typeName',
-                        'car_type.typeSlogan',
-                        'car_type.carImage',
-                        'car_type.carIcon',
-                        'car_type.longitude',
-                        'car_type.latitude',
-                        'car_type.price'
-                    ])
+                    // .select([
+                    //     'car_type.id',
+                    //     'car_type.typeName',
+                    //     'car_type.typeSlogan',
+                    //     'car_type.carImage',
+                    //     'car_type.carIcon',
+                    //     'car_type.longitude',
+                    //     'car_type.latitude',
+                    //     'car_type.price'
+                    // ])
                     .where('category = :category', {category: carCategory})
-                    .orderBy('orders', 'DESC')
+                    .orderBy('orders', 'ASC')
                     .getMany();
                 result.push({
                     category: carCategory,
