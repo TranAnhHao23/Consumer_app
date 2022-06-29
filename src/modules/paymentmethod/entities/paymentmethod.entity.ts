@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity("PaymentMethod")
+@Entity("paymentmethod")
 export class PaymentMethod extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
