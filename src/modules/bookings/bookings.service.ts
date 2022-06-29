@@ -1,4 +1,5 @@
 import {
+    HttpException,
     HttpStatus,
     Injectable,
     InternalServerErrorException,
@@ -9,6 +10,7 @@ import {createQueryBuilder, In, Repository} from 'typeorm';
 import {TripEntity} from '../trips/entities/trip.entity';
 import {CancelBookingDto} from './dto/CancelBookingDto';
 import {CreateBookingDto} from './dto/create-booking.dto';
+import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import {UpdateBookingDto} from './dto/update-booking.dto';
 import {BookingEntity} from './entities/booking.entity';
 import {CancelReason} from "./entities/cancel-reason.entity";
@@ -262,5 +264,35 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
         return this.apiResponse;
+    }
+
+    async noteForDriver(bookingId: string, noteForDriverDto: NoteForDriverDto) {
+        this.apiResponse = new ResponseResult()
+        try {
+            const booking = await this.bookingRepository.findOne(bookingId)
+
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+
+            if (booking.status != BookingStatus.PROCESSING) {
+                throw new HttpException('Booking is not proccessing. You can not update', HttpStatus.BAD_REQUEST)
+            }
+            await this.bookingRepository.update(bookingId, {
+                noteForDriver: noteForDriverDto.noteForDriver
+            })
+
+            const updatedBooking = await this.bookingRepository.findOne(bookingId, { relations: ['trip' ]})
+            this.apiResponse.status = HttpStatus.CREATED
+            this.apiResponse.data = updatedBooking
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+        }
+        return this.apiResponse
     }
 }
