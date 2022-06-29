@@ -66,6 +66,7 @@ import { PromotionModule } from './modules/promotion/promotion.module';
   controllers: [AppController],
   providers: [
     AppService,
+    ResponseResult,
     {
       provide: APP_FILTER,
       useClass: HttpErrorFilter,
