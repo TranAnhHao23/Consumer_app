@@ -5,7 +5,7 @@ import {CarTypeEntity} from "./car_type.entity";
 @Entity({name: 'car_detail'})
 export class CarDetailEntity extends BaseEntity{
     // @ts-ignore
-    @PrimaryGeneratedColumn('uuid', {name: 'car_detail_id', length: 45})
+    @PrimaryGeneratedColumn('uuid', {name: 'id', length: 45})
     id: string;
 
     @Column({ name: 'label', length: 255})
