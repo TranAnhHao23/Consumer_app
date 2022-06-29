@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {isDecimal} from "class-validator";
+import {IsArray, isDecimal, IsOptional} from "class-validator"; 
 
 export class CreateBookingDto {
     @ApiProperty({
@@ -30,6 +30,6 @@ export class CreateBookingDto {
         required: true
     })
     distance: number;
-
+ 
 }
  

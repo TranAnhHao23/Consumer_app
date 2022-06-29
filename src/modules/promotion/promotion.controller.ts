@@ -2,33 +2,39 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PromotionService } from './promotion.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('promotion')
+@ApiTags('promotion')
+@Controller('v1/rhc/promotion')
 export class PromotionController {
   constructor(private readonly promotionService: PromotionService) {}
-
   @Post()
   create(@Body() createPromotionDto: CreatePromotionDto) {
     return this.promotionService.create(createPromotionDto);
   }
+  
+  @Post('update/:id')
+  update(@Param('id') id: string, @Body() updateInvoiceDto: UpdatePromotionDto) {
+    return this.promotionService.update(id, updateInvoiceDto);
+  }
 
-  @Get()
-  findAll() {
-    return this.promotionService.findAll();
+  @Post("getavailablepromotion/:userId")
+  findAvailablePromotion(@Param('userId') userId: string) {
+    return this.promotionService.findAvailablePromotion(userId);
+  }
+
+  @Get('getallbyuser/:userId')
+  findByorderNo(@Param('userId') userId: string) {
+    return this.promotionService.findAllByUserId(userId);
+  }
+
+  @Get('getallbybooking/:bookingId')
+  findByUserId(@Param('bookingId') bookingId: string) {
+    return this.promotionService.findAllByBookingId(bookingId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.promotionService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePromotionDto: UpdatePromotionDto) {
-    return this.promotionService.update(+id, updatePromotionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.promotionService.remove(+id);
+    return this.promotionService.findOne(id);
   }
 }

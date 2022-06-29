@@ -57,13 +57,21 @@ export class BookingsController {
     return this.bookingsService.getBookingHistory(userId,+top);
   }
 
+  @Get('cancelreasonlist')
+  getCancelReasonList() {
+    return this.bookingsService.getCancelReasonList();
+  }
+
+  @Get('emergencyinfo')
+  getEmergencyInformation() {
+    return this.bookingsService.getEmergencyInformation();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
 
-  @Get('cancelreason/list')
-  getCancelReasonList() {
-     return this.bookingsService.getCancelReasonList();
-  }
+
+
 }
