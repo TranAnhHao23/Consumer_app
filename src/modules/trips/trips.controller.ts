@@ -62,10 +62,10 @@ export class TripsController {
     return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
   }
 
-  @Get('history/:deviceId')
-  getTripHistory(@Param('deviceId') deviceId: string){
-    return this.tripsService.getTripHistory(deviceId);
-  }
+  // @Get('history/:deviceId')
+  // getTripHistory(@Param('deviceId') deviceId: string){
+  //   return this.tripsService.getTripHistory(deviceId);
+  // }
 
   // @Post('tripagain')
   // getTripAgain(@Body() tripAgainDto: TripAgainDto) {
