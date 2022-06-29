@@ -56,6 +56,9 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'arrived_time', nullable: true })
   arrivedTime: Date;
 
+  @Column({ name: 'note_for_driver', length: 255, nullable: true })
+  noteForDriver: string;
+
   @Column({ name: 'created_at' })
   @CreateDateColumn()
   createdAt: Date;
