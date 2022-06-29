@@ -112,13 +112,17 @@ export class InvoiceService {
     try {
       const getPayment = await this.invoiceRepository.findOne(id);
       if (Object.keys(getPayment).length !== 0) {
-        if (getPayment.invoiceStatus == PaymentStatus.COMPLETED || getPayment.invoiceStatus == PaymentStatus.FAILED) {
+        if (getPayment.invoiceStatus == PaymentStatus.COMPLETED) {
           this.apiResponse.status = HttpStatus.EXPECTATION_FAILED;
           this.apiResponse.errorMessage = "Invoice has been processed";
           return this.apiResponse;
         }
         else {
           getPayment.invoiceStatus = PaymentStatus.COMPLETED;
+          // TODO
+          getPayment.orderNo = Math.floor(Math.random() * 1000000) + "TH";
+          getPayment.paymentDate = new Date();
+          getPayment.updatedAt = new Date();
           await this.invoiceRepository.update({ id: id }, getPayment);
           return await this.findOne(id);
         }

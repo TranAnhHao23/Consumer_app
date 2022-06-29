@@ -1,3 +1,4 @@
+import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
   BaseEntity,
@@ -5,6 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,30 +17,33 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 export class BookingEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
- 
+
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
   @Column({ name: 'user_Id', length: 45 })
-  userId: string; 
+  userId: string;
 
   @OneToOne(() => TripEntity, { nullable: true })
   @JoinColumn({ name: 'trip_id' })
   trip: TripEntity;
+
+  @OneToMany(() => Promotion, (promotion) => promotion.booking)
+  promotions: Promotion[];
 
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
 
   @Column({ name: 'status' })
   status: number;
- 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
+
+  @Column({ type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
+  @Column({ type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
   tipAmount: number;
 
-  @Column({type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
+  @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
   distance: number;
 
   @Column({ name: 'tip_reason', length: 255, nullable: true })
