@@ -52,7 +52,7 @@ export class BookingsController {
 
   @Post('cancelbooking')
   cancelBooking( @Body() cancelBookingDto: CancelBookingDto  ) {
-    return this.bookingsService.cancelBooking(cancelBookingDto);
+    return this.bookingsService.cancelBooking2(cancelBookingDto);
   }
 
   @Post('getbookinghistory/:userId/:top')
