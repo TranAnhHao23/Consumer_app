@@ -3,7 +3,7 @@ import { PaymentMethod } from "src/modules/paymentmethod/entities/paymentmethod.
 import { ToNumericTrans } from "src/shared/column-numeric-transformer";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity("invoice")
+@Entity({ name: 'invoice' })
 export class Invoice extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -1,6 +1,7 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Invoice } from "src/modules/invoice/entities/invoice.entity";
+import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity("paymentmethod")
+@Entity({ name: 'payment_method' })
 export class PaymentMethod extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -19,6 +20,9 @@ export class PaymentMethod extends BaseEntity{
   
     @Column({ name: 'order', nullable: true })
     order: number;
+
+    @OneToMany(() => Invoice, (invoice) => invoice.paymentMethod)
+    invoices: Invoice[];
 
     @Column({ name: 'create_at' })
     @CreateDateColumn()
