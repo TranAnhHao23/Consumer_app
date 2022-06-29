@@ -2,20 +2,25 @@ import {HttpStatus, Injectable} from '@nestjs/common';
 import {CreateCarTypeDto} from './dto/create-car_type.dto';
 import {UpdateCarTypeDto} from './dto/update-car_type.dto';
 import {InjectConnection, InjectRepository} from '@nestjs/typeorm';
-import {Car_typeEntity} from './entities/car_type.entity';
+import {CarTypeEntity} from './entities/car_type.entity';
 import {Like, Repository} from 'typeorm';
 import {Connection} from 'mysql2';
 import {ResponseResult} from '../../shared/ResponseResult';
 import {SearchCarByLocationDto} from "./dto/search-car-by-location";
-import {Car_detailEntity} from "./entities/car_detail.entity";
+import {CarDetailEntity} from "./entities/car_detail.entity";
+
+enum Category {
+    'Everyday Ride'=1,
+    'Extra Space Ride'=2,
+}
 
 @Injectable()
 export class CarTypeService {
     constructor(
-        @InjectRepository(Car_typeEntity)
-        private readonly carRepo: Repository<Car_typeEntity>,
-        @InjectRepository(Car_detailEntity)
-        private readonly carDetailRepo: Repository<Car_detailEntity>,
+        @InjectRepository(CarTypeEntity)
+        private readonly carRepo: Repository<CarTypeEntity>,
+        @InjectRepository(CarDetailEntity)
+        private readonly carDetailRepo: Repository<CarDetailEntity>,
         @InjectConnection() private readonly connection: Connection,
         private apiResponse: ResponseResult,
     ) {
@@ -62,8 +67,7 @@ export class CarTypeService {
                 .where("car_detail.car_type_id = :id", {id: idCar})
                 .orderBy({'car_detail.orders': 'ASC'})
                 .getMany()
-            // console.log(query)
-            this.apiResponse.data = query;
+            this.apiResponse.data = query
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
@@ -102,18 +106,39 @@ export class CarTypeService {
                 car.price = await this.calculatePrice(distance, car.id);
                 await this.carRepo.update({id: car.id}, car);
             }
-            this.apiResponse.data = await this.carRepo.find({
-                order: {
-                    orders: 'ASC',
-                }
-            });
+            let carCategories = (await this.carRepo.createQueryBuilder('car_type')
+                .select('category')
+                .distinct(true)
+                .getRawMany()).map(data => data.category);
+            let result: any[] = [];
+            for (const carCategory of carCategories) {
+                let cars = await this.carRepo.createQueryBuilder('car_type')
+                    .select([
+                        'car_type.id',
+                        'car_type.typeName',
+                        'car_type.typeSlogan',
+                        'car_type.carImage',
+                        'car_type.carIcon',
+                        'car_type.longitude',
+                        'car_type.latitude',
+                        'car_type.price'
+                    ])
+                    .where('category = :category', {category: carCategory})
+                    .orderBy('orders', 'DESC')
+                    .getMany();
+                result.push({
+                    category: carCategory,
+                    cars: cars,
+                })
+            }
+            this.apiResponse.data = result;
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return this.apiResponse;
     }
 
-    async calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto: SearchCarByLocationDto, car: Car_typeEntity) {
+    async calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto: SearchCarByLocationDto, car: CarTypeEntity) {
         let dLat = Math.abs((searchCarByLocationDto.latitude - car.latitude) * (Math.PI / 180));
         let dLong = Math.abs((searchCarByLocationDto.longitude - car.longitude) * (Math.PI / 180));
         let la1ToRad = searchCarByLocationDto.latitude * (Math.PI / 180);
