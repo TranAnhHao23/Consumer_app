@@ -11,6 +11,12 @@ export class CreatePromotionDto {
     @ApiProperty({
         required: true
     })
+    @IsString()
+    code: string;
+
+    @ApiProperty({
+        required: true
+    })
     userId: string;
 
     @ApiProperty({

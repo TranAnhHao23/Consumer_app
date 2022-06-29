@@ -1,10 +1,14 @@
 import { BookingEntity } from "src/modules/bookings/entities/booking.entity";
 import { ToNumericTrans } from "src/shared/column-numeric-transformer";
-import { BaseEntity, Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+@Entity("Promotion")
 export class Promotion extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'code', length: 50, nullable: false })
+  code: string;
 
   @Column({ name: 'name', length: 255, nullable: true })
   name: string;
