@@ -4,6 +4,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import {ApiTags} from "@nestjs/swagger";
 import { CancelBookingDto } from './dto/CancelBookingDto';
+import { NoteForDriverDto } from './dto/note-for-driver.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -21,6 +22,11 @@ export class BookingsController {
     return this.bookingsService.update(
       updateBookingDto.id,  updateBookingDto,
     );
+  }
+
+  @Patch('/:id/notefordriver')
+  noteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto) {
+    return this.bookingsService.noteForDriver(id, noteForDriverDto)
   }
 
   @Get('getbyuserid/:userId')
@@ -57,13 +63,21 @@ export class BookingsController {
     return this.bookingsService.getBookingHistory(userId,+top);
   }
 
+  @Get('cancelreasonlist')
+  getCancelReasonList() {
+    return this.bookingsService.getCancelReasonList();
+  }
+
+  @Get('emergencyinfo')
+  getEmergencyInformation() {
+    return this.bookingsService.getEmergencyInformation();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
 
-  @Get('cancelreason/list')
-  getCancelReasonList() {
-     return this.bookingsService.getCancelReasonList();
-  }
+
+
 }

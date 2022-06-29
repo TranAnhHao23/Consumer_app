@@ -31,19 +31,19 @@ export class AddressProfileEntity extends BaseEntity {
   @Column({ name: 'postal_id', length: 45, nullable: true })
   postalId: string;
 
-  @Column({ name: 'create_date', nullable: true })
+  @Column({ name: 'created_date', nullable: true })
   @CreateDateColumn()
-  createDate: Date;
+  createdDate: Date;
 
-  @Column({ name: 'update_date', nullable: true })
+  @Column({ name: 'updated_date', nullable: true })
   @UpdateDateColumn()
-  updateDate: Date;
+  updatedDate: Date;
 
-  @Column({ name: 'create_by', length: 45, nullable: true })
-  createBy: string;
+  @Column({ name: 'created_by', length: 45, nullable: true })
+  createdBy: string;
 
-  @Column({ name: 'update_by', length: 45, nullable: true })
-  updateBy: string;
+  @Column({ name: 'updated_by', length: 45, nullable: true })
+  updatedBy: string;
 
   @OneToMany(() => UserEntity, (user) => user.address)
   users: UserEntity[];

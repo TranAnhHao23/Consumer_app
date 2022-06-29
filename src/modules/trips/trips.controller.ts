@@ -5,6 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
+import {TripAgainDto} from "./dto/trip-again.dto";
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
@@ -53,26 +54,7 @@ export class TripsController {
   
   @Post('upsertdraftingtrip')
   async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto) {
-    try {
-      const savedDraftingTrip = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
-      return {
-        status: HttpStatus.CREATED,
-        errorMessage: "",
-        data: savedDraftingTrip
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        return {
-          status: error.getStatus(),
-          errorMessage: error.message
-        }
-      } else {
-        return {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          errorMessage: error.message
-        }
-      }
-    }
+    return this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
   }
 
   @Post('copytriptodrafting')
@@ -80,9 +62,14 @@ export class TripsController {
     return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
   }
 
-  @Get('history/:deviceId')
-  getTripHistory(@Param('deviceId') deviceId: string){
-    return this.tripsService.getTripHistory(deviceId);
-  }
+  // @Get('history/:deviceId')
+  // getTripHistory(@Param('deviceId') deviceId: string){
+  //   return this.tripsService.getTripHistory(deviceId);
+  // }
+
+  // @Post('tripagain')
+  // getTripAgain(@Body() tripAgainDto: TripAgainDto) {
+  //   return this.tripsService.getTripAgain(tripAgainDto);
+  // }
 
 }

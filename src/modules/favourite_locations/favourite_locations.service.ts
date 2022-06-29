@@ -39,7 +39,7 @@ export class FavouriteLocationsService {
       this.apiResponse.data = await this.favouriteRepository.findOne({
         id: updateFavouriteLocationDto.id,
       });
-    } catch (error) {
+    } catch (error) { 
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
@@ -50,7 +50,7 @@ export class FavouriteLocationsService {
     try {
       this.apiResponse.data = await this.favouriteRepository.find({
         where: { userId: userId },
-        order: { ['createAt']: 'DESC' },
+        order: { ['createdAt']: 'DESC' },
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;

@@ -65,7 +65,7 @@ export class UserEntity extends BaseEntity {
   })
   status: UserStatus;
 
-  @Column({ name: 'create_date', nullable: true })
+  @Column({ name: 'created_date', nullable: true })
   @CreateDateColumn()
   createdDate: Date;
 
@@ -73,8 +73,8 @@ export class UserEntity extends BaseEntity {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  @Column({ name: 'update_by', length: 45, nullable: true })
-  updateBy: string;
+  @Column({ name: 'updated_by', length: 45, nullable: true })
+  updatedBy: string;
 
   @BeforeInsert()
   async hashPassword() {

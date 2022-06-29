@@ -1,4 +1,5 @@
 import {
+    HttpException,
     HttpStatus,
     Injectable,
     InternalServerErrorException,
@@ -9,14 +10,25 @@ import {createQueryBuilder, In, Repository} from 'typeorm';
 import {TripEntity} from '../trips/entities/trip.entity';
 import {CancelBookingDto} from './dto/CancelBookingDto';
 import {CreateBookingDto} from './dto/create-booking.dto';
+import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import {UpdateBookingDto} from './dto/update-booking.dto';
 import {BookingEntity} from './entities/booking.entity';
 import {CancelReason} from "./entities/cancel-reason.entity";
+import {EmergencyCall} from "./entities/emergency-call.entity";
 
 enum BookingStatus {
     CANCELED = -1,
     PROCESSING = 0,
     COMPLETED = 1,
+}
+
+enum TrackingStatus {
+    DRIVER_NOT_FOUND= -1, //ไม่พบคนขับในขณะนี้
+    DRIVER_ACCEPT = 0, // พบคนขับแล้ว
+    DRIVER_TO_PICKUP = 1, // คนขับใกล้ถึงแล้ว
+    DRIVER_ARRIVE= 2, // คนขับมาถึงแล้ว
+    ON_PROGRESS = 3, // กำลังเดินทาง
+    ARRIVE_DESTINATION = 4, // ถึงจุดหมายแล้ว
 }
 
 @Injectable()
@@ -41,7 +53,7 @@ export class BookingsService {
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
-                newobj.updateAt = new Date();
+                newobj.updatedAt = new Date();
 
                 // Calculate price
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
@@ -115,7 +127,7 @@ export class BookingsService {
             if (Object.keys(booking).length !== 0) {
                 booking.cancelReason = cancelBookingDto.cancelReason;
                 booking.status = BookingStatus.CANCELED;
-                booking.updateAt = new Date();
+                booking.updatedAt = new Date();
                 this.apiResponse.data = await this.bookingRepository.update(cancelBookingDto.id, booking);
             } else
                 throw new InternalServerErrorException();
@@ -142,7 +154,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
             });
         } catch (error) {
@@ -158,7 +170,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId, status: BookingStatus.CANCELED},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
                 take: top
             });
@@ -175,7 +187,7 @@ export class BookingsService {
         try {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
-                order: {['createAt']: 'DESC'},
+                order: {['createdAt']: 'DESC'},
                 relations: ['trip', 'trip.locations'],
                 take: top
             });
@@ -258,6 +270,46 @@ export class BookingsService {
             } else {
                 throw new InternalServerErrorException();
             }
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND;
+        }
+        return this.apiResponse;
+    }
+
+    async noteForDriver(bookingId: string, noteForDriverDto: NoteForDriverDto) {
+        this.apiResponse = new ResponseResult()
+        try {
+            const booking = await this.bookingRepository.findOne(bookingId)
+
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+
+            if (booking.status != BookingStatus.PROCESSING) {
+                throw new HttpException('Booking is not proccessing. You can not update', HttpStatus.BAD_REQUEST)
+            }
+            await this.bookingRepository.update(bookingId, {
+                noteForDriver: noteForDriverDto.noteForDriver
+            })
+
+            const updatedBooking = await this.bookingRepository.findOne(bookingId, { relations: ['trip' ]})
+            this.apiResponse.status = HttpStatus.CREATED
+            this.apiResponse.data = updatedBooking
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+        }
+        return this.apiResponse
+    }
+
+    async getEmergencyInformation() {
+        this.apiResponse = new ResponseResult()
+        try {
+            this.apiResponse.data = EmergencyCall.PHONE_NUMBER;
         } catch (error) {
             this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
