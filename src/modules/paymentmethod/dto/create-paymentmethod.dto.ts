@@ -25,7 +25,8 @@ export class CreatePaymentmethodDto {
     order: number;
     
     @ApiProperty({
-        required: false
+        required: true,
+        description: '0: Inactive. 1: Active',
       })
     status: number; 
 }
