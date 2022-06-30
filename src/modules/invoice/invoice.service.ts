@@ -13,6 +13,12 @@ enum PaymentStatus {
   COMPLETED = 1
 }
 
+enum BookingStatus {
+  CANCELED = -1,
+  PROCESSING = 0,
+  COMPLETED = 1,
+}
+
 @Injectable()
 export class InvoiceService {
   constructor(
@@ -110,7 +116,10 @@ export class InvoiceService {
   async processPayment(id: string) {
     this.apiResponse = new ResponseResult();
     try {
-      const getPayment = await this.invoiceRepository.findOne(id);
+      const getPayment = await this.invoiceRepository.findOne({
+        where: { id: id },
+        relations: ['booking'],
+      });
       if (Object.keys(getPayment).length !== 0) {
         if (getPayment.invoiceStatus == PaymentStatus.COMPLETED) {
           this.apiResponse.status = HttpStatus.EXPECTATION_FAILED;
@@ -124,6 +133,12 @@ export class InvoiceService {
           getPayment.paymentDate = new Date();
           getPayment.updatedAt = new Date();
           await this.invoiceRepository.update({ id: id }, getPayment);
+
+          // Update complete booking 
+          const getBooking = await this.bookingRepository.findOne(getPayment.booking.id);
+          getBooking.status = BookingStatus.COMPLETED;
+          await this.bookingRepository.update(getBooking.id, getBooking);
+
           return await this.findOne(id);
         }
       } else {
