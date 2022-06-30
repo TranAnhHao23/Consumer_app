@@ -128,32 +128,6 @@ export class CarTypeService {
         return this.apiResponse;
     }
 
-    async getCarSize(idCarType: string) {
-        this.apiResponse = new ResponseResult();
-        try {
-            switch (idCarType){
-                case '2':
-                case '3':
-                    this.apiResponse.data = [
-                        { carSize: 'S' },
-                        { carSize: 'M' },
-                        { carSize: 'L' },
-                    ]
-                    break;
-                case '4':
-                case '5':
-                    this.apiResponse.data = [
-                        { carSize: 'S' },
-                        { carSize: 'M' },
-                    ]
-                    break;
-            }
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
-        }
-        return this.apiResponse;
-    }
-
     async calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto: SearchCarByLocationDto, car: CarTypeEntity) {
         let dLat = Math.abs((searchCarByLocationDto.latitude - car.latitude) * (Math.PI / 180));
         let dLong = Math.abs((searchCarByLocationDto.longitude - car.longitude) * (Math.PI / 180));
