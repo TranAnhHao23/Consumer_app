@@ -5,10 +5,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {BookingEntity} from "./entities/booking.entity";
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { TripEntity } from '../trips/entities/trip.entity';
+import { Promotion } from '../promotion/entities/promotion.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity])],
+  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion])],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })

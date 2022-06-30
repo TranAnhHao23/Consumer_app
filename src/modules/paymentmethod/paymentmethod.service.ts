@@ -41,16 +41,17 @@ export class PaymentmethodService {
     try {
       const payment = await this.paymentmethodRepository.findOne(id);
       if (Object.keys(payment).length !== 0) {
-        
+
         // update all = false
         const allPayments = await this.paymentmethodRepository.find({
           where: { userId: userId }
         });
-        allPayments.forEach(element => {
+        for (const element of allPayments) {
           element.isDefault = false;
-          this.paymentmethodRepository.update(element.id, element);
-        });
+          await this.paymentmethodRepository.update(element.id, element);
+        }
 
+        // set current = true
         payment.isDefault = true;
         payment.updateAt = new Date();
         await this.paymentmethodRepository.update(id, payment);
@@ -80,7 +81,7 @@ export class PaymentmethodService {
     try {
       this.apiResponse.data = await this.paymentmethodRepository.find({
         where: { userId: userId },
-        order: { ['isDefault']: 'DESC' , ['order']: 'ASC'},
+        order: { ['isDefault']: 'DESC', ['order']: 'ASC' },
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -92,7 +93,7 @@ export class PaymentmethodService {
     this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.paymentmethodRepository.findOne({
-        where: { userId: userId } 
+        where: { userId: userId }
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
