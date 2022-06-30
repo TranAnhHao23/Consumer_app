@@ -10,11 +10,14 @@ import {createQueryBuilder, In, Repository} from 'typeorm';
 import {TripEntity} from '../trips/entities/trip.entity';
 import {CancelBookingDto} from './dto/CancelBookingDto';
 import {CreateBookingDto} from './dto/create-booking.dto';
+import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
+import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import {UpdateBookingDto} from './dto/update-booking.dto';
 import {BookingEntity} from './entities/booking.entity';
 import {CancelReason} from "./entities/cancel-reason.entity";
 import {EmergencyCall} from "./entities/emergency-call.entity";
+import {TrackingDto} from "./dto/tracking.dto";
 
 enum BookingStatus {
     CANCELED = -1,
@@ -23,12 +26,13 @@ enum BookingStatus {
 }
 
 enum TrackingStatus {
-    DRIVER_NOT_FOUND= -1, //ไม่พบคนขับในขณะนี้
-    DRIVER_ACCEPT = 0, // พบคนขับแล้ว
-    DRIVER_TO_PICKUP = 1, // คนขับใกล้ถึงแล้ว
-    DRIVER_ARRIVE= 2, // คนขับมาถึงแล้ว
-    ON_PROGRESS = 3, // กำลังเดินทาง
-    ARRIVE_DESTINATION = 4, // ถึงจุดหมายแล้ว
+    SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
+    DRIVER_NOT_FOUND = 1, //ไม่พบคนขับในขณะนี้
+    DRIVER_ACCEPT = 2, // พบคนขับแล้ว
+    DRIVER_TO_PICKUP = 3, // คนขับใกล้ถึงแล้ว
+    DRIVER_ARRIVE= 4, // คนขับมาถึงแล้ว
+    ON_PROGRESS = 5, // กำลังเดินทาง
+    ARRIVE_DESTINATION = 6, // ถึงจุดหมายแล้ว
 }
 
 @Injectable()
@@ -152,6 +156,27 @@ export class BookingsService {
         return this.apiResponse;
     }
 
+    async setLike(id: string, setLikeBookingDto: SetLikeBookingDto) {
+        this.apiResponse = new ResponseResult()
+        try {
+            const booking = await this.bookingRepository.findOne(id)
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+            await this.bookingRepository.update(id, { isLiked: setLikeBookingDto.isLike })
+            this.apiResponse.status = HttpStatus.OK
+            this.apiResponse.data = { id, isLiked: setLikeBookingDto.isLike }
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+        }
+        return this.apiResponse
+    }
+
     async getbyUserId(userId: string) {
         this.apiResponse = new ResponseResult();
         try {
@@ -200,33 +225,54 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-
-    async getFavouriteBooking(userId: string, top: number) {
+    async getRecentFavoriteBooking(getRecentFavoriteBookingDto: GetRecentFavoriteBookingDto) {
         this.apiResponse = new ResponseResult();
+
         try {
-            const tripIds = await this.tripRepository.createQueryBuilder('trip')
-                .innerJoinAndSelect('booking', 'booking', 'booking.trip_id = trip.id')
-                .select('trip.id')
-                .groupBy('trip.id')
-                .where('booking.user_Id = :user_Id', {user_Id: userId})
-                .orderBy({'sum(trip.copy_trip_id)': 'DESC', 'trip.createdat': 'DESC'})
-                .limit(top)
-                .getMany()
-
-            // Get booking by tripId
-            const query = await this.bookingRepository.find({
-                relations: ['trip', 'trip.locations','promotions'],
-                where: {
-                    'trip': {id: In(tripIds.map(ele => ele.id))},
+            const bookings = await this.bookingRepository.find({
+                where: { 
+                    userId: getRecentFavoriteBookingDto.userId,
+                    status: BookingStatus.COMPLETED
                 },
-            });
-
-            this.apiResponse.data = query;
+                relations: ['trip', 'trip.locations'],
+                order: { isLiked: 'DESC', startTime: 'DESC' },
+                take: getRecentFavoriteBookingDto.limit
+            })
+            this.apiResponse.data = bookings
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        return this.apiResponse;
+
+        return this.apiResponse
     }
+
+
+    // async getFavouriteBooking(userId: string, top: number) {
+    //     this.apiResponse = new ResponseResult();
+    //     try {
+    //         const tripIds = await this.tripRepository.createQueryBuilder('trip')
+    //             .innerJoinAndSelect('booking', 'booking', 'booking.trip_id = trip.id')
+    //             .select('trip.id')
+    //             .groupBy('trip.id')
+    //             .where('booking.user_Id = :user_Id', {user_Id: userId})
+    //             .orderBy({'sum(trip.copy_trip_id)': 'DESC', 'trip.createdat': 'DESC'})
+    //             .limit(top)
+    //             .getMany()
+
+    //         // Get booking by tripId
+    //         const query = await this.bookingRepository.find({
+    //             relations: ['trip', 'trip.locations','promotions'],
+    //             where: {
+    //                 'trip': {id: In(tripIds.map(ele => ele.id))},
+    //             },
+    //         });
+
+    //         this.apiResponse.data = query;
+    //     } catch (error) {
+    //         this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    //     }
+    //     return this.apiResponse;
+    // }
 
     async findOne(id: string) {
         this.apiResponse = new ResponseResult();
@@ -330,5 +376,15 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
         return this.apiResponse;
+    }
+
+    async getTrackingStatus(){
+        // this.apiResponse = new ResponseResult();
+        // try {
+        //     switch ()
+        // } catch (error) {
+        //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        // }
+        // return this.apiResponse;
     }
 }
