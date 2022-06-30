@@ -86,12 +86,11 @@ export class LocationsService {
             .createQueryBuilder('location')
             .select([
                 'location.googleId',
-                // 'location.address',
+            //     // 'location.address',
             ])
             .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
             .where('user_Id = :userId', {userId: userId})
             .andWhere('milestone<>0')
-            .andWhere('')
             .groupBy('location.google_id')
             .orderBy('count(*)', 'DESC')
             .limit(3)
@@ -107,7 +106,7 @@ export class LocationsService {
             .where('user_Id = :userId', {userId: userId})
             .andWhere('milestone <> 0')
             .groupBy('location.google_id')
-            .orderBy('createdAt', 'DESC')
+            .orderBy('location.createdAt', 'DESC')
             .getMany();
         console.log(query);
         return query;

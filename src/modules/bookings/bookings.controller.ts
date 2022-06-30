@@ -85,10 +85,16 @@ export class BookingsController {
     return this.bookingsService.getEmergencyInformation();
   }
 
+  @Post('trackingstatus')
+  getTrackingStatus(){
+     return this.bookingsService.getTrackingStatus();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
+
 
 
 

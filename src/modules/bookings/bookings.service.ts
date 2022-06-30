@@ -17,6 +17,7 @@ import {UpdateBookingDto} from './dto/update-booking.dto';
 import {BookingEntity} from './entities/booking.entity';
 import {CancelReason} from "./entities/cancel-reason.entity";
 import {EmergencyCall} from "./entities/emergency-call.entity";
+import {TrackingDto} from "./dto/tracking.dto";
 
 enum BookingStatus {
     CANCELED = -1,
@@ -25,12 +26,13 @@ enum BookingStatus {
 }
 
 enum TrackingStatus {
-    DRIVER_NOT_FOUND= -1, //ไม่พบคนขับในขณะนี้
-    DRIVER_ACCEPT = 0, // พบคนขับแล้ว
-    DRIVER_TO_PICKUP = 1, // คนขับใกล้ถึงแล้ว
-    DRIVER_ARRIVE= 2, // คนขับมาถึงแล้ว
-    ON_PROGRESS = 3, // กำลังเดินทาง
-    ARRIVE_DESTINATION = 4, // ถึงจุดหมายแล้ว
+    SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
+    DRIVER_NOT_FOUND = 1, //ไม่พบคนขับในขณะนี้
+    DRIVER_ACCEPT = 2, // พบคนขับแล้ว
+    DRIVER_TO_PICKUP = 3, // คนขับใกล้ถึงแล้ว
+    DRIVER_ARRIVE= 4, // คนขับมาถึงแล้ว
+    ON_PROGRESS = 5, // กำลังเดินทาง
+    ARRIVE_DESTINATION = 6, // ถึงจุดหมายแล้ว
 }
 
 @Injectable()
@@ -374,5 +376,15 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
         return this.apiResponse;
+    }
+
+    async getTrackingStatus(){
+        // this.apiResponse = new ResponseResult();
+        // try {
+        //     switch ()
+        // } catch (error) {
+        //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        // }
+        // return this.apiResponse;
     }
 }
