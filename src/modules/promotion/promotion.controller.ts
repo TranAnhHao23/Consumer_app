@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { PromotionService } from './promotion.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
@@ -22,6 +22,14 @@ export class PromotionController {
   findAvailablePromotion(@Param('userId') userId: string) {
     return this.promotionService.findAvailablePromotion(userId);
   }
+  
+  @Post('findavailablebykeyword/:userId/:keyword')
+  getBookingHistory(
+    @Param('userId') userId: string,
+    @Param('keyword') keyword: string
+  ) {
+    return this.promotionService.findAvailableByUserIdAndKeyword(userId,keyword);
+  }
 
   @Get('getallbyuser/:userId')
   findByorderNo(@Param('userId') userId: string) {
@@ -37,4 +45,5 @@ export class PromotionController {
   findOne(@Param('id') id: string) {
     return this.promotionService.findOne(id);
   }
+  
 }

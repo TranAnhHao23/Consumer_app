@@ -1,7 +1,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { startWith } from 'rxjs';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { Repository } from 'typeorm';
+import { Between, LessThan, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
 import { Promotion } from './entities/promotion.entity';
@@ -56,14 +57,13 @@ export class PromotionService {
     }
     return this.apiResponse;
   }
-
-  // TODO compare expiredDate
+ 
   async findAvailablePromotion(userId: string) {
     this.apiResponse = new ResponseResult();
-    const currnentDate = new Date().getDate();
+    const currentDate = new Date();
     try {
       this.apiResponse.data = await this.promotionRepository.find({
-        where: { userId: userId, status: PromotionStatus.AVAILABLE},
+        where: { userId: userId, status: PromotionStatus.AVAILABLE, expiredDate: MoreThanOrEqual(currentDate) },
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
@@ -85,14 +85,29 @@ export class PromotionService {
     return this.apiResponse;
   }
 
+  async findAvailableByUserIdAndKeyword(userId: string, keyword: string) {
+    this.apiResponse = new ResponseResult();
+    const currentDate = new Date();
+    try {
+      this.apiResponse.data = await this.promotionRepository.find({
+        where: { userId: userId, code: Like(`%${keyword}%`),status: PromotionStatus.AVAILABLE, expiredDate: MoreThanOrEqual(currentDate) },
+        order: { ['expiredDate']: 'ASC' }
+      });
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
   async findAllByBookingId(bookingId: string) {
     this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.promotionRepository.find({
-        where: { 'booking_Id': bookingId },
+        where: {booking: bookingId },
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
+      this.apiResponse.errorMessage = error;
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;

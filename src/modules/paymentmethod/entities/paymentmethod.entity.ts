@@ -5,6 +5,9 @@ import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGenerat
 export class PaymentMethod extends BaseEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
+
+    @Column({ name: 'user_Id', length: 45, nullable: false})
+    userId: string;
   
     @Column({ name: 'name', length: 50, nullable: false })
     name: string;
@@ -20,6 +23,12 @@ export class PaymentMethod extends BaseEntity{
   
     @Column({ name: 'order', nullable: true })
     order: number;
+
+    @Column({ name: 'isDefault', nullable: true })
+    isDefault: boolean;
+
+    @Column({ name: 'payment_type_id', length: 45, nullable: true})
+    paymentType: string;
 
     @OneToMany(() => Invoice, (invoice) => invoice.paymentMethod)
     invoices: Invoice[];

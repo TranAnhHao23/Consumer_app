@@ -5,14 +5,14 @@ import { Repository } from 'typeorm';
 import { CreatePaymentmethodDto } from './dto/create-paymentmethod.dto';
 import { UpdatePaymentmethodDto } from './dto/update-paymentmethod.dto';
 import { PaymentMethod } from './entities/paymentmethod.entity';
- 
+
 @Injectable()
 export class PaymentmethodService {
   constructor(
     @InjectRepository(PaymentMethod)
     private readonly paymentmethodRepository: Repository<PaymentMethod>,
     private apiResponse: ResponseResult,
-  ) {}
+  ) { }
 
   async create(createPaymentmethodDto: CreatePaymentmethodDto) {
     this.apiResponse = new ResponseResult();
@@ -28,14 +28,43 @@ export class PaymentmethodService {
   async update(id: string, updatePaymentmethodDto: UpdatePaymentmethodDto) {
     this.apiResponse = new ResponseResult();
     try {
-      await this.paymentmethodRepository.update({ id: id },updatePaymentmethodDto);
+      await this.paymentmethodRepository.update({ id: id }, updatePaymentmethodDto);
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
     return this.apiResponse;
   }
- 
+
+  async setDefaultPayment(userId: string, id: string) {
+    this.apiResponse = new ResponseResult();
+    try {
+      const payment = await this.paymentmethodRepository.findOne(id);
+      if (Object.keys(payment).length !== 0) {
+        
+        // update all = false
+        const allPayments = await this.paymentmethodRepository.find({
+          where: { userId: userId }
+        });
+        allPayments.forEach(element => {
+          element.isDefault = false;
+          this.paymentmethodRepository.update(element.id, element);
+        });
+
+        payment.isDefault = true;
+        payment.updateAt = new Date();
+        await this.paymentmethodRepository.update(id, payment);
+        this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
+      } else {
+        this.apiResponse.status = HttpStatus.NOT_FOUND;
+        return this.apiResponse;
+      }
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
   async findOne(id: string) {
     this.apiResponse = new ResponseResult();
     try {
@@ -45,12 +74,25 @@ export class PaymentmethodService {
     }
     return this.apiResponse;
   }
- 
-  async findAll() {
+
+  async findAllByUser(userId: string) {
     this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.paymentmethodRepository.find({
-        order: { ['order']: 'DESC' },
+        where: { userId: userId },
+        order: { ['isDefault']: 'DESC' , ['order']: 'ASC'},
+      });
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
+
+  async getDefaultPayment(userId: string) {
+    this.apiResponse = new ResponseResult();
+    try {
+      this.apiResponse.data = await this.paymentmethodRepository.findOne({
+        where: { userId: userId } 
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;

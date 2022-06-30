@@ -18,12 +18,29 @@ export class PaymentmethodController {
   update(@Param('id') id: string, @Body() updatePaymentmethodDto: UpdatePaymentmethodDto) {
     return this.paymentmethodService.update(id, updatePaymentmethodDto);
   }
-
-  @Get('getall')
-  findAll() {
-    return this.paymentmethodService.findAll();
+ 
+  @Post('setdefaultpayment/:userId/:id')
+  setdefaultpayment(
+    @Param('userId') userId: string,
+    @Param('id') id: string
+  ) {
+    return this.paymentmethodService.setDefaultPayment(userId,id);
   }
 
+  @Post('getallbyuser/:userId')
+  findAllByUser(
+    @Param('userId') userId: string 
+  ) {
+    return this.paymentmethodService.findAllByUser(userId);
+  }
+
+  @Post('getdefaultpayment/:userId')
+  getDefaultPayment(
+    @Param('userId') userId: string 
+  ) {
+    return this.paymentmethodService.getDefaultPayment(userId);
+  }
+ 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.paymentmethodService.findOne(id);
