@@ -7,6 +7,7 @@ import { CancelBookingDto } from './dto/CancelBookingDto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
+import { TrackingDto } from './dto/tracking.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -45,7 +46,7 @@ export class BookingsController {
   // getFavouriteBooking(
   //   @Param('userId') userId: string,
   //   @Param('top') top: number
-  // ) { 
+  // ) {
   //   return this.bookingsService.getFavouriteBooking(userId,+top);
   // }
 
@@ -86,8 +87,8 @@ export class BookingsController {
   }
 
   @Post('trackingstatus')
-  getTrackingStatus(){
-     return this.bookingsService.getTrackingStatus();
+  getTrackingStatus(@Body() trackingDto: TrackingDto){
+     return this.bookingsService.getTrackingStatus(trackingDto);
   }
 
   @Get(':id')

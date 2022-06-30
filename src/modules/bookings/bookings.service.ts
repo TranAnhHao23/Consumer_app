@@ -21,6 +21,7 @@ import {EmergencyCall} from "./entities/emergency-call.entity";
 import {TrackingDto} from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
+import { LocationEntity } from '../locations/entities/location.entity';
 
 enum BookingStatus {
     CANCELED = -1,
@@ -35,7 +36,7 @@ enum TrackingStatus {
     DRIVER_TO_PICKUP = 3, // คนขับใกล้ถึงแล้ว
     DRIVER_ARRIVE= 4, // คนขับมาถึงแล้ว
     ON_PROGRESS = 5, // กำลังเดินทาง
-    ARRIVE_DESTINATION = 6, // ถึงจุดหมายแล้ว 
+    ARRIVE_DESTINATION = 6, // ถึงจุดหมายแล้ว
 }
 
 @Injectable()
@@ -48,6 +49,8 @@ export class BookingsService {
         private readonly tripRepository: Repository<TripEntity>,
         @InjectRepository(Promotion)
         private readonly promotionRepository: Repository<Promotion>,
+        @InjectRepository(LocationEntity)
+        private readonly locationRepository: Repository<LocationEntity>,
     ) {
     }
 
@@ -276,11 +279,11 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
 
         try {
- 
+
             const bookings = await this.bookingRepository.find({
-                where: { 
+                where: {
                     userId: getRecentFavoriteBookingDto.userId,
-                    status: BookingStatus.COMPLETED 
+                    status: BookingStatus.COMPLETED
                 },
                 relations: ['trip', 'trip.locations'],
                 order: { isLiked: 'DESC', startTime: 'DESC' },
@@ -426,13 +429,77 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async getTrackingStatus(){
-        // this.apiResponse = new ResponseResult();
-        // try {
-        //     switch ()
-        // } catch (error) {
-        //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        // }
-        // return this.apiResponse;
+    async getTrackingStatus(trackingDto: TrackingDto){
+        this.apiResponse = new ResponseResult();
+        try {
+            switch (trackingDto.trackingStatus){
+                case TrackingStatus.SEARCHING_DRIVER: // case 0
+                    this.apiResponse.data = await this.searchingDriver(trackingDto.tripId);
+                    break;
+                case TrackingStatus.DRIVER_NOT_FOUND: // case 1
+                    this.apiResponse.data = await this.driverNotFound();
+                    break;
+                case TrackingStatus.DRIVER_ACCEPT: // case 2
+                    this.apiResponse.data = await this.driverAccept();
+                    break;
+                case TrackingStatus.DRIVER_TO_PICKUP: // case 3
+                    this.apiResponse.data = await this.driverToPickUp();
+                    break;
+                case TrackingStatus.DRIVER_ARRIVE: // case 4
+                    this.apiResponse.data = await this.driverArrive();
+                    break;
+                case TrackingStatus.ON_PROGRESS: // case 5
+                    this.apiResponse.data = await this.onProgress();
+                    break;
+                case TrackingStatus.ARRIVE_DESTINATION: // case 6
+                    this.apiResponse.data = await this.arriveDestination();
+                    break;
+                default:
+                    this.apiResponse.errorMessage = "Not a tracking status!";
+                    break;
+            }
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
+
+    // click button submit => searching
+    // send data to FE (figma screen), same screen as driverNotFound
+    // send API to driver app -> search car nearby
+    async searchingDriver(tripId: string) {
+        let trip = await this.tripRepository.findOne({id: tripId});
+        let data = [{
+            locations: await this.locationRepository.find({
+                trip: trip
+            }),
+            payment: "VISA",
+            totalPayment: "220"
+        }]
+        return data;
+    }
+
+    async driverNotFound() {
+        return 'driverNotFound';
+    }
+
+    async driverAccept() {
+        return 'driverAccept';
+    }
+
+    async driverToPickUp() {
+        return 'driverToPickUp';
+    }
+
+    async driverArrive() {
+        return 'driverArrive';
+    }
+
+    async onProgress() {
+        return 'onProgress';
+    }
+
+    async arriveDestination() {
+        return 'arriveDestination';
     }
 }
