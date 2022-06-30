@@ -9,11 +9,6 @@ import {ResponseResult} from '../../shared/ResponseResult';
 import {SearchCarByLocationDto} from "./dto/search-car-by-location";
 import {CarDetailEntity} from "./entities/car_detail.entity";
 
-enum Category {
-    'Everyday Ride'=1,
-    'Extra Space Ride'=2,
-}
-
 @Injectable()
 export class CarTypeService {
     constructor(
@@ -113,16 +108,6 @@ export class CarTypeService {
             let result: any[] = [];
             for (const carCategory of carCategories) {
                 let cars = await this.carRepo.createQueryBuilder('car_type')
-                    // .select([
-                    //     'car_type.id',
-                    //     'car_type.typeName',
-                    //     'car_type.typeSlogan',
-                    //     'car_type.carImage',
-                    //     'car_type.carIcon',
-                    //     'car_type.longitude',
-                    //     'car_type.latitude',
-                    //     'car_type.price'
-                    // ])
                     .where('category = :category', {category: carCategory})
                     .orderBy('orders', 'ASC')
                     .getMany();
