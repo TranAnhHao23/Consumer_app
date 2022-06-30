@@ -22,6 +22,14 @@ export class PromotionController {
   findAvailablePromotion(@Param('userId') userId: string) {
     return this.promotionService.findAvailablePromotion(userId);
   }
+  
+  @Post('findavailablebykeyword/:userId/:keyword')
+  getBookingHistory(
+    @Param('userId') userId: string,
+    @Param('keyword') keyword: string
+  ) {
+    return this.promotionService.findAvailableByUserIdAndKeyword(userId,keyword);
+  }
 
   @Get('getallbyuser/:userId')
   findByorderNo(@Param('userId') userId: string) {
