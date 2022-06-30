@@ -60,6 +60,9 @@ export class BookingsService {
                 // Calculate price
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
 
+                // Get promotion
+                newobj.totalAmount =  newobj.price + newobj.tipAmount;
+
                 this.apiResponse.data = await this.bookingRepository.save(newobj);
 
                 // update trip = isDrafting = false
