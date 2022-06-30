@@ -11,6 +11,7 @@ import {TripEntity} from '../trips/entities/trip.entity';
 import {CancelBookingDto} from './dto/CancelBookingDto';
 import {CreateBookingDto} from './dto/create-booking.dto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
+import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import {UpdateBookingDto} from './dto/update-booking.dto';
 import {BookingEntity} from './entities/booking.entity';
 import {CancelReason} from "./entities/cancel-reason.entity";
@@ -147,6 +148,27 @@ export class BookingsService {
             ;
         }
         return this.apiResponse;
+    }
+
+    async setLike(id: string, setLikeBookingDto: SetLikeBookingDto) {
+        this.apiResponse = new ResponseResult()
+        try {
+            const booking = await this.bookingRepository.findOne(id)
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+            await this.bookingRepository.update(id, { isLiked: setLikeBookingDto.isLike })
+            this.apiResponse.status = HttpStatus.OK
+            this.apiResponse.data = { id, isLiked: setLikeBookingDto.isLike }
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+        }
+        return this.apiResponse
     }
 
     async getbyUserId(userId: string) {

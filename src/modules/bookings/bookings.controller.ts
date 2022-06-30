@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import {ApiTags} from "@nestjs/swagger";
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
+import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -32,6 +33,11 @@ export class BookingsController {
   @Get('getbyuserid/:userId')
   getbyUserId(@Param('userId') userId: string) {
     return this.bookingsService.getbyUserId(userId);
+  }
+
+  @Patch(':id/setlike')
+  setLike(@Param('id') id: string, @Body() setLikeBookingDto: SetLikeBookingDto) {
+    return this.bookingsService.setLike(id, setLikeBookingDto)
   }
 
   @Post('getfavourite/:userId/:top')
