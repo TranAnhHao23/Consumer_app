@@ -12,9 +12,8 @@ import {CarDetailEntity} from "./car_detail.entity";
 
 @Entity({ name: 'car_type' })
 export class CarTypeEntity extends BaseEntity {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  @PrimaryGeneratedColumn('uuid', { name: 'id', length: 45 })
+
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ name: 'type_name' })
@@ -44,7 +43,7 @@ export class CarTypeEntity extends BaseEntity {
   @Column({ name: 'category', select: false})
   category: string;
 
-  @Column({ name: 'car_size', nullable: true})
+  @Column('json',{ name: 'car_size', nullable: true})
   carSize: string;
 
   @OneToMany(() => CarDetailEntity, carDetail => carDetail.carType)
