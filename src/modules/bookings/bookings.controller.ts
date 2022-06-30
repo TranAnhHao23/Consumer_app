@@ -6,6 +6,7 @@ import {ApiTags} from "@nestjs/swagger";
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
+import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -67,6 +68,11 @@ export class BookingsController {
     @Param('top') top: number
   ) {
     return this.bookingsService.getBookingHistory(userId,+top);
+  }
+
+  @Get('getrecentfavoritebookings')
+  getRecentFavoriteBooking(@Query() getRecentFavoriteBookingDto: GetRecentFavoriteBookingDto) {
+    return this.bookingsService.getRecentFavoriteBooking(getRecentFavoriteBookingDto)
   }
 
   @Get('cancelreasonlist')

@@ -10,6 +10,7 @@ import {createQueryBuilder, In, Repository} from 'typeorm';
 import {TripEntity} from '../trips/entities/trip.entity';
 import {CancelBookingDto} from './dto/CancelBookingDto';
 import {CreateBookingDto} from './dto/create-booking.dto';
+import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import {UpdateBookingDto} from './dto/update-booking.dto';
@@ -217,6 +218,27 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return this.apiResponse;
+    }
+
+    async getRecentFavoriteBooking(getRecentFavoriteBookingDto: GetRecentFavoriteBookingDto) {
+        this.apiResponse = new ResponseResult();
+
+        try {
+            const bookings = await this.bookingRepository.find({
+                where: { 
+                    userId: getRecentFavoriteBookingDto.userId,
+                    status: BookingStatus.COMPLETED
+                },
+                relations: ['trip', 'trip.locations'],
+                order: { isLiked: 'DESC', startTime: 'DESC' },
+                take: getRecentFavoriteBookingDto.limit
+            })
+            this.apiResponse.data = bookings
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return this.apiResponse
     }
 
 
