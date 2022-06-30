@@ -9,11 +9,6 @@ import {ResponseResult} from '../../shared/ResponseResult';
 import {SearchCarByLocationDto} from "./dto/search-car-by-location";
 import {CarDetailEntity} from "./entities/car_detail.entity";
 
-enum CarSize {
-    'S',
-    'M',
-    'L',
-}
 @Injectable()
 export class CarTypeService {
     constructor(
