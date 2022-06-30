@@ -44,6 +44,9 @@ export class CarTypeEntity extends BaseEntity {
   @Column({ name: 'category', select: false})
   category: string;
 
+  @Column({ name: 'car_size', nullable: true})
+  carSize: string;
+
   @OneToMany(() => CarDetailEntity, carDetail => carDetail.carType)
   carDetails: CarDetailEntity[]
 }
