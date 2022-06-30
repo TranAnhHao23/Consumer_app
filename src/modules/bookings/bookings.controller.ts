@@ -41,13 +41,13 @@ export class BookingsController {
     return this.bookingsService.setLike(id, setLikeBookingDto)
   }
 
-  @Post('getfavourite/:userId/:top')
-  getFavouriteBooking(
-    @Param('userId') userId: string,
-    @Param('top') top: number
-  ) { 
-    return this.bookingsService.getFavouriteBooking(userId,+top);
-  }
+  // @Post('getfavourite/:userId/:top')
+  // getFavouriteBooking(
+  //   @Param('userId') userId: string,
+  //   @Param('top') top: number
+  // ) { 
+  //   return this.bookingsService.getFavouriteBooking(userId,+top);
+  // }
 
   @Post('getcancelbooking/:userId/:top')
   getCancelBooking(

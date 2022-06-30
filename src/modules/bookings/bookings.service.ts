@@ -245,32 +245,32 @@ export class BookingsService {
     }
 
 
-    async getFavouriteBooking(userId: string, top: number) {
-        this.apiResponse = new ResponseResult();
-        try {
-            const tripIds = await this.tripRepository.createQueryBuilder('trip')
-                .innerJoinAndSelect('booking', 'booking', 'booking.trip_id = trip.id')
-                .select('trip.id')
-                .groupBy('trip.id')
-                .where('booking.user_Id = :user_Id', {user_Id: userId})
-                .orderBy({'sum(trip.copy_trip_id)': 'DESC', 'trip.createdat': 'DESC'})
-                .limit(top)
-                .getMany()
+    // async getFavouriteBooking(userId: string, top: number) {
+    //     this.apiResponse = new ResponseResult();
+    //     try {
+    //         const tripIds = await this.tripRepository.createQueryBuilder('trip')
+    //             .innerJoinAndSelect('booking', 'booking', 'booking.trip_id = trip.id')
+    //             .select('trip.id')
+    //             .groupBy('trip.id')
+    //             .where('booking.user_Id = :user_Id', {user_Id: userId})
+    //             .orderBy({'sum(trip.copy_trip_id)': 'DESC', 'trip.createdat': 'DESC'})
+    //             .limit(top)
+    //             .getMany()
 
-            // Get booking by tripId
-            const query = await this.bookingRepository.find({
-                relations: ['trip', 'trip.locations','promotions'],
-                where: {
-                    'trip': {id: In(tripIds.map(ele => ele.id))},
-                },
-            });
+    //         // Get booking by tripId
+    //         const query = await this.bookingRepository.find({
+    //             relations: ['trip', 'trip.locations','promotions'],
+    //             where: {
+    //                 'trip': {id: In(tripIds.map(ele => ele.id))},
+    //             },
+    //         });
 
-            this.apiResponse.data = query;
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
+    //         this.apiResponse.data = query;
+    //     } catch (error) {
+    //         this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    //     }
+    //     return this.apiResponse;
+    // }
 
     async findOne(id: string) {
         this.apiResponse = new ResponseResult();
