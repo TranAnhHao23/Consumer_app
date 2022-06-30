@@ -102,11 +102,19 @@ export class LocationsService {
     async getLatestLocation(userId: string) {
         const query = await this.locationRepo
             .createQueryBuilder('location')
+            .select([
+                'location.longitude',
+                'location.latitude',
+                'location.address',
+                'location.googleId',
+                'location.referenceId',
+                'location.addressName'
+            ])
             .innerJoinAndSelect('booking', 'booking', 'location.trip_id = booking.trip_id')
             .where('user_Id = :userId', {userId: userId})
             .andWhere('milestone <> 0')
-            .groupBy('location.google_id')
             .orderBy('location.createdAt', 'DESC')
+            .limit(3)
             .getMany();
         console.log(query);
         return query;
