@@ -62,6 +62,9 @@ export class BookingsService {
                 // Calculate price
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
 
+                // Get promotion
+                newobj.totalAmount =  newobj.price + newobj.tipAmount;
+
                 this.apiResponse.data = await this.bookingRepository.save(newobj);
 
                 // update trip = isDrafting = false
@@ -157,7 +160,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
                 order: {['createdAt']: 'DESC'},
-                relations: ['trip', 'trip.locations'],
+                relations: ['trip', 'trip.locations','promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -173,7 +176,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId, status: BookingStatus.CANCELED},
                 order: {['createdAt']: 'DESC'},
-                relations: ['trip', 'trip.locations'],
+                relations: ['trip', 'trip.locations','promotions'],
                 take: top
             });
         } catch (error) {
@@ -190,7 +193,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: {userId: userId},
                 order: {['createdAt']: 'DESC'},
-                relations: ['trip', 'trip.locations'],
+                relations: ['trip', 'trip.locations','promotions'],
                 take: top
             });
         } catch (error) {
@@ -214,7 +217,7 @@ export class BookingsService {
 
             // Get booking by tripId
             const query = await this.bookingRepository.find({
-                relations: ['trip', 'trip.locations'],
+                relations: ['trip', 'trip.locations','promotions'],
                 where: {
                     'trip': {id: In(tripIds.map(ele => ele.id))},
                 },
@@ -231,7 +234,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['trip', 'trip.locations'],
+                relations: ['trip', 'trip.locations','promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
