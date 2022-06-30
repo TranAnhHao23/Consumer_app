@@ -72,7 +72,7 @@ export class BookingsService {
                 await this.tripRepository.update(getTrip.id, getTrip);
 
                 // calculate booking promotion
-                await this.calculatePromotion(addBooking, createBookingDto.promotions);
+                // await this.calculatePromotion(addBooking, createBookingDto.promotions);
 
                 this.apiResponse.data = addBooking;
 
@@ -141,7 +141,7 @@ export class BookingsService {
                 const getbooking = await this.bookingRepository.update(cancelBookingDto.id, booking);
 
                 // calculate booking promotion
-                await this.calculatePromotion(booking, null);
+                // await this.calculatePromotion(booking, null);
                 this.apiResponse.data = getbooking;
             } else
                 throw new InternalServerErrorException();
@@ -198,10 +198,6 @@ export class BookingsService {
         }
         return this.apiResponse;
     }
-
-
-
-
 
     async getbyUserId(userId: string) {
         this.apiResponse = new ResponseResult();

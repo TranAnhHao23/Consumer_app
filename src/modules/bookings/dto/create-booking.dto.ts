@@ -32,19 +32,19 @@ export class CreateBookingDto {
     })
     distance: number;
 
-    @ApiProperty({
-        default: [
-            {
-                "id": "string",
-                "code": "string",
-                "name": "string",
-                "userId": "string" 
-            } 
-        ],
-        required: false
-    })
-    @IsArray()
-    @IsOptional()
-    promotions: [CreateBookingPromotion]
+    // @ApiProperty({
+    //     default: [
+    //         {
+    //             "id": "string",
+    //             "code": "string",
+    //             "name": "string",
+    //             "userId": "string" 
+    //         } 
+    //     ],
+    //     required: false
+    // })
+    // @IsArray()
+    // @IsOptional()
+    // promotions: [CreateBookingPromotion]
 }
  
