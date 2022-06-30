@@ -9,11 +9,11 @@ import {ResponseResult} from '../../shared/ResponseResult';
 import {SearchCarByLocationDto} from "./dto/search-car-by-location";
 import {CarDetailEntity} from "./entities/car_detail.entity";
 
-enum Category {
-    'Everyday Ride'=1,
-    'Extra Space Ride'=2,
+enum CarSize {
+    'S',
+    'M',
+    'L',
 }
-
 @Injectable()
 export class CarTypeService {
     constructor(
@@ -113,16 +113,6 @@ export class CarTypeService {
             let result: any[] = [];
             for (const carCategory of carCategories) {
                 let cars = await this.carRepo.createQueryBuilder('car_type')
-                    // .select([
-                    //     'car_type.id',
-                    //     'car_type.typeName',
-                    //     'car_type.typeSlogan',
-                    //     'car_type.carImage',
-                    //     'car_type.carIcon',
-                    //     'car_type.longitude',
-                    //     'car_type.latitude',
-                    //     'car_type.price'
-                    // ])
                     .where('category = :category', {category: carCategory})
                     .orderBy('orders', 'ASC')
                     .getMany();
@@ -134,6 +124,32 @@ export class CarTypeService {
             this.apiResponse.data = result;
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
+
+    async getCarSize(idCarType: string) {
+        this.apiResponse = new ResponseResult();
+        try {
+            switch (idCarType){
+                case '2':
+                case '3':
+                    this.apiResponse.data = [
+                        { carSize: 'S' },
+                        { carSize: 'M' },
+                        { carSize: 'L' },
+                    ]
+                    break;
+                case '4':
+                case '5':
+                    this.apiResponse.data = [
+                        { carSize: 'S' },
+                        { carSize: 'M' },
+                    ]
+                    break;
+            }
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND;
         }
         return this.apiResponse;
     }

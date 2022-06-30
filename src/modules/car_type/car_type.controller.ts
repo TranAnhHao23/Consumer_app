@@ -28,4 +28,9 @@ export class CarTypeController {
   getPriceByCarType(@Param('distance') distance: string) {
     return this.carTypeService.getPriceByCarType(+distance);
   }
+
+  @Get('getcarsize/:idCarType')
+  selectCar(@Param('idCarType') idCarType: string) {
+    return this.carTypeService.getCarSize(idCarType);
+  }
 }
