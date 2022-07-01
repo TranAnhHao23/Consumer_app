@@ -1,7 +1,7 @@
 import { BookingEntity } from "src/modules/bookings/entities/booking.entity";
 import { PaymentMethod } from "src/modules/paymentmethod/entities/paymentmethod.entity";
 import { ToNumericTrans } from "src/shared/column-numeric-transformer";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'invoice' })
 export class Invoice extends BaseEntity {
@@ -17,8 +17,8 @@ export class Invoice extends BaseEntity {
   @OneToOne(() => BookingEntity, { nullable: true })
   @JoinColumn({ name: 'booking_id' })
   booking: BookingEntity;
- 
-  @OneToOne(() => PaymentMethod, { nullable: true })
+  
+  @ManyToOne(() => PaymentMethod, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'payment_method_id' })
   paymentMethod: PaymentMethod;
  
