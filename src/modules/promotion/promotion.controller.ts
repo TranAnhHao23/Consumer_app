@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { PromotionService } from './promotion.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
@@ -45,5 +45,9 @@ export class PromotionController {
   findOne(@Param('id') id: string) {
     return this.promotionService.findOne(id);
   }
-  
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.promotionService.remove(id);
+  }
 }

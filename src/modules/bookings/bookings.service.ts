@@ -25,7 +25,7 @@ import { LocationEntity } from '../locations/entities/location.entity';
 import {CreateInvoiceDto} from "../invoice/dto/create-invoice.dto";
 import {InvoiceService} from "../invoice/invoice.service";
 
-enum BookingStatus {
+export enum BookingStatus {
     CANCELED = -1,
     PROCESSING = 0,
     COMPLETED = 1,

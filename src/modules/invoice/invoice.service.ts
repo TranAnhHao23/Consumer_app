@@ -67,14 +67,9 @@ export class InvoiceService {
   async update(id: string, updateInvoiceDto: UpdateInvoiceDto) {
     this.apiResponse = new ResponseResult();
     try {
-      const updatePayment = this.invoiceRepository.create(updateInvoiceDto);
-      const getPayment = await this.invoiceRepository.findOne(id);
-
-      if (updateInvoiceDto.userId === "") {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "UserId is required";
-        return this.apiResponse;
-      }
+      const updateInvoice = this.invoiceRepository.create(updateInvoiceDto);
+      const getInvoice = await this.invoiceRepository.findOne(id);
+ 
       // check payment method
       const getPaymentMethod = await this.paymentMethodRepository.findOne(updateInvoiceDto.paymentMethodId);
       if (Object.keys(getPaymentMethod).length === 0) {
@@ -83,22 +78,15 @@ export class InvoiceService {
         return this.apiResponse;
       }
 
-      // check booking
-      const getBooking = await this.bookingRepository.findOne(updateInvoiceDto.bookingId);
-      if (Object.keys(getBooking).length === 0) {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Booking is required";
-        return this.apiResponse;
-      }
-
-      if (Object.keys(getPayment).length !== 0) {
-        if (getPayment.invoiceStatus == PaymentStatus.COMPLETED || getPayment.invoiceStatus == PaymentStatus.FAILED) {
+      if (Object.keys(getInvoice).length !== 0) {
+        if (getInvoice.invoiceStatus == PaymentStatus.COMPLETED || getInvoice.invoiceStatus == PaymentStatus.FAILED) {
           this.apiResponse.status = HttpStatus.EXPECTATION_FAILED;
           this.apiResponse.errorMessage = "You cannot update processed invoice";
           return this.apiResponse;
         } else {
-          updatePayment.invoiceStatus = PaymentStatus.PROCESSING;
-          await this.invoiceRepository.update({ id: id }, updatePayment);
+          updateInvoice.invoiceStatus = PaymentStatus.PROCESSING;
+          updateInvoice.paymentMethod = getPaymentMethod;  
+          await this.invoiceRepository.update({ id: id }, updateInvoice);
           this.apiResponse.data = await this.invoiceRepository.findOne(id);
         }
       }

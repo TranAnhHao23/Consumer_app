@@ -27,7 +27,7 @@ export class BookingsController {
     );
   }
 
-  @Patch('/:id/notefordriver')
+  @Patch('notefordriver/:id')
   noteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto) {
     return this.bookingsService.noteForDriver(id, noteForDriverDto)
   }
@@ -37,7 +37,7 @@ export class BookingsController {
     return this.bookingsService.getbyUserId(userId);
   }
 
-  @Patch(':id/setlike')
+  @Patch('setlike/:id')
   setLike(@Param('id') id: string, @Body() setLikeBookingDto: SetLikeBookingDto) {
     return this.bookingsService.setLike(id, setLikeBookingDto)
   }

@@ -14,7 +14,7 @@ export class AppController {
   //   return await i18n.t('translation.HEALTH');
   // }
 
-  @Get('banners')
+  @Get('/v1/rhc/banners')
   findAll() {
     this.apiResponse = new ResponseResult()
     this.apiResponse.status = HttpStatus.OK
