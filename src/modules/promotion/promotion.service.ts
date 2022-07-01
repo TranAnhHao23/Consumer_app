@@ -123,14 +123,12 @@ export class PromotionService {
     return this.apiResponse;
   }
 
-  async delete(id: string) {
+  async remove(id: string) {
     this.apiResponse = new ResponseResult();
     try {
       const getPromotion = await this.promotionRepository.findOne(id);
       if (Object.keys(getPromotion).length !== 0) {
-        if (getPromotion.booking === null) {
           await this.promotionRepository.delete(id);
-        }
       }
       else {
         this.apiResponse.status = HttpStatus.NOT_FOUND;
