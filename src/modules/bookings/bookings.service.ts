@@ -22,7 +22,7 @@ import {TrackingDto} from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
 
-enum BookingStatus {
+export enum BookingStatus {
     CANCELED = -1,
     PROCESSING = 0,
     COMPLETED = 1,
