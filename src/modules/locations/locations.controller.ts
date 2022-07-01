@@ -42,7 +42,7 @@ export class LocationsController {
 
   @Get('frequent/:userId')
   async getThreeFrequentLocation(@Param('userId') userId: string) {
-    return this.locationsService.getThreeFrequentLocationByGoogleId(userId);
+    return this.locationsService.getLatestLocation(userId);
   }
 
   // @Get()

@@ -8,13 +8,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid4 } from 'uuid';
-import {Car_detailEntity} from "./car_detail.entity";
+import {CarDetailEntity} from "./car_detail.entity";
 
 @Entity({ name: 'car_type' })
-export class Car_typeEntity extends BaseEntity {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  @PrimaryGeneratedColumn('uuid', { name: 'car_type_id', length: 45 })
+export class CarTypeEntity extends BaseEntity {
+
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ name: 'type_name' })
@@ -38,9 +37,15 @@ export class Car_typeEntity extends BaseEntity {
   @Column({type: 'decimal', precision: 10, scale: 5 , name: 'price',  nullable: true, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({ name: 'orders' })
+  @Column({ name: 'orders', select: false })
   orders: number;
 
-  @OneToMany(() => Car_detailEntity, carDetail => carDetail.carType)
-  carDetails: Car_detailEntity[]
+  @Column({ name: 'category', select: false})
+  category: string;
+
+  @Column('json',{ name: 'car_size', nullable: true})
+  carSize: string;
+
+  @OneToMany(() => CarDetailEntity, carDetail => carDetail.carType)
+  carDetails: CarDetailEntity[]
 }

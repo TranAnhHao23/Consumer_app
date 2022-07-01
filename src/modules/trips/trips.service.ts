@@ -180,22 +180,22 @@ export class TripsService {
     return this.apiResponse
   }
 
-  async getTripHistory(deviceId: string) {
-    this.apiResponse = new ResponseResult();
-    try {
-      this.apiResponse.data = await this.tripRepo.find({
-        where: {
-          deviceId: deviceId,
-          isDrafting: false,
-        },
-        order: { ['createdAt']: 'DESC' },
-        relations: ['locations'],
-      });
-    } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-    }
-    return this.apiResponse;
-  }
+  // async getTripHistory(deviceId: string) {
+  //   this.apiResponse = new ResponseResult();
+  //   try {
+  //     this.apiResponse.data = await this.tripRepo.find({
+  //       where: {
+  //         deviceId: deviceId,
+  //         isDrafting: false,
+  //       },
+  //       order: { ['createdAt']: 'DESC' },
+  //       relations: ['locations'],
+  //     });
+  //   } catch (error) {
+  //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+  //   }
+  //   return this.apiResponse;
+  // }
 
   // async getTripAgain(tripAgainDto: TripAgainDto) {
   //   this.apiResponse = new ResponseResult();
