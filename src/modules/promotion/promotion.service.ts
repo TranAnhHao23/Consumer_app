@@ -122,4 +122,22 @@ export class PromotionService {
     }
     return this.apiResponse;
   }
+
+  async remove(id: string) {
+    this.apiResponse = new ResponseResult();
+    try {
+      const getPromotion = await this.promotionRepository.findOne(id);
+      if (Object.keys(getPromotion).length !== 0) {
+          await this.promotionRepository.delete(id);
+      }
+      else {
+        this.apiResponse.status = HttpStatus.NOT_FOUND;
+        this.apiResponse.errorMessage = "Promotion not found";
+        return this.apiResponse;
+      }
+    } catch (error) {
+      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    return this.apiResponse;
+  }
 }
