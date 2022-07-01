@@ -119,6 +119,7 @@ export class LocationsService {
                 .andWhere(`location.milestone != ${LocationMilestone.SOURCE}`)
                 .groupBy('location.google_id')
                 .orderBy('COUNT(*)', 'DESC')
+                .addOrderBy('MAX(location.updated_at)', 'DESC')
                 .limit(parseInt(getFrequentLocationDto.limit))
                 .getRawMany())
                 .map(elem => elem.google_id)
