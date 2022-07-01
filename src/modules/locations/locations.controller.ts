@@ -1,10 +1,11 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query} from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 
 import { UpdateLocationDto } from './dto/update-location.dto';
 import {ApiTags} from "@nestjs/swagger";
 import { ResponseResult } from 'src/shared/ResponseResult';
+import { GetFrequentLocationDto } from './dto/get-frequent-location.dto';
 
 @ApiTags('location')
 @Controller('v1/rhc/locations')
@@ -35,14 +36,14 @@ export class LocationsController {
   //   return this.apiResponse
   // }
 
-  @Get('history/:deviceId')
-  async getLocationHistory(@Param('deviceId') deviceId: string) {
-    return this.locationsService.getLocationHistory(deviceId);
-  }
+  // @Get('history/:deviceId')
+  // async getLocationHistory(@Param('deviceId') deviceId: string) {
+  //   return this.locationsService.getLocationHistory(deviceId);
+  // }
 
-  @Get('frequent/:userId')
-  async getThreeFrequentLocation(@Param('userId') userId: string) {
-    return this.locationsService.getLatestLocation(userId);
+  @Get('getfrequentlocations')
+  async getFrequentLocations(@Query() getFrequentLocationDto: GetFrequentLocationDto) {
+    return this.locationsService.getFrequentLocations(getFrequentLocationDto);
   }
 
   // @Get()
