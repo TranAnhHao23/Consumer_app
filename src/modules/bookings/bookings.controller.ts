@@ -60,7 +60,7 @@ export class BookingsController {
 
   @Post('cancelbooking')
   cancelBooking( @Body() cancelBookingDto: CancelBookingDto  ) {
-    return this.bookingsService.cancelBooking2(cancelBookingDto);
+    return this.bookingsService.cancelBooking(cancelBookingDto);
   }
 
   @Post('getbookinghistory/:userId/:top')
@@ -86,9 +86,9 @@ export class BookingsController {
     return this.bookingsService.getEmergencyInformation();
   }
 
-  @Post('trackingstatus')
-  getTrackingStatus(@Body() trackingDto: TrackingDto){
-     return this.bookingsService.getTrackingStatus(trackingDto);
+  @Post('searchingdriver')
+  trackingStatus(@Body() trackingDto: TrackingDto){
+     return this.bookingsService.trackingStatus(trackingDto);
   }
 
   @Get(':id')

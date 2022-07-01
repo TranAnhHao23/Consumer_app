@@ -10,5 +10,36 @@ export class TrackingDto {
     @IsString()
     tripId: string;
 
+    @ApiProperty()
+    @IsString()
+    userId: string;
+
+    @ApiProperty({
+        required: false
+    })
+    carId: string;
+
+    @ApiProperty({
+        required: false
+    })
+    driverId: string;
+
+    @ApiProperty({
+        required: true
+    })
+    distance: number;
+
+    @ApiProperty({
+        required: false
+    })
+    timeToPickUp: number;
+
+    @ApiProperty({
+        required: true
+    })
+    paymentMethodId: string;
+
+
+
 
 }

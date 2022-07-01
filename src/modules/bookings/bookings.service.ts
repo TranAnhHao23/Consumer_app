@@ -22,6 +22,8 @@ import {TrackingDto} from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
 import { LocationEntity } from '../locations/entities/location.entity';
+import {CreateInvoiceDto} from "../invoice/dto/create-invoice.dto";
+import {InvoiceService} from "../invoice/invoice.service";
 
 enum BookingStatus {
     CANCELED = -1,
@@ -58,33 +60,15 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             // Validate Promotion
-            const newobj = this.bookingRepository.create(createBookingDto);
-            const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
-            if (Object.keys(getTrip).length !== 0) {
-                // @ts-ignore
-                newobj.status = BookingStatus.PROCESSING;
-                newobj.trip = getTrip;
-                newobj.bookingStartTime = new Date(new Date().toUTCString());
-                newobj.startTime = new Date();
-                newobj.updatedAt = new Date();
 
-                // Calculate price
-                newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
 
-                const addBooking = await this.bookingRepository.save(newobj);
+                const addBooking = await this.createNewBooking(createBookingDto);
 
-                // update trip = isDrafting = false
-                getTrip.isDrafting = false;
-                getTrip.updatedAt = new Date();
-                await this.tripRepository.update(getTrip.id, getTrip);
 
                 // calculate booking promotion
                 // await this.calculatePromotion(addBooking, createBookingDto.promotions);
 
                 this.apiResponse.data = addBooking;
-
-            } else
-                throw new InternalServerErrorException();
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
@@ -141,17 +125,29 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = cancelBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(cancelBookingDto.id, booking);
+            let cancelTimes = await this.bookingRepository.createQueryBuilder()
+                .where('status = -1')
+                .andWhere('user_Id = :userId', { userId: cancelBookingDto.userId })
+                .andWhere('cancel_time > :earlierTime', { earlierTime: new Date(new Date().getTime() - 60 * 60 * 1000) })
+                .andWhere('cancel_time < :laterTime', { laterTime: new Date() })
+                .getCount();
+            if (cancelTimes < 3) {
+                if (Object.keys(booking).length !== 0 && booking.status !== BookingStatus.CANCELED) {
+                    booking.cancelReason = cancelBookingDto.cancelReason;
+                    booking.status = BookingStatus.CANCELED;
+                    booking.updatedAt = new Date();
+                    booking.cancelTime = new Date();
+                    const getbooking = await this.bookingRepository.update(cancelBookingDto.id, booking);
+                    cancelTimes++;
 
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
+                    // calculate booking promotion
+                    // await this.calculatePromotion(booking, null);
+                    this.apiResponse.data = getbooking;
+                }
+            }
+            if (cancelTimes == 3) {
+                this.apiResponse.data = { cancelTimes: cancelTimes };
+            }
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
@@ -358,36 +354,36 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async cancelBooking2(cancelBookingDto: CancelBookingDto) {
-        this.apiResponse = new ResponseResult();
-        try {
-            let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
-            let cancelTimes = await this.bookingRepository.createQueryBuilder()
-                .where('status = -1')
-                .andWhere('user_Id = :userId', { userId: cancelBookingDto.userId })
-                .andWhere('cancel_time > :earlierTime', { earlierTime: new Date(new Date().getTime() - 60 * 60 * 1000) })
-                .andWhere('cancel_time < :laterTime', { laterTime: new Date() })
-                .getCount();
-            if (cancelTimes < 3) {
-                if (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
-                    bookingCancel.cancelReason = cancelBookingDto.cancelReason;
-                    bookingCancel.status = BookingStatus.CANCELED;
-                    bookingCancel.cancelTime = new Date();
-                    await this.bookingRepository.update(bookingCancel.id, bookingCancel);
-                    cancelTimes++;
-                } else {
-                    throw new HttpException("Couldn't find booking", HttpStatus.NOT_FOUND);
-                }
-            }
-            if (cancelTimes == 3) {
-                throw new HttpException("Bad request", HttpStatus.BAD_REQUEST);
-            }
-            this.apiResponse.data = { cancelTimes: cancelTimes };
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
-        }
-        return this.apiResponse;
-    }
+    // async cancelBooking2(cancelBookingDto: CancelBookingDto) {
+    //     this.apiResponse = new ResponseResult();
+    //     try {
+    //         let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
+    //         let cancelTimes = await this.bookingRepository.createQueryBuilder()
+    //             .where('status = -1')
+    //             .andWhere('user_Id = :userId', { userId: cancelBookingDto.userId })
+    //             .andWhere('cancel_time > :earlierTime', { earlierTime: new Date(new Date().getTime() - 60 * 60 * 1000) })
+    //             .andWhere('cancel_time < :laterTime', { laterTime: new Date() })
+    //             .getCount();
+    //         if (cancelTimes < 3) {
+    //             if (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
+    //                 bookingCancel.cancelReason = cancelBookingDto.cancelReason;
+    //                 bookingCancel.status = BookingStatus.CANCELED;
+    //                 bookingCancel.cancelTime = new Date();
+    //                 await this.bookingRepository.update(bookingCancel.id, bookingCancel);
+    //                 cancelTimes++;
+    //             } else {
+    //                 throw new HttpException("Couldn't find booking", HttpStatus.NOT_FOUND);
+    //             }
+    //         }
+    //         if (cancelTimes == 3) {
+    //             throw new HttpException("Bad request", HttpStatus.BAD_REQUEST);
+    //         }
+    //         this.apiResponse.data = { cancelTimes: cancelTimes };
+    //     } catch (error) {
+    //         this.apiResponse.status = HttpStatus.NOT_FOUND;
+    //     }
+    //     return this.apiResponse;
+    // }
 
     async noteForDriver(bookingId: string, noteForDriverDto: NoteForDriverDto) {
         this.apiResponse = new ResponseResult()
@@ -429,7 +425,7 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async getTrackingStatus(trackingDto: TrackingDto){
+    async trackingStatus(trackingDto: TrackingDto){
         this.apiResponse = new ResponseResult();
         try {
             switch (trackingDto.trackingStatus){
@@ -437,10 +433,10 @@ export class BookingsService {
                     this.apiResponse.data = await this.searchingDriver(trackingDto.tripId);
                     break;
                 case TrackingStatus.DRIVER_NOT_FOUND: // case 1
-                    this.apiResponse.data = await this.driverNotFound();
+                    this.apiResponse.data = await this.driverNotFound(trackingDto.tripId);
                     break;
                 case TrackingStatus.DRIVER_ACCEPT: // case 2
-                    this.apiResponse.data = await this.driverAccept();
+                    this.apiResponse.data = await this.driverAccept(trackingDto);
                     break;
                 case TrackingStatus.DRIVER_TO_PICKUP: // case 3
                     this.apiResponse.data = await this.driverToPickUp();
@@ -476,17 +472,57 @@ export class BookingsService {
             payment: "VISA",
             totalPayment: "220"
         }]
+
+        // send searching signal to driver app
         return data;
     }
 
-    async driverNotFound() {
-        return 'driverNotFound';
+    // after 5 mins -> stop searching car
+    async driverNotFound(tripId: string) {
+        let trip = await this.tripRepository.findOne({id: tripId});
+        let data = [{
+            locations: await this.locationRepository.find({
+                trip: trip
+            }),
+            payment: "VISA",
+            totalPayment: 20,
+        }]
+
+        // temporary stop searching, send stop searching signal to driver app
+        return data;
     }
 
-    async driverAccept() {
-        return 'driverAccept';
+    // start calculate booking: set isDrafting is false, create new booking
+    // send data to FE (figma screen)
+    // send stop searching signal to driver app
+    async driverAccept(trackingDto: TrackingDto) {
+        // create new booking, set trip not drafting
+        let createBookingDto: CreateBookingDto = {
+            carId: trackingDto.carId,
+            userId: trackingDto.userId,
+            tripId: trackingDto.tripId,
+            driverId: trackingDto.driverId,
+            distance: trackingDto.distance
+        };
+        let booking = await this.createNewBooking(createBookingDto);
+
+        // send stop searching signal to driver app
+        let data = [{
+            driverInFo: await this.driverInfo(trackingDto.carId),
+            locations: await this.locationRepository.find({
+                trip: await this.tripRepository.findOne({id: trackingDto.tripId}),
+            }),
+            payment: [{
+                totalAmount: booking.totalAmount,
+                paymentMethod : 'VISA',
+            }]
+        }]
+        return data;
     }
 
+    // Driver moving, until driver arrive, 5 mins away
+    // Screen as Driver accept screen
+    //
     async driverToPickUp() {
         return 'driverToPickUp';
     }
@@ -502,4 +538,38 @@ export class BookingsService {
     async arriveDestination() {
         return 'arriveDestination';
     }
+
+    async driverInfo(carId: string) {
+        return [{
+            driverImage: 'driverImage',
+            driverName: 'driverName',
+            driverAddress: 'driverAddress',
+            carName: 'carName' + carId,
+            rating: 'rating'
+        }]
+    }
+
+    async createNewBooking(createBookingDto: CreateBookingDto) {
+        const newobj = this.bookingRepository.create(createBookingDto);
+        const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
+        if (Object.keys(getTrip).length !== 0) {
+            // @ts-ignore
+            newobj.status = BookingStatus.PROCESSING;
+            newobj.trip = getTrip;
+            newobj.bookingStartTime = new Date(new Date().toUTCString());
+            newobj.startTime = new Date();
+            newobj.updatedAt = new Date();
+
+            // Calculate price
+            newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
+
+            const addBooking = await this.bookingRepository.save(newobj);
+
+            // update trip = isDrafting = false
+            getTrip.isDrafting = false;
+            getTrip.updatedAt = new Date();
+            await this.tripRepository.update(getTrip.id, getTrip);
+            return addBooking;
+        }
+    };
 }
