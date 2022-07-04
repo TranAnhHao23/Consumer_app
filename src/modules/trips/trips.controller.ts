@@ -51,10 +51,10 @@ export class TripsController {
     return this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
   }
 
-  @Post('copytriptodrafting')
-  async copyTripToDrafting(@Query() copyTriptoDraftDto: CopyTripToDrafting) {
-    return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
-  }
+  // @Post('copytriptodrafting')
+  // async copyTripToDrafting(@Query() copyTriptoDraftDto: CopyTripToDrafting) {
+  //   return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
+  // }
 
   // @Get('history/:deviceId')
   // getTripHistory(@Param('deviceId') deviceId: string){
