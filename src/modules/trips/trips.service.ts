@@ -49,11 +49,28 @@ export class TripsService {
   // }
 
   async getDraftingTripByDeviceId(getDraftingTripDto: GetDraftingTripDto) {
-    const draftingTrip = await this.tripRepo.findOne({
-      deviceId: getDraftingTripDto.deviceId,
-      isDrafting: true
-    }, { relations: ['locations'] })
-    return draftingTrip
+    this.apiResponse = new ResponseResult()
+    try {
+      const draftingTrip = await this.tripRepo.findOne({
+        deviceId: getDraftingTripDto.deviceId,
+        isDrafting: true
+      }, { relations: ['locations'] })
+
+      if (!draftingTrip) {
+        throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
+      }
+
+      this.apiResponse.data = draftingTrip
+    } catch(error) {
+      if (error instanceof HttpException) {
+        this.apiResponse.status = error.getStatus()
+        this.apiResponse.errorMessage = error.getResponse().toString()
+      } else {
+        this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+      }
+    }
+    
+    return this.apiResponse
   }
 
   private isValidStartTime(startTime: Date) {
@@ -90,9 +107,9 @@ export class TripsService {
       }
 
       let savedDraftingTrip;
-      const draftingTrip = await this.getDraftingTripByDeviceId({
+      const draftingTrip = (await this.getDraftingTripByDeviceId({
         deviceId: upsertDraftingTripDto.deviceId,
-      });
+      })).data;
 
       if (!draftingTrip) {
         const newDraftingTrip = this.tripRepo.create({
