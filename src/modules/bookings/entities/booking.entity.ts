@@ -8,7 +8,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -24,8 +23,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
-  @ManyToOne(() => CarEntity, car => car.booking )
-  @JoinColumn({ name: 'car_info_id' })
+  @OneToOne(() => CarEntity, car => car.booking )
   carInfo: CarEntity
 
   @Column({ name: 'user_Id', length: 45 })
@@ -41,8 +39,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
 
-  @ManyToOne(() => DriverEntity, driver => driver.booking )
-  @JoinColumn( {name: 'driver_info_id' })
+  @OneToOne(() => DriverEntity, driver => driver.booking )
   driverInfo: DriverEntity
 
   @Column({ name: 'status' })

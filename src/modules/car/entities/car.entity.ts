@@ -2,9 +2,12 @@ import { BookingEntity } from 'src/modules/bookings/entities/booking.entity';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'car' })
@@ -40,6 +43,13 @@ export class CarEntity extends BaseEntity {
   @Column({ name: 'region', length: 255 })
   region: string;
   
-  @OneToMany(() => BookingEntity, booking => booking.carInfo)
-  booking: BookingEntity[]
+  @OneToOne(() => BookingEntity)
+  @JoinColumn({ name: 'booking_id' })
+  booking: BookingEntity
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
