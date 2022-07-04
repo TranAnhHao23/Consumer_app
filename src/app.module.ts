@@ -23,6 +23,8 @@ import { ResponseResult } from './shared/ResponseResult';
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.module';
 import { PromotionModule } from './modules/promotion/promotion.module'; 
+import { CarModule } from './modules/car/car.module';
+import { DriverModule } from './modules/driver/driver.module';
 
 @Module({
   imports: [
@@ -47,7 +49,9 @@ import { PromotionModule } from './modules/promotion/promotion.module';
     CarTypeModule,
     InvoiceModule,
     PaymentmethodModule,
-    PromotionModule 
+    PromotionModule,
+    CarModule,
+    DriverModule 
   ],
   controllers: [AppController],
   providers: [
