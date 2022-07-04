@@ -1,3 +1,5 @@
+import { CarEntity } from 'src/modules/car/entities/car.entity';
+import { DriverEntity } from 'src/modules/driver/entities/driver.entity';
 import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
@@ -6,6 +8,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -21,6 +24,10 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
+  @ManyToOne(() => CarEntity, car => car.booking )
+  @JoinColumn({ name: 'car_info_id' })
+  carInfo: CarEntity
+
   @Column({ name: 'user_Id', length: 45 })
   userId: string;
 
@@ -33,6 +40,10 @@ export class BookingEntity extends BaseEntity {
 
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
+
+  @ManyToOne(() => DriverEntity, driver => driver.booking )
+  @JoinColumn( {name: 'driver_info_id' })
+  driverInfo: DriverEntity
 
   @Column({ name: 'status' })
   status: number;

@@ -1,11 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../../modules/user/entities/user.entity';
-import { DeviceEntity } from '../../modules/device/entities/device.entity';
-import { AddressProfileEntity } from 'src/modules/address_profile/entities/address_profile.entity';
-import { GuestProfileEntity } from 'src/modules/guest_profile/entities/guest_profile.entity';
-import { UserSessionEntity } from 'src/modules/user_session/entities/user_session.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';  
 // const entities = [Users];
 // const entities = [__dirname + '/**/entity/*.entity{.ts,.js}'];
 
@@ -21,12 +16,7 @@ import { UserSessionEntity } from 'src/modules/user_session/entities/user_sessio
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [
-        UserEntity,
-        DeviceEntity,
-        AddressProfileEntity,
-        GuestProfileEntity,
-        UserSessionEntity,
+      entities: [  
       ],
       logging: true,
       synchronize: true,
