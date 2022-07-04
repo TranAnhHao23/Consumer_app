@@ -146,7 +146,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { orderNo: orderNo },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -159,7 +159,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId, invoiceStatus: PaymentStatus.PROCESSING },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -172,7 +172,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -185,7 +185,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { id: id },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
