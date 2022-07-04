@@ -5,22 +5,24 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 
-import {InjectRepository} from '@nestjs/typeorm';
-import {ResponseResult} from 'src/shared/ResponseResult';
-import {createQueryBuilder, In, Repository} from 'typeorm';
-import {TripEntity} from '../trips/entities/trip.entity';
-import {CancelBookingDto} from './dto/CancelBookingDto';
-import {CreateBookingDto} from './dto/create-booking.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ResponseResult } from 'src/shared/ResponseResult';
+import { createQueryBuilder, In, Repository } from 'typeorm';
+import { TripEntity } from '../trips/entities/trip.entity';
+import { CancelBookingDto } from './dto/CancelBookingDto';
+import { CreateBookingDto } from './dto/create-booking.dto';
 import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
-import {UpdateBookingDto} from './dto/update-booking.dto';
-import {BookingEntity} from './entities/booking.entity';
-import {CancelReason} from "./entities/cancel-reason.entity";
-import {EmergencyCall} from "./entities/emergency-call.entity";
-import {TrackingDto} from "./dto/tracking.dto";
+import { UpdateBookingDto } from './dto/update-booking.dto';
+import { BookingEntity } from './entities/booking.entity';
+import { CancelReason } from "./entities/cancel-reason.entity";
+import { EmergencyCall } from "./entities/emergency-call.entity";
+import { TrackingDto } from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
+import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity'; 
+import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 
 export enum BookingStatus {
     CANCELED = -1,
@@ -33,7 +35,7 @@ enum TrackingStatus {
     DRIVER_NOT_FOUND = 1, //ไม่พบคนขับในขณะนี้
     DRIVER_ACCEPT = 2, // พบคนขับแล้ว
     DRIVER_TO_PICKUP = 3, // คนขับใกล้ถึงแล้ว
-    DRIVER_ARRIVE= 4, // คนขับมาถึงแล้ว
+    DRIVER_ARRIVE = 4, // คนขับมาถึงแล้ว
     ON_PROGRESS = 5, // กำลังเดินทาง
     ARRIVE_DESTINATION = 6, // ถึงจุดหมายแล้ว 
 }
@@ -48,6 +50,8 @@ export class BookingsService {
         private readonly tripRepository: Repository<TripEntity>,
         @InjectRepository(Promotion)
         private readonly promotionRepository: Repository<Promotion>,
+        @InjectRepository(PaymentMethod)
+        private readonly paymentMethodRepository: Repository<PaymentMethod>,
     ) {
     }
 
@@ -68,12 +72,23 @@ export class BookingsService {
                 // Calculate price
                 newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
 
+                // Add payment method
+                const getPaymentMethod = await this.paymentMethodRepository.findOne(createBookingDto.paymentMethodId);
+                if (Object.keys(getPaymentMethod).length !== 0) {
+                    newobj.paymentMethod = getPaymentMethod;
+                } else {
+                    this.apiResponse.status = HttpStatus.NOT_FOUND;
+                    this.apiResponse.errorMessage = "Payment method is required";
+                    return this.apiResponse;
+                }
+
                 const addBooking = await this.bookingRepository.save(newobj);
 
                 // update trip = isDrafting = false
                 getTrip.isDrafting = false;
                 getTrip.updatedAt = new Date();
                 await this.tripRepository.update(getTrip.id, getTrip);
+
 
                 // calculate booking promotion
                 // await this.calculatePromotion(addBooking, createBookingDto.promotions);
@@ -155,10 +170,74 @@ export class BookingsService {
         return this.apiResponse;
     }
 
+    // TODO
+    // driverApp accept booking
+    async driverAcceptBooking(driverAppBookingDto: DriverAppBookingDto) {
+        this.apiResponse = new ResponseResult();
+        try {
+            const booking = await this.bookingRepository.findOne({
+                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
+            });
+
+            if (Object.keys(booking).length !== 0) {
+                booking.cancelReason = driverAppBookingDto.cancelReason;
+                booking.status = BookingStatus.CANCELED;
+                booking.updatedAt = new Date();
+                const getbooking = await this.bookingRepository.update(booking.id, booking);
+
+                // calculate booking promotion
+                // await this.calculatePromotion(booking, null);
+                this.apiResponse.data = getbooking;
+            } else
+                throw new InternalServerErrorException();
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
+
+
+
+// driverApp cancel booking
+    async driverAppcancelBooking(driverAppBookingDto: DriverAppBookingDto) {
+        this.apiResponse = new ResponseResult();
+        try {
+            const booking = await this.bookingRepository.findOne({
+                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
+            });
+
+            if (Object.keys(booking).length !== 0) {
+                booking.cancelReason = driverAppBookingDto.cancelReason;
+                booking.status = BookingStatus.CANCELED;
+                booking.updatedAt = new Date();
+                const getbooking = await this.bookingRepository.update(booking.id, booking);
+
+                // calculate booking promotion
+                // await this.calculatePromotion(booking, null);
+                this.apiResponse.data = getbooking;
+            } else
+                throw new InternalServerErrorException();
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
+    }
+
     async update(id: string, updateBookingDto: UpdateBookingDto) {
         this.apiResponse = new ResponseResult();
         try {
             const cvobj = this.bookingRepository.create(updateBookingDto);
+
+            // check payment method
+            const getPaymentMethod = await this.paymentMethodRepository.findOne(updateBookingDto.paymentMethodId);
+            if (Object.keys(getPaymentMethod).length === 0) {
+                this.apiResponse.status = HttpStatus.NOT_FOUND;
+                this.apiResponse.errorMessage = "Payment method is required";
+                return this.apiResponse;
+            }
+            else
+                cvobj.paymentMethod = getPaymentMethod;
+
             await this.bookingRepository.update({ id: id }, cvobj);
             const getbooking = await this.bookingRepository.findOne({ id: id });
 
@@ -230,7 +309,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: { userId: userId },
                 order: { ['createdAt']: 'DESC' },
-                relations: ['trip', 'trip.locations', 'promotions'],
+                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -246,7 +325,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: { userId: userId, status: BookingStatus.CANCELED },
                 order: { ['createdAt']: 'DESC' },
-                relations: ['trip', 'trip.locations', 'promotions'],
+                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
                 take: top
             });
         } catch (error) {
@@ -263,7 +342,7 @@ export class BookingsService {
             this.apiResponse.data = await this.bookingRepository.find({
                 where: { userId: userId },
                 order: { ['createdAt']: 'DESC' },
-                relations: ['trip', 'trip.locations', 'promotions'],
+                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
                 take: top
             });
         } catch (error) {
@@ -276,13 +355,13 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
 
         try {
- 
+
             const bookings = await this.bookingRepository.find({
-                where: { 
+                where: {
                     userId: getRecentFavoriteBookingDto.userId,
-                    status: BookingStatus.COMPLETED 
+                    status: BookingStatus.COMPLETED
                 },
-                relations: ['trip', 'trip.locations'],
+                relations: ['paymentMethod', 'trip', 'trip.locations'],
                 order: { isLiked: 'DESC', startTime: 'DESC' },
                 take: getRecentFavoriteBookingDto.limit
             })
@@ -326,7 +405,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['trip', 'trip.locations', 'promotions'],
+                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -426,7 +505,7 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async getTrackingStatus(){
+    async getTrackingStatus() {
         // this.apiResponse = new ResponseResult();
         // try {
         //     switch ()

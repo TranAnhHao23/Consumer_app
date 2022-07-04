@@ -1,4 +1,4 @@
-import { Invoice } from "src/modules/invoice/entities/invoice.entity";
+import { BookingEntity } from "src/modules/bookings/entities/booking.entity"; 
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'payment_method' })
@@ -30,8 +30,8 @@ export class PaymentMethod extends BaseEntity{
     @Column({ name: 'payment_type_id', length: 45, nullable: true})
     paymentType: string;
 
-    @OneToMany(() => Invoice, (invoice) => invoice.paymentMethod)
-    invoices: Invoice[];
+    @OneToMany(() => BookingEntity, (booking) => booking.paymentMethod)
+    bookings: BookingEntity[];
 
     @Column({ name: 'create_at' })
     @CreateDateColumn()
