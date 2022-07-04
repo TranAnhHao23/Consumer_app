@@ -1,5 +1,5 @@
-import {ApiProperty} from "@nestjs/swagger";
-import {IsArray, isDecimal, IsOptional} from "class-validator"; 
+import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, isDecimal, IsOptional, IsUUID } from "class-validator";
 import { CreateBookingPromotion } from "./Create-booking-promotion";
 
 export class CreateBookingDto {
@@ -19,6 +19,7 @@ export class CreateBookingDto {
         maxLength: 45,
         required: true
     })
+    @IsUUID()
     tripId: string;
 
     @ApiProperty({
@@ -31,6 +32,19 @@ export class CreateBookingDto {
         required: true
     })
     distance: number;
+
+    @ApiProperty({
+        maxLength: 45,
+        required: true
+    })
+    @IsUUID()
+    paymentMethodId: string;
+
+    @ApiProperty({
+        maxLength: 45,
+        required: true
+    })
+    driverAppBookingId: string;
 
     // @ApiProperty({
     //     default: [
@@ -47,4 +61,3 @@ export class CreateBookingDto {
     // @IsOptional()
     // promotions: [CreateBookingPromotion]
 }
- 

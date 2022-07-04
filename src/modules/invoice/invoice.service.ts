@@ -2,8 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
-import { BookingEntity } from '../bookings/entities/booking.entity';
-import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
+import { BookingEntity } from '../bookings/entities/booking.entity'; 
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
@@ -26,9 +25,7 @@ export class InvoiceService {
     private readonly invoiceRepository: Repository<Invoice>,
     private apiResponse: ResponseResult,
     @InjectRepository(BookingEntity)
-    private readonly bookingRepository: Repository<BookingEntity>,
-    @InjectRepository(PaymentMethod)
-    private readonly paymentMethodRepository: Repository<PaymentMethod>,
+    private readonly bookingRepository: Repository<BookingEntity>
   ) { }
 
   async create(createInvoiceDto: CreateInvoiceDto) {
@@ -36,16 +33,6 @@ export class InvoiceService {
     try {
       const newPayment = this.invoiceRepository.create(createInvoiceDto);
       newPayment.invoiceStatus = PaymentStatus.PROCESSING;
-
-      // Add payment method
-      const getPaymentMethod = await this.paymentMethodRepository.findOne(createInvoiceDto.paymentMethodId);
-      if (Object.keys(getPaymentMethod).length !== 0) {
-        newPayment.paymentMethod = getPaymentMethod;
-      } else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Payment method is required";
-        return this.apiResponse;
-      }
 
       // Add booking
       const getBooking = await this.bookingRepository.findOne(createInvoiceDto.bookingId);
@@ -69,14 +56,6 @@ export class InvoiceService {
     try {
       const updateInvoice = this.invoiceRepository.create(updateInvoiceDto);
       const getInvoice = await this.invoiceRepository.findOne(id);
- 
-      // check payment method
-      const getPaymentMethod = await this.paymentMethodRepository.findOne(updateInvoiceDto.paymentMethodId);
-      if (Object.keys(getPaymentMethod).length === 0) {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Payment method is required";
-        return this.apiResponse;
-      }
 
       if (Object.keys(getInvoice).length !== 0) {
         if (getInvoice.invoiceStatus == PaymentStatus.COMPLETED || getInvoice.invoiceStatus == PaymentStatus.FAILED) {
@@ -84,8 +63,7 @@ export class InvoiceService {
           this.apiResponse.errorMessage = "You cannot update processed invoice";
           return this.apiResponse;
         } else {
-          updateInvoice.invoiceStatus = PaymentStatus.PROCESSING;
-          updateInvoice.paymentMethod = getPaymentMethod;  
+          updateInvoice.invoiceStatus = PaymentStatus.PROCESSING; 
           await this.invoiceRepository.update({ id: id }, updateInvoice);
           this.apiResponse.data = await this.invoiceRepository.findOne(id);
         }
@@ -146,7 +124,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { orderNo: orderNo },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -159,7 +137,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId, invoiceStatus: PaymentStatus.PROCESSING },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -172,7 +150,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -185,7 +163,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { id: id },
-        relations: ['paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
