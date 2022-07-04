@@ -16,15 +16,7 @@ export class CreateInvoiceDto {
   })
   @IsUUID()
   bookingId: string;
-
-  
-  @ApiProperty({
-    maxLength: 45,
-    required: true
-  })
-  @IsUUID()
-  paymentMethodId: string;
-  
+ 
   @ApiProperty({
     required: true,
   }) 

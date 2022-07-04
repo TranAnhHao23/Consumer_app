@@ -1,5 +1,6 @@
 import { CarEntity } from 'src/modules/car/entities/car.entity';
 import { DriverEntity } from 'src/modules/driver/entities/driver.entity';
+import { PaymentMethod } from 'src/modules/paymentmethod/entities/paymentmethod.entity';
 import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
@@ -24,7 +25,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'car_id', length: 45 })
   carId: string;
 
-  @ManyToOne(() => CarEntity, car => car.booking )
+  @ManyToOne(() => CarEntity, car => car.booking)
   @JoinColumn({ name: 'car_info_id' })
   carInfo: CarEntity
 
@@ -35,14 +36,21 @@ export class BookingEntity extends BaseEntity {
   @JoinColumn({ name: 'trip_id' })
   trip: TripEntity;
 
+  @ManyToOne(() => PaymentMethod, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'payment_method_id' })
+  paymentMethod: PaymentMethod;
+
   @OneToMany(() => Promotion, (promotion) => promotion.booking)
   promotions: Promotion[];
 
   @Column({ name: 'driver_id', length: 45 })
   driverId: string;
 
-  @ManyToOne(() => DriverEntity, driver => driver.booking )
-  @JoinColumn( {name: 'driver_info_id' })
+  @Column({ name: 'driverapp_booking_id', length: 45, nullable: true })
+  driverAppBookingId: string;
+
+  @ManyToOne(() => DriverEntity, driver => driver.booking)
+  @JoinColumn({ name: 'driver_info_id' })
   driverInfo: DriverEntity
 
   @Column({ name: 'status' })
@@ -69,7 +77,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'cancel_reason', length: 255, nullable: true })
   cancelReason: string;
 
-  @Column({ name: 'cancel_time', nullable: true})
+  @Column({ name: 'cancel_time', nullable: true })
   cancelTime: Date;
 
   @Column({ name: 'booking_start_time', nullable: true })
