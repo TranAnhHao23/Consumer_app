@@ -15,7 +15,7 @@ export class PaymentmethodService {
   ) { }
 
   async create(createPaymentmethodDto: CreatePaymentmethodDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const newPaymentmethod = this.paymentmethodRepository.create(createPaymentmethodDto);
       this.apiResponse.data = await this.paymentmethodRepository.save(newPaymentmethod);
@@ -26,7 +26,7 @@ export class PaymentmethodService {
   }
 
   async update(id: string, updatePaymentmethodDto: UpdatePaymentmethodDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       await this.paymentmethodRepository.update({ id: id }, updatePaymentmethodDto);
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
