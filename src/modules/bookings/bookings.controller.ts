@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -6,7 +6,8 @@ import {ApiTags} from "@nestjs/swagger";
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
-import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto'; 
+import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
+import { AcceptBookingDto } from './dto/accept-booking.dto';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 
 @ApiTags('booking')
@@ -96,8 +97,13 @@ export class BookingsController {
     return this.bookingsService.findOne(id);
   }
 
+  @Patch('acceptbooking/:id')
+  acceptBooking(@Param('id') id: string, @Body() acceptBookingDto: AcceptBookingDto) {
+    return this.bookingsService.acceptBooking(id, acceptBookingDto)
+  }
+
   @Post("driverapp/cancelbooking")
   driverAppCancelBooking( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
     return this.bookingsService.driverAppcancelBooking(driverAppBookingDto);
-  } 
+  }
 }

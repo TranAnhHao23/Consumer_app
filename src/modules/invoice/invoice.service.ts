@@ -124,7 +124,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { orderNo: orderNo },
-        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -137,7 +137,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId, invoiceStatus: PaymentStatus.PROCESSING },
-        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -150,7 +150,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId },
-        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -163,7 +163,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { id: id },
-        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;

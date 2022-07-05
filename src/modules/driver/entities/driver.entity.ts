@@ -5,12 +5,15 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    OneToMany,
+    JoinColumn,
+    OneToOne,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'driver' })
+@Unique('unique_booking', ['booking.id'])
 export class DriverEntity extends BaseEntity {
 
     @PrimaryGeneratedColumn('uuid')
@@ -46,6 +49,7 @@ export class DriverEntity extends BaseEntity {
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 
-    @OneToMany(() => BookingEntity, booking => booking.driverInfo)
-    booking: BookingEntity[]
+    @OneToOne(() => BookingEntity)
+    @JoinColumn({ name: 'booking_id' })
+    booking: BookingEntity
 }
