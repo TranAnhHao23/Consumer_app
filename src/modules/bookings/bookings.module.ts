@@ -6,10 +6,18 @@ import {BookingEntity} from "./entities/booking.entity";
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { Promotion } from '../promotion/entities/promotion.entity';
+import { CarEntity } from '../car/entities/car.entity';
+import { DriverEntity } from '../driver/entities/driver.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion])],
+  imports: [TypeOrmModule.forFeature([
+    BookingEntity,
+    TripEntity,
+    Promotion,
+    CarEntity,
+    DriverEntity
+  ])],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })
