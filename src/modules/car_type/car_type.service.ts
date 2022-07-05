@@ -70,7 +70,7 @@ export class CarTypeService {
     }
 
     async searchCarByLocation(searchCarByLocationDto: SearchCarByLocationDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(201);
         try {
             const cars = await this.carRepo.find({
                 select: ['typeName', 'carIcon', 'latitude', 'longitude'],

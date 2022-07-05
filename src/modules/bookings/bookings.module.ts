@@ -6,11 +6,11 @@ import {BookingEntity} from "./entities/booking.entity";
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { Promotion } from '../promotion/entities/promotion.entity';
-import { LocationEntity } from '../locations/entities/location.entity';
+import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion, LocationEntity])],
+  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion,PaymentMethod])],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })

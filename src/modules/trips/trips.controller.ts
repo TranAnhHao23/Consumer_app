@@ -43,13 +43,7 @@ export class TripsController {
 
   @Get('getdraftingtripbydeviceid')
   async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto ) {
-    const draftingTrip = await this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
-    if (!draftingTrip) {
-      throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
-    }
-    return {
-      data: draftingTrip
-    }
+    return this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
   }
   
   @Post('upsertdraftingtrip')
@@ -57,10 +51,10 @@ export class TripsController {
     return this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
   }
 
-  @Post('copytriptodrafting')
-  async copyTripToDrafting(@Query() copyTriptoDraftDto: CopyTripToDrafting) {
-    return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
-  }
+  // @Post('copytriptodrafting')
+  // async copyTripToDrafting(@Query() copyTriptoDraftDto: CopyTripToDrafting) {
+  //   return this.tripsService.copyTripToDrafting(copyTriptoDraftDto)
+  // }
 
   // @Get('history/:deviceId')
   // getTripHistory(@Param('deviceId') deviceId: string){

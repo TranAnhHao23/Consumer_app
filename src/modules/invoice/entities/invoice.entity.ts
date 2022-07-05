@@ -18,10 +18,6 @@ export class Invoice extends BaseEntity {
   @JoinColumn({ name: 'booking_id' })
   booking: BookingEntity;
   
-  @ManyToOne(() => PaymentMethod, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'payment_method_id' })
-  paymentMethod: PaymentMethod;
- 
   @Column({type: "decimal", precision: 10, scale: 5, name: 'amount', default: 0, transformer: new ToNumericTrans})
   amount: number;
 

@@ -7,7 +7,7 @@ import { CancelBookingDto } from './dto/CancelBookingDto';
 import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
-import { TrackingDto } from './dto/tracking.dto';
+import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -46,11 +46,11 @@ export class BookingsController {
   // getFavouriteBooking(
   //   @Param('userId') userId: string,
   //   @Param('top') top: number
-  // ) {
+  // ) { 
   //   return this.bookingsService.getFavouriteBooking(userId,+top);
   // }
 
-  @Post('getcancelbooking/:userId/:top')
+  @Get('getcancelbooking/:userId/:top')
   getCancelBooking(
     @Param('userId') userId: string,
     @Param('top') top: number
@@ -60,10 +60,10 @@ export class BookingsController {
 
   @Post('cancelbooking')
   cancelBooking( @Body() cancelBookingDto: CancelBookingDto  ) {
-    return this.bookingsService.cancelBooking(cancelBookingDto);
+    return this.bookingsService.cancelBooking2(cancelBookingDto);
   }
 
-  @Post('getbookinghistory/:userId/:top')
+  @Get('getbookinghistory/:userId/:top')
   getBookingHistory(
     @Param('userId') userId: string,
     @Param('top') top: number
@@ -86,9 +86,9 @@ export class BookingsController {
     return this.bookingsService.getEmergencyInformation();
   }
 
-  @Post('searchingdriver')
-  trackingStatus(@Body() trackingDto: TrackingDto){
-     return this.bookingsService.trackingStatus(trackingDto);
+  @Post('trackingstatus')
+  getTrackingStatus(){
+     return this.bookingsService.getTrackingStatus();
   }
 
   @Get(':id')
@@ -96,7 +96,8 @@ export class BookingsController {
     return this.bookingsService.findOne(id);
   }
 
-
-
-
+  @Post("driverapp/cancelbooking")
+  driverAppCancelBooking( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
+    return this.bookingsService.driverAppcancelBooking(driverAppBookingDto);
+  }
 }
