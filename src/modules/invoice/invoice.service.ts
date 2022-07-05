@@ -29,7 +29,7 @@ export class InvoiceService {
   ) { }
 
   async create(createInvoiceDto: CreateInvoiceDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const newPayment = this.invoiceRepository.create(createInvoiceDto);
       newPayment.invoiceStatus = PaymentStatus.PROCESSING;
@@ -52,7 +52,7 @@ export class InvoiceService {
   }
 
   async update(id: string, updateInvoiceDto: UpdateInvoiceDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const updateInvoice = this.invoiceRepository.create(updateInvoiceDto);
       const getInvoice = await this.invoiceRepository.findOne(id);

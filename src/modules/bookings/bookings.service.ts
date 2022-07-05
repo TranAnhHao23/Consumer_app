@@ -200,7 +200,7 @@ export class BookingsService {
 
     // driverApp cancel booking
     async driverAppcancelBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             const booking = await this.bookingRepository.findOne({
                 where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
@@ -224,7 +224,7 @@ export class BookingsService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             const cvobj = this.bookingRepository.create(updateBookingDto);
 
@@ -435,7 +435,7 @@ export class BookingsService {
     }
 
     async cancelBooking2(cancelBookingDto: CancelBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
             let cancelTimes = await this.bookingRepository.createQueryBuilder()
