@@ -18,12 +18,12 @@ export class PromotionController {
     return this.promotionService.update(id, updateInvoiceDto);
   }
 
-  @Post("getavailablepromotion/:userId")
+  @Get("getavailablepromotion/:userId")
   findAvailablePromotion(@Param('userId') userId: string) {
     return this.promotionService.findAvailablePromotion(userId);
   }
   
-  @Post('findavailablebykeyword/:userId/:keyword')
+  @Get('findavailablebykeyword/:userId/:keyword')
   getBookingHistory(
     @Param('userId') userId: string,
     @Param('keyword') keyword: string

@@ -50,7 +50,7 @@ export class BookingsController {
   //   return this.bookingsService.getFavouriteBooking(userId,+top);
   // }
 
-  @Post('getcancelbooking/:userId/:top')
+  @Get('getcancelbooking/:userId/:top')
   getCancelBooking(
     @Param('userId') userId: string,
     @Param('top') top: number
@@ -63,7 +63,7 @@ export class BookingsController {
     return this.bookingsService.cancelBooking2(cancelBookingDto);
   }
 
-  @Post('getbookinghistory/:userId/:top')
+  @Get('getbookinghistory/:userId/:top')
   getBookingHistory(
     @Param('userId') userId: string,
     @Param('top') top: number
