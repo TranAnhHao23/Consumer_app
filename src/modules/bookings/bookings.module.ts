@@ -7,10 +7,11 @@ import { ResponseResult } from 'src/shared/ResponseResult';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
+import { HttpModule } from "@nestjs/axios";
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion,PaymentMethod])],
+  imports: [TypeOrmModule.forFeature([BookingEntity,TripEntity,Promotion,PaymentMethod]), HttpModule],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })

@@ -23,6 +23,9 @@ import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
+import {HttpService} from "@nestjs/axios";
+import {map} from "rxjs";
+import {SearchingDriverDto} from "./dto/searching-driver.dto";
 
 export enum BookingStatus {
     CANCELED = -1,
@@ -52,6 +55,7 @@ export class BookingsService {
         private readonly promotionRepository: Repository<Promotion>,
         @InjectRepository(PaymentMethod)
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
+        private readonly httpService: HttpService
     ) {
     }
 
@@ -405,7 +409,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -513,5 +517,35 @@ export class BookingsService {
         //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         // }
         // return this.apiResponse;
+    }
+
+    async findDriver(searchingDriverDto: SearchingDriverDto) {
+        this.apiResponse = new ResponseResult();
+        // send data to FE
+        let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
+        this.apiResponse.data = [{
+            locations: trip.locations,
+            payment: 'VISA',
+            totalAmount: 50
+        }]
+        // send API driver app
+        await this.sendFindDriverToDriverApp(searchingDriverDto.api)
+        return this.apiResponse;
+    }
+
+    async sendFindDriverToDriverApp(api: string) {
+        // Call driver app API
+        let data = this.handleExternalApi(api)
+        if (data !== null) {
+            return data;
+        } else {
+
+        }
+    }
+
+    handleExternalApi(api: string) {
+        return this.httpService.get<any>(api).pipe(
+            map((res) => res.data)
+        );
     }
 }

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {BadRequestException, HttpException, HttpStatus, Injectable, Res} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
@@ -69,7 +69,6 @@ export class TripsService {
         this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
       }
     }
-    
     return this.apiResponse
   }
 
@@ -100,7 +99,7 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    this.apiResponse = new ResponseResult(201)
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED)
     try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)

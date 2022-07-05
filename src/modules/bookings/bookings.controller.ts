@@ -8,6 +8,7 @@ import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
+import {SearchingDriverDto} from "./dto/searching-driver.dto";
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -86,9 +87,15 @@ export class BookingsController {
     return this.bookingsService.getEmergencyInformation();
   }
 
-  @Post('trackingstatus')
-  getTrackingStatus(){
-     return this.bookingsService.getTrackingStatus();
+  // @Post('trackingstatus')
+  // getTrackingStatus(){
+  //    return this.bookingsService.getTrackingStatus();
+  // }
+
+
+  @Post('searchingdriver')
+  searchingDriver(@Body() searchingDriverDto: SearchingDriverDto) {
+     return this.bookingsService.findDriver(searchingDriverDto);
   }
 
   @Get(':id')
@@ -100,4 +107,9 @@ export class BookingsController {
   driverAppCancelBooking( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
     return this.bookingsService.driverAppcancelBooking(driverAppBookingDto);
   }
+
+  // @Get('testhandle/api/:api')
+  // sendFindDriverToDriverApp(@Param('api') api: string){
+  //    return this.bookingsService.sendFindDriverToDriverApp(api)
+  // }
 }
