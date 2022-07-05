@@ -29,8 +29,9 @@ import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 
 export enum BookingStatus {
     CANCELED = -1,
-    PROCESSING = 0,
-    COMPLETED = 1,
+    WAITING = 0,
+    PROCESSING = 1,
+    COMPLETED = 2,
 }
 
 enum TrackingStatus {
@@ -155,81 +156,7 @@ export class BookingsService {
         }
         return totalPrice;
     }
-
-    async cancelBooking(cancelBookingDto: CancelBookingDto) {
-        this.apiResponse = new ResponseResult();
-        try {
-            var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = cancelBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(cancelBookingDto.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
-
-    // TODO
-    // driverApp accept booking
-    async driverAcceptBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult();
-        try {
-            const booking = await this.bookingRepository.findOne({
-                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
-            });
-
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = driverAppBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(booking.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
-
-
-
-    // driverApp cancel booking
-    async driverAppcancelBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
-        try {
-            const booking = await this.bookingRepository.findOne({
-                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
-            });
-
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = driverAppBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(booking.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
-
+ 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
         this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
@@ -587,5 +514,51 @@ export class BookingsService {
         }
         
         return this.apiResponse
+    }
+
+     // Update Booking Status
+     async UpdateBookingStatus(driverAppBookingDto: DriverAppBookingDto) {
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+        try {
+            const booking = await this.bookingRepository.findOne({
+                where: { driverAppBookingId: driverAppBookingDto.booking_id }
+            });
+
+            if (Object.keys(booking).length !== 0) {
+                if(driverAppBookingDto.status == BookingStatus.CANCELED)
+                {
+                    booking.cancelReason = driverAppBookingDto.cancelReason;
+                    booking.status = BookingStatus.CANCELED;
+                    booking.updatedAt = new Date();
+                    booking.cancelTime= new Date();
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+
+                if(driverAppBookingDto.status == BookingStatus.PROCESSING)
+                {
+                    booking.status = BookingStatus.PROCESSING;
+                    booking.startTime = new Date();
+                    booking.updatedAt = new Date();
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+
+                if(driverAppBookingDto.status == BookingStatus.COMPLETED)
+                {
+                    booking.status = BookingStatus.COMPLETED;
+                    booking.arrivedTime = new Date();
+                    booking.updatedAt = new Date();
+                    booking.waitingFreeAmount = driverAppBookingDto.waiting_free_amount;
+                    booking.waitingFreeNote = driverAppBookingDto.waiting_free_note;
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+ 
+                // calculate booking promotion
+                // await this.calculatePromotion(booking, null);
+            } else
+                throw new InternalServerErrorException();
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
     }
 }

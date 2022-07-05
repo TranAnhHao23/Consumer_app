@@ -101,9 +101,10 @@ export class BookingsController {
   acceptBooking(@Param('id') id: string, @Body() acceptBookingDto: AcceptBookingDto) {
     return this.bookingsService.acceptBooking(id, acceptBookingDto)
   }
-
-  @Post("driverapp/cancelbooking")
-  driverAppCancelBooking( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
-    return this.bookingsService.driverAppcancelBooking(driverAppBookingDto);
+  
+  //API update booking status (Driver app)
+  @Post("driverapp/updatebookingstatus")
+  ConfirmPickupPassenger( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
+    return this.bookingsService.UpdateBookingStatus(driverAppBookingDto);
   }
 }
