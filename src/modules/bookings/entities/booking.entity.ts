@@ -66,6 +66,12 @@ export class BookingEntity extends BaseEntity {
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'promotion_amount', default: 0, transformer: new ToNumericTrans })
   promotionAmount: number;
 
+  @Column({ name: 'waiting_free_note', length: 255 })
+  waitingFreeNote: string;
+
+  @Column({ type: "decimal", precision: 10, scale: 5, name: 'waiting_free_amount', default: 0, transformer: new ToNumericTrans })
+  waitingFreeAmount: number;
+
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'total_amount', default: 0, transformer: new ToNumericTrans })
   totalAmount: number;
 
