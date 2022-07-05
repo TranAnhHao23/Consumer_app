@@ -7,10 +7,12 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'car' })
+@Unique('unique_booking', ['booking.id'])
 export class CarEntity extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
@@ -19,8 +21,8 @@ export class CarEntity extends BaseEntity {
   @Column({ name: 'car_id' })
   carId: string;
 
-  @Column({ name: 'driver_id' })
-  driverId: string;
+  // @Column({ name: 'driver_id' })
+  // driverId: string;
 
   @Column({ name: 'cartype_id' })
   carTypeId: string;

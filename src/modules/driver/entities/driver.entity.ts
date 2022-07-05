@@ -8,10 +8,12 @@ import {
     JoinColumn,
     OneToOne,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'driver' })
+@Unique('unique_booking', ['booking.id'])
 export class DriverEntity extends BaseEntity {
 
     @PrimaryGeneratedColumn('uuid')
