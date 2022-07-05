@@ -1,5 +1,6 @@
 import { CarEntity } from 'src/modules/car/entities/car.entity';
 import { DriverEntity } from 'src/modules/driver/entities/driver.entity';
+import { PaymentMethod } from 'src/modules/paymentmethod/entities/paymentmethod.entity';
 import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
 import {
@@ -8,6 +9,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -33,6 +35,10 @@ export class BookingEntity extends BaseEntity {
   @JoinColumn({ name: 'trip_id' })
   trip: TripEntity;
 
+  @ManyToOne(() => PaymentMethod, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'payment_method_id' })
+  paymentMethod: PaymentMethod;
+
   @OneToMany(() => Promotion, (promotion) => promotion.booking)
   promotions: Promotion[];
 
@@ -41,6 +47,9 @@ export class BookingEntity extends BaseEntity {
 
   @OneToOne(() => DriverEntity, driver => driver.booking )
   driverInfo: DriverEntity
+
+  @Column({ name: 'driverapp_booking_id', length: 45, nullable: true })
+  driverAppBookingId: string;
 
   @Column({ name: 'status' })
   status: number;
@@ -66,7 +75,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'cancel_reason', length: 255, nullable: true })
   cancelReason: string;
 
-  @Column({ name: 'cancel_time', nullable: true})
+  @Column({ name: 'cancel_time', nullable: true })
   cancelTime: Date;
 
   @Column({ name: 'booking_start_time', nullable: true })

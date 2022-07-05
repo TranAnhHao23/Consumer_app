@@ -19,7 +19,7 @@ export class PaymentmethodController {
     return this.paymentmethodService.update(id, updatePaymentmethodDto);
   }
  
-  @Post('setdefaultpayment/:userId/:id')
+  @Get('setdefaultpayment/:userId/:id')
   setdefaultpayment(
     @Param('userId') userId: string,
     @Param('id') id: string
@@ -27,14 +27,14 @@ export class PaymentmethodController {
     return this.paymentmethodService.setDefaultPayment(userId,id);
   }
 
-  @Post('getallbyuser/:userId')
+  @Get('getallbyuser/:userId')
   findAllByUser(
     @Param('userId') userId: string 
   ) {
     return this.paymentmethodService.findAllByUser(userId);
   }
 
-  @Post('getdefaultpayment/:userId')
+  @Get('getdefaultpayment/:userId')
   getDefaultPayment(
     @Param('userId') userId: string 
   ) {

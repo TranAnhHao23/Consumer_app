@@ -8,6 +8,7 @@ import { TripEntity } from '../trips/entities/trip.entity';
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
+import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 
 
 @Module({
@@ -16,7 +17,8 @@ import { DriverEntity } from '../driver/entities/driver.entity';
     TripEntity,
     Promotion,
     CarEntity,
-    DriverEntity
+    DriverEntity,
+    PaymentMethod
   ])],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]

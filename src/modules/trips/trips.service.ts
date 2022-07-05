@@ -49,11 +49,28 @@ export class TripsService {
   // }
 
   async getDraftingTripByDeviceId(getDraftingTripDto: GetDraftingTripDto) {
-    const draftingTrip = await this.tripRepo.findOne({
-      deviceId: getDraftingTripDto.deviceId,
-      isDrafting: true
-    }, { relations: ['locations'] })
-    return draftingTrip
+    this.apiResponse = new ResponseResult()
+    try {
+      const draftingTrip = await this.tripRepo.findOne({
+        deviceId: getDraftingTripDto.deviceId,
+        isDrafting: true
+      }, { relations: ['locations'] })
+
+      if (!draftingTrip) {
+        throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
+      }
+
+      this.apiResponse.data = draftingTrip
+    } catch(error) {
+      if (error instanceof HttpException) {
+        this.apiResponse.status = error.getStatus()
+        this.apiResponse.errorMessage = error.getResponse().toString()
+      } else {
+        this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+      }
+    }
+    
+    return this.apiResponse
   }
 
   private isValidStartTime(startTime: Date) {
@@ -83,16 +100,16 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    this.apiResponse = new ResponseResult()
+    this.apiResponse = new ResponseResult(201)
     try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
       }
 
       let savedDraftingTrip;
-      const draftingTrip = await this.getDraftingTripByDeviceId({
+      const draftingTrip = (await this.getDraftingTripByDeviceId({
         deviceId: upsertDraftingTripDto.deviceId,
-      });
+      })).data;
 
       if (!draftingTrip) {
         const newDraftingTrip = this.tripRepo.create({
@@ -130,55 +147,55 @@ export class TripsService {
     return this.apiResponse
   }
 
-  async copyTripToDrafting(copyTriptoDraftDto: CopyTripToDrafting) {
-    this.apiResponse = new ResponseResult()
-    try {
-      const trip = await this.tripRepo.findOne(copyTriptoDraftDto.tripId)
+  // async copyTripToDrafting(copyTriptoDraftDto: CopyTripToDrafting) {
+  //   this.apiResponse = new ResponseResult()
+  //   try {
+  //     const trip = await this.tripRepo.findOne(copyTriptoDraftDto.tripId)
 
-      const locations = await this.locationRepo.find({ trip: trip })
+  //     const locations = await this.locationRepo.find({ trip: trip })
 
-      this.tripRepo.delete({ deviceId: copyTriptoDraftDto.deviceId, isDrafting: true })
+  //     this.tripRepo.delete({ deviceId: copyTriptoDraftDto.deviceId, isDrafting: true })
 
-      const copyTrip = this.tripRepo.create({
-        deviceId: copyTriptoDraftDto.deviceId,
-        carType: trip.carType,
-        isDrafting: true,
-        startTime: null,
-        copyTripId: trip.copyTripId || trip.id
-      })
+  //     const copyTrip = this.tripRepo.create({
+  //       deviceId: copyTriptoDraftDto.deviceId,
+  //       carType: trip.carType,
+  //       isDrafting: true,
+  //       startTime: null,
+  //       copyTripId: trip.copyTripId || trip.id
+  //     })
 
-      const savedDraftingTrip = await copyTrip.save()
+  //     const savedDraftingTrip = await copyTrip.save()
 
 
-      const copyLocations = locations.map(location => {
-        return {
-          longitude: location.longitude,
-          latitude: location.latitude,
-          address: location.address,
-          note: location.note,
-          googleId: location.googleId,
-          referenceId: location.referenceId,
-          addressName: location.addressName, // Anh thêm 1 dòng này nhé Cảnh
-          trip: savedDraftingTrip
-        }
-      })
+  //     const copyLocations = locations.map(location => {
+  //       return {
+  //         longitude: location.longitude,
+  //         latitude: location.latitude,
+  //         address: location.address,
+  //         note: location.note,
+  //         googleId: location.googleId,
+  //         referenceId: location.referenceId,
+  //         addressName: location.addressName, // Anh thêm 1 dòng này nhé Cảnh
+  //         trip: savedDraftingTrip
+  //       }
+  //     })
 
-      await Promise.all(copyLocations.map(async(copyLocation, index) => {
-        await this.locationService.create({
-          ...copyLocation,
-          tripId: savedDraftingTrip.id,
-          milestone: index
-        })
-      }))
+  //     await Promise.all(copyLocations.map(async(copyLocation, index) => {
+  //       await this.locationService.create({
+  //         ...copyLocation,
+  //         tripId: savedDraftingTrip.id,
+  //         milestone: index
+  //       })
+  //     }))
 
-      this.apiResponse.status = HttpStatus.CREATED
-      this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
-    } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-    }
+  //     this.apiResponse.status = HttpStatus.CREATED
+  //     this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+  //   } catch (error) {
+  //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+  //   }
 
-    return this.apiResponse
-  }
+  //   return this.apiResponse
+  // }
 
   // async getTripHistory(deviceId: string) {
   //   this.apiResponse = new ResponseResult();

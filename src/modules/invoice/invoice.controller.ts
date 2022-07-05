@@ -19,7 +19,7 @@ export class InvoiceController {
     return this.invoiceService.update(id, updateInvoiceDto);
   }
 
-  @Post("processinvoice/:id")
+  @Get("processinvoice/:id")
   processPayment(@Param('id') id: string) {
     return this.invoiceService.processPayment(id);
   }
@@ -43,5 +43,7 @@ export class InvoiceController {
   findOne(@Param('id') id: string) {
     return this.invoiceService.findOne(id);
   }
+
+
  
 }

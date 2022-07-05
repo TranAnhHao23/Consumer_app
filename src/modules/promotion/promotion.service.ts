@@ -21,7 +21,7 @@ export class PromotionService {
   ) { }
 
   async create(createPromotionDto: CreatePromotionDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const promo = this.promotionRepository.create(createPromotionDto);
       this.apiResponse.data = await this.promotionRepository.save(promo);
@@ -32,7 +32,7 @@ export class PromotionService {
   }
 
   async update(id: string, updatePromotionDto: UpdatePromotionDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const updatePromotion = this.promotionRepository.create(updatePromotionDto);
       const getPromotion = await this.promotionRepository.findOne(id);
