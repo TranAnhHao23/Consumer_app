@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus, Res, UseFilters } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { GetDraftingTripDto } from './dto/get-drafting-trip.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -6,6 +6,8 @@ import { UpsertDraftingTripDto } from './dto/upsert-drafting-trip.dto';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 import {TripAgainDto} from "./dto/trip-again.dto";
+import { Response } from 'express';
+import { HttpExceptionFilter } from 'src/shared/http-exception.filter';
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
@@ -42,13 +44,17 @@ export class TripsController {
   //   return this.tripsService.remove(+id);
 
   @Get('getdraftingtripbydeviceid')
-  async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto ) {
-    return this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
+  @UseFilters(new HttpExceptionFilter())
+  async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto, @Res() res: Response ) {
+    const result = await this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
+    return res.status(result.status).json(result)
   }
   
   @Post('upsertdraftingtrip')
-  async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto) {
-    return this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
+  @UseFilters(new HttpExceptionFilter())
+  async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto, @Res() res: Response) {
+    const result = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
+    return res.status(result.status).json(result)
   }
 
   // @Post('copytriptodrafting')

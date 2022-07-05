@@ -136,8 +136,7 @@ export class TripsService {
       this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
     } catch (error) {
       if (error instanceof HttpException) {
-        this.apiResponse.status = error.getStatus()
-        this.apiResponse.errorMessage = error.getResponse().toString()
+        throw error
       } else {
         this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
       }

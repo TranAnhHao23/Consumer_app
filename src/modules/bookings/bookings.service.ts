@@ -21,6 +21,9 @@ import { EmergencyCall } from "./entities/emergency-call.entity";
 import { TrackingDto } from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
+import { AcceptBookingDto } from './dto/accept-booking.dto';
+import { CarEntity } from '../car/entities/car.entity';
+import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 import {HttpService} from "@nestjs/axios";
@@ -53,6 +56,10 @@ export class BookingsService {
         private readonly tripRepository: Repository<TripEntity>,
         @InjectRepository(Promotion)
         private readonly promotionRepository: Repository<Promotion>,
+        @InjectRepository(CarEntity)
+        private readonly carRepo: Repository<CarEntity>,
+        @InjectRepository(DriverEntity)
+        private readonly driverRepo: Repository<DriverEntity>,
         @InjectRepository(PaymentMethod)
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
         private readonly httpService: HttpService
@@ -151,80 +158,6 @@ export class BookingsService {
                 break;
         }
         return totalPrice;
-    }
-
-    async cancelBooking(cancelBookingDto: CancelBookingDto) {
-        this.apiResponse = new ResponseResult();
-        try {
-            var booking = await this.bookingRepository.findOne(cancelBookingDto.id);
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = cancelBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(cancelBookingDto.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
-
-    // TODO
-    // driverApp accept booking
-    async driverAcceptBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult();
-        try {
-            const booking = await this.bookingRepository.findOne({
-                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
-            });
-
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = driverAppBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(booking.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
-    }
-
-
-
-    // driverApp cancel booking
-    async driverAppcancelBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
-        try {
-            const booking = await this.bookingRepository.findOne({
-                where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
-            });
-
-            if (Object.keys(booking).length !== 0) {
-                booking.cancelReason = driverAppBookingDto.cancelReason;
-                booking.status = BookingStatus.CANCELED;
-                booking.updatedAt = new Date();
-                const getbooking = await this.bookingRepository.update(booking.id, booking);
-
-                // calculate booking promotion
-                // await this.calculatePromotion(booking, null);
-                this.apiResponse.data = getbooking;
-            } else
-                throw new InternalServerErrorException();
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        return this.apiResponse;
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
@@ -517,6 +450,119 @@ export class BookingsService {
         //     this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
         // }
         // return this.apiResponse;
+    }
+
+    async acceptBooking(id: string, acceptBookingDto: AcceptBookingDto) {
+        this.apiResponse = new ResponseResult()
+        try {
+            const booking = await this.bookingRepository.findOne(id)
+
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+
+            const existDriverAndCar = await Promise.all([
+                this.driverRepo.findOne({
+                    booking: booking
+                }),
+                this.carRepo.findOne({
+                    booking: booking
+                })
+            ])
+
+            if (existDriverAndCar[0] || existDriverAndCar[1]) {
+                throw new HttpException('This booking has been accepted or taken by another', HttpStatus.BAD_REQUEST)
+            }
+
+            const car = this.carRepo.create({
+                carId: acceptBookingDto.carId,
+                carTypeId: acceptBookingDto.carTypeId,
+                icon: acceptBookingDto.carTypeId,
+                size: acceptBookingDto.carSize,
+                licensePlateNumber: acceptBookingDto.carLicensePlateNumber,
+                branch: acceptBookingDto.carBranch,
+                color: acceptBookingDto.carColor,
+                region: acceptBookingDto.carRegion,
+                booking: booking
+            })
+            const savedCar = await car.save()
+
+            const driver = this.driverRepo.create({
+                driverId: acceptBookingDto.driverId,
+                name: acceptBookingDto.driverName,
+                avatar: acceptBookingDto.driverAvatar,
+                phoneNum: acceptBookingDto.driverPhoneNum,
+                rating: acceptBookingDto.driverRating,
+                latitude: acceptBookingDto.driverLatitude,
+                longitude: acceptBookingDto.driverLongitude,
+                status: acceptBookingDto.driverStatus,
+                booking: booking
+            })
+
+            const savedDriver = await driver.save()
+
+            const updatedBooking = await this.bookingRepository.findOne(id, {
+                relations: ['trip', 'trip.locations', 'driverInfo', 'carInfo']
+            })
+
+            this.apiResponse.data = updatedBooking
+
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+        }
+
+        return this.apiResponse
+    }
+
+     // Update Booking Status
+     async UpdateBookingStatus(driverAppBookingDto: DriverAppBookingDto) {
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+        try {
+            const booking = await this.bookingRepository.findOne({
+                where: { driverAppBookingId: driverAppBookingDto.booking_id }
+            });
+
+            if (Object.keys(booking).length !== 0) {
+                if(driverAppBookingDto.status == BookingStatus.CANCELED)
+                {
+                    booking.cancelReason = driverAppBookingDto.cancelReason;
+                    booking.status = BookingStatus.CANCELED;
+                    booking.updatedAt = new Date();
+                    booking.cancelTime= new Date();
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+
+                if(driverAppBookingDto.status == BookingStatus.PROCESSING)
+                {
+                    booking.status = BookingStatus.PROCESSING;
+                    booking.startTime = new Date();
+                    booking.updatedAt = new Date();
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+
+                if(driverAppBookingDto.status == BookingStatus.COMPLETED)
+                {
+                    booking.status = BookingStatus.COMPLETED;
+                    booking.arrivedTime = new Date();
+                    booking.updatedAt = new Date();
+                    booking.waitingFreeAmount = driverAppBookingDto.waiting_free_amount;
+                    booking.waitingFreeNote = driverAppBookingDto.waiting_free_note;
+                    await this.bookingRepository.update(booking.id, booking);
+                }
+
+                // calculate booking promotion
+                // await this.calculatePromotion(booking, null);
+            } else
+                throw new InternalServerErrorException();
+        } catch (error) {
+            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return this.apiResponse;
     }
 
     async findDriver(searchingDriverDto: SearchingDriverDto) {
