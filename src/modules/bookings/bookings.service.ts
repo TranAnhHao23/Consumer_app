@@ -21,7 +21,7 @@ import { EmergencyCall } from "./entities/emergency-call.entity";
 import { TrackingDto } from "./dto/tracking.dto";
 import { Promotion } from '../promotion/entities/promotion.entity';
 import { CreateBookingPromotion } from './dto/Create-booking-promotion';
-import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity'; 
+import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 
 export enum BookingStatus {
@@ -56,7 +56,7 @@ export class BookingsService {
     }
 
     async create(createBookingDto: CreateBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             // Validate Promotion
             const newobj = this.bookingRepository.create(createBookingDto);
@@ -198,9 +198,9 @@ export class BookingsService {
 
 
 
-// driverApp cancel booking
+    // driverApp cancel booking
     async driverAppcancelBooking(driverAppBookingDto: DriverAppBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             const booking = await this.bookingRepository.findOne({
                 where: { driverAppBookingId: driverAppBookingDto.driverAppBookingId }
@@ -224,7 +224,7 @@ export class BookingsService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             const cvobj = this.bookingRepository.create(updateBookingDto);
 
@@ -435,7 +435,7 @@ export class BookingsService {
     }
 
     async cancelBooking2(cancelBookingDto: CancelBookingDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
             let cancelTimes = await this.bookingRepository.createQueryBuilder()

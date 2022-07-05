@@ -100,7 +100,7 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    this.apiResponse = new ResponseResult()
+    this.apiResponse = new ResponseResult(201)
     try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)

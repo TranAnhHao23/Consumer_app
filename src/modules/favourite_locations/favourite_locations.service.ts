@@ -15,7 +15,7 @@ export class FavouriteLocationsService {
   ) {}
 
   async create(createFavouriteLocationDto: CreateFavouriteLocationDto) {
-    this.apiResponse = new ResponseResult();
+    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
       const newFavouriteLocation = this.favouriteRepository.create(
         createFavouriteLocationDto,
