@@ -20,7 +20,7 @@ export class PaymentmethodService {
       const newPaymentmethod = this.paymentmethodRepository.create(createPaymentmethodDto);
       this.apiResponse.data = await this.paymentmethodRepository.save(newPaymentmethod);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -31,7 +31,7 @@ export class PaymentmethodService {
       await this.paymentmethodRepository.update({ id: id }, updatePaymentmethodDto);
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -61,7 +61,7 @@ export class PaymentmethodService {
         return this.apiResponse;
       }
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -71,7 +71,7 @@ export class PaymentmethodService {
     try {
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -84,7 +84,7 @@ export class PaymentmethodService {
         order: { ['isDefault']: 'DESC', ['order']: 'ASC' },
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -96,7 +96,7 @@ export class PaymentmethodService {
         where: { userId: userId }
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }

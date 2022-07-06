@@ -11,6 +11,8 @@ import { HttpExceptionFilter } from 'src/shared/http-exception.filter';
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
+
+@UseFilters(new HttpExceptionFilter())
 export class TripsController {
   constructor(
     private readonly tripsService: TripsService,
@@ -44,14 +46,12 @@ export class TripsController {
   //   return this.tripsService.remove(+id);
 
   @Get('getdraftingtripbydeviceid')
-  @UseFilters(new HttpExceptionFilter())
   async getDraftingTripByDeviceId(@Query() getDraftingTripDto: GetDraftingTripDto, @Res() res: Response ) {
     const result = await this.tripsService.getDraftingTripByDeviceId(getDraftingTripDto)
     return res.status(result.status).json(result)
   }
   
   @Post('upsertdraftingtrip')
-  @UseFilters(new HttpExceptionFilter())
   async upsertDraftingTrip(@Body() upsertDraftingTripDto: UpsertDraftingTripDto, @Res() res: Response) {
     const result = await this.tripsService.upsertDraftingTrip(upsertDraftingTripDto)
     return res.status(result.status).json(result)
