@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber } from "class-validator";
-export class DriverAppBookingDto {
+export class DriverAppCancelTripDto {
     @ApiProperty({
         required: true
     })
@@ -8,25 +8,19 @@ export class DriverAppBookingDto {
     
     @ApiProperty({
         maxLength: 45,
-        required: false
+        required: true
     })
     booking_id: string;
-
+ 
     @ApiProperty({
-        maxLength: 10,
         required: false
     })
-    status: number;
-
-    @ApiProperty({
-        maxLength: 255,
-        required: false
-    })
-    waiting_free_note: string
+    @IsNumber()
+    longitude: number;
 
     @ApiProperty({
         required: false
     })
     @IsNumber()
-    waiting_free_amount: number;
+    latitude: number;
 }
