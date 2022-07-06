@@ -29,4 +29,16 @@ export class DriverAppBookingDto {
     })
     @IsNumber()
     waiting_free_amount: number;
+
+    @ApiProperty({
+        required: false
+    })
+    @IsNumber()
+    longitude: number;
+
+    @ApiProperty({
+        required: false
+    })
+    @IsNumber()
+    latitude: number;
 }
