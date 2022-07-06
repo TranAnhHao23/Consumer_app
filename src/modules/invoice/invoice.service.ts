@@ -12,13 +12,15 @@ enum PaymentStatus {
   COMPLETED = 1
 }
 
-enum BookingStatus {
-  CANCELED = -1,
-  WAITING = 0,
-  PROCESSING = 1,
-  COMPLETED = 2,
-}
 
+export enum BookingStatus {
+  CANCELED = -1,
+  PENDING = 0,
+  WAITING = 1,
+  PROCESSING = 2,
+  COMPLETED = 3,
+}
+ 
 @Injectable()
 export class InvoiceService {
   constructor(

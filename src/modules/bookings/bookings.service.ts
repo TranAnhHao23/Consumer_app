@@ -532,7 +532,7 @@ export class BookingsService {
             // });
 
             // for testing
-            const booking = await this.findBookingById(driverAppCancelTripDto.booking_id);
+            const booking = await this.bookingRepository.findOne(driverAppCancelTripDto.booking_id);
 
             if (Object.keys(booking).length !== 0) {
                 booking.cancelReason = driverAppCancelTripDto.cancelReason;
@@ -542,19 +542,26 @@ export class BookingsService {
                 await this.bookingRepository.update(booking.id, booking);
 
                 // Update long lat driver for testing
-                const driverInfo = booking.driverInfo;
-                driverInfo.longitude = driverAppCancelTripDto.longitude;
-                driverInfo.latitude = driverAppCancelTripDto.latitude
-                await this.driverRepo.update(driverInfo.id, driverInfo);
-
+                if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
+                    if (booking.driverId != null) {
+                        driverInfo.longitude = driverAppCancelTripDto.longitude;
+                        driverInfo.latitude = driverAppCancelTripDto.latitude
+                        await this.driverRepo.update(driverInfo.id, driverInfo);
+                    }
+                }
                 this.apiResponse.data = await this.findBookingById(driverAppCancelTripDto.booking_id);
                 // calculate booking promotion
                 // await this.calculatePromotion(booking, null);
             } else
                 throw new NotFoundException();
-        } catch (exception: any) {
-            this.apiResponse.status = exception.status;
-            this.apiResponse.errorMessage = exception.errorMessage;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
         }
         return this.apiResponse;
     }
@@ -570,7 +577,7 @@ export class BookingsService {
             // });
 
             // for testing
-            const booking = await this.findBookingById(driverAppFinishTripDto.booking_id);
+            const booking = await this.bookingRepository.findOne(driverAppFinishTripDto.booking_id);
 
             if (Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.COMPLETED;
@@ -581,20 +588,27 @@ export class BookingsService {
                 await this.bookingRepository.update(booking.id, booking);
 
                 // Update long lat driver for testing
-                const driverInfo = booking.driverInfo;
-                driverInfo.longitude = driverAppFinishTripDto.longitude;
-                driverInfo.latitude = driverAppFinishTripDto.latitude
-                await this.driverRepo.update(driverInfo.id, driverInfo);
-
+                if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
+                    if (booking.driverId != null) {
+                        driverInfo.longitude = driverAppFinishTripDto.longitude;
+                        driverInfo.latitude = driverAppFinishTripDto.latitude
+                        await this.driverRepo.update(driverInfo.id, driverInfo);
+                    }
+                }
                 this.apiResponse.data = await this.findBookingById(driverAppFinishTripDto.booking_id);
 
                 // calculate booking promotion
                 // await this.calculatePromotion(booking, null);
             } else
                 throw new NotFoundException();
-        } catch (exception: any) {
-            this.apiResponse.status = exception.status;
-            this.apiResponse.errorMessage = exception.errorMessage;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
         }
         return this.apiResponse;
     }
@@ -610,29 +624,36 @@ export class BookingsService {
             // });
 
             // for testing
-            const booking = await this.findBookingById(driverAppConfirmPickupPassengerDto.booking_id);
+            const booking = await this.bookingRepository.findOne(driverAppConfirmPickupPassengerDto.booking_id);
 
             if (Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.PROCESSING;
-                booking.startTime = new Date();
-                booking.updatedAt = new Date();
+                 booking.startTime = new Date();
+                //booking.updatedAt = new Date();
                 await this.bookingRepository.update(booking.id, booking);
 
                 // Update long lat driver for testing
-                const driverInfo = booking.driverInfo;
-                driverInfo.longitude = driverAppConfirmPickupPassengerDto.longitude;
-                driverInfo.latitude = driverAppConfirmPickupPassengerDto.latitude
-                await this.driverRepo.update(driverInfo.id, driverInfo);
-
+                if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
+                    if (booking.driverId != null) {
+                        driverInfo.longitude = driverAppConfirmPickupPassengerDto.longitude;
+                        driverInfo.latitude = driverAppConfirmPickupPassengerDto.latitude
+                        await this.driverRepo.update(driverInfo.id, driverInfo);
+                    }
+                }
                 this.apiResponse.data = await this.findBookingById(driverAppConfirmPickupPassengerDto.booking_id);
 
                 // calculate booking promotion
                 // await this.calculatePromotion(booking, null);
             } else
                 throw new NotFoundException();
-        } catch (exception: any) {
-            this.apiResponse.status = exception.status;
-            this.apiResponse.errorMessage = exception.errorMessage;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                this.apiResponse.status = error.getStatus()
+                this.apiResponse.errorMessage = error.getResponse().toString()
+            } else {
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
         }
         return this.apiResponse;
     }
