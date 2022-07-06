@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
-import { BookingEntity } from '../bookings/entities/booking.entity'; 
+import { BookingEntity } from '../bookings/entities/booking.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
@@ -14,8 +14,9 @@ enum PaymentStatus {
 
 enum BookingStatus {
   CANCELED = -1,
-  PROCESSING = 0,
-  COMPLETED = 1,
+  WAITING = 0,
+  PROCESSING = 1,
+  COMPLETED = 2,
 }
 
 @Injectable()
@@ -38,6 +39,7 @@ export class InvoiceService {
       const getBooking = await this.bookingRepository.findOne(createInvoiceDto.bookingId);
       if (Object.keys(getBooking).length !== 0) {
         newPayment.booking = getBooking;
+        newPayment.amount = (getBooking.price + getBooking.tipAmount + getBooking.waitingFreeAmount) - getBooking.promotionAmount;
       } else {
         this.apiResponse.status = HttpStatus.NOT_FOUND;
         this.apiResponse.errorMessage = "Booking is required";
@@ -63,7 +65,7 @@ export class InvoiceService {
           this.apiResponse.errorMessage = "You cannot update processed invoice";
           return this.apiResponse;
         } else {
-          updateInvoice.invoiceStatus = PaymentStatus.PROCESSING; 
+          updateInvoice.invoiceStatus = PaymentStatus.PROCESSING;
           await this.invoiceRepository.update({ id: id }, updateInvoice);
           this.apiResponse.data = await this.invoiceRepository.findOne(id);
         }

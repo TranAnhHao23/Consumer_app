@@ -33,8 +33,9 @@ import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.
 
 export enum BookingStatus {
     CANCELED = -1,
-    PROCESSING = 0,
-    COMPLETED = 1,
+    WAITING = 0,
+    PROCESSING = 1,
+    COMPLETED = 2,
 }
 
 enum TrackingStatus {
@@ -520,40 +521,74 @@ export class BookingsService {
         return this.apiResponse
     }
 
-     // Update Booking Status
-     async UpdateBookingStatus(driverAppBookingDto: DriverAppBookingDto) {
+    // Update Booking Status
+    async UpdateBookingStatus(driverAppBookingDto: DriverAppBookingDto) {
         this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
-            const booking = await this.bookingRepository.findOne({
-                where: { driverAppBookingId: driverAppBookingDto.booking_id }
+            // const booking = await this.bookingRepository.findOne({
+            //     //where: { driverAppBookingId: driverAppBookingDto.booking_id }
+            //     // for testing
+            //     where: { id: driverAppBookingDto.booking_id }
+            // });
+
+            // for testing
+            const booking = await this.bookingRepository.findOne(driverAppBookingDto.booking_id, {
+                relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
 
             if (Object.keys(booking).length !== 0) {
-                if(driverAppBookingDto.status == BookingStatus.CANCELED)
-                {
+                if (driverAppBookingDto.status == BookingStatus.CANCELED) {
                     booking.cancelReason = driverAppBookingDto.cancelReason;
                     booking.status = BookingStatus.CANCELED;
                     booking.updatedAt = new Date();
-                    booking.cancelTime= new Date();
+                    booking.cancelTime = new Date();
                     await this.bookingRepository.update(booking.id, booking);
+
+                    // Update long lat driver for testing
+                    const driverInfo = booking.driverInfo;
+                    driverInfo.longitude = driverAppBookingDto.longitude;
+                    driverInfo.latitude = driverAppBookingDto.latitude
+                    await this.driverRepo.update(driverInfo.id, driverInfo);
+
+                    this.apiResponse.data = await this.bookingRepository.findOne(driverAppBookingDto.booking_id, {
+                        relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations'],
+                    });
                 }
 
-                if(driverAppBookingDto.status == BookingStatus.PROCESSING)
-                {
+                if (driverAppBookingDto.status == BookingStatus.PROCESSING) {
                     booking.status = BookingStatus.PROCESSING;
                     booking.startTime = new Date();
                     booking.updatedAt = new Date();
                     await this.bookingRepository.update(booking.id, booking);
+
+                    // Update long lat driver for testing
+                    const driverInfo = booking.driverInfo;
+                    driverInfo.longitude = driverAppBookingDto.longitude;
+                    driverInfo.latitude = driverAppBookingDto.latitude
+                    await this.driverRepo.update(driverInfo.id, driverInfo);
+
+                    this.apiResponse.data = await this.bookingRepository.findOne(driverAppBookingDto.booking_id, {
+                        relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations'],
+                    });
                 }
 
-                if(driverAppBookingDto.status == BookingStatus.COMPLETED)
-                {
+                if (driverAppBookingDto.status == BookingStatus.COMPLETED) {
                     booking.status = BookingStatus.COMPLETED;
                     booking.arrivedTime = new Date();
                     booking.updatedAt = new Date();
                     booking.waitingFreeAmount = driverAppBookingDto.waiting_free_amount;
                     booking.waitingFreeNote = driverAppBookingDto.waiting_free_note;
                     await this.bookingRepository.update(booking.id, booking);
+
+                     // Update long lat driver for testing
+                     const driverInfo = booking.driverInfo;
+                     driverInfo.longitude = driverAppBookingDto.longitude;
+                     driverInfo.latitude = driverAppBookingDto.latitude
+                     await this.driverRepo.update(driverInfo.id, driverInfo);
+
+                     this.apiResponse.data = await this.bookingRepository.findOne(driverAppBookingDto.booking_id, {
+                         relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations'],
+                     });
                 }
 
                 // calculate booking promotion
