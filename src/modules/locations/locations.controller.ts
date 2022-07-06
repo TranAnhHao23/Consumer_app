@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query, UseFilters, Res} from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 
@@ -6,9 +6,13 @@ import { UpdateLocationDto } from './dto/update-location.dto';
 import {ApiTags} from "@nestjs/swagger";
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { GetFrequentLocationDto } from './dto/get-frequent-location.dto';
+import {HttpExceptionFilter} from "../../shared/http-exception.filter";
+import { Response } from 'express';
+
 
 @ApiTags('location')
 @Controller('v1/rhc/locations')
+@UseFilters(new HttpExceptionFilter())
 export class LocationsController {
   constructor(
     private readonly locationsService: LocationsService,
@@ -42,8 +46,9 @@ export class LocationsController {
   // }
 
   @Get('getfrequentlocations')
-  async getFrequentLocations(@Query() getFrequentLocationDto: GetFrequentLocationDto) {
-    return this.locationsService.getFrequentLocations(getFrequentLocationDto);
+  async getFrequentLocations(@Query() getFrequentLocationDto: GetFrequentLocationDto, @Res() res: Response) {
+    const result = await this.locationsService.getFrequentLocations(getFrequentLocationDto);
+    return res.status(result.status).json(result);
   }
 
   // @Get()
