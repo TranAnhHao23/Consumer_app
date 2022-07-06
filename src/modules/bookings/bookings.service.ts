@@ -2,14 +2,13 @@ import {
     HttpException,
     HttpStatus,
     Injectable,
-    InternalServerErrorException,
-    NotFoundException,
+    InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { createQueryBuilder, In, Repository, ReturningStatementNotSupportedError } from 'typeorm';
+import { createQueryBuilder, In, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -27,6 +26,12 @@ import { AcceptBookingDto } from './dto/accept-booking.dto';
 import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
+import {HttpService} from "@nestjs/axios";
+import {firstValueFrom, lastValueFrom, map, Observable} from "rxjs";
+import {SearchingDriverDto} from "./dto/searching-driver.dto";
+import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
+import {response} from "express";
+import {DriverAppFindDriverResponseDto} from "./dto/DriverApp-FindDriver-Response.dto";
 import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
@@ -66,6 +71,7 @@ export class BookingsService {
         private readonly driverRepo: Repository<DriverEntity>,
         @InjectRepository(PaymentMethod)
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
+        private readonly httpService: HttpService
     ) {
     }
 
@@ -77,7 +83,7 @@ export class BookingsService {
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
                 // @ts-ignore
-                newobj.status = BookingStatus.PENDING;
+                newobj.status = BookingStatus.PROCESSING;
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
@@ -345,7 +351,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -535,6 +541,7 @@ export class BookingsService {
                 // latitude: acceptBookingDto.driverInfo.latitude,
                 // longitude: acceptBookingDto.driverInfo.longitude,
                 // booking: booking
+
             })
 
             await Promise.all([driver.save(), car.save()])
@@ -708,5 +715,62 @@ export class BookingsService {
         return await this.bookingRepository.findOne(id, {
             relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
         });
+    }
+
+    async findDriver(searchingDriverDto: SearchingDriverDto) {
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+        // send data to FE
+        let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
+        let totalAmount = await this.calculatePrice(searchingDriverDto.distance, String(trip.carType));
+        let driverAppFindDriverRequest: DriverAppFindDriverRequestDto = {
+            depLong: trip.locations[0].longitude,
+            depLat: trip.locations[0].longitude,
+            desLong1: trip.locations[1].longitude,
+            desLat1: trip.locations[1].latitude,
+            desLong2: (trip.locations[2]!== undefined)? trip.locations[2].longitude : undefined,
+            desLat2: (trip.locations[2]!== undefined)? trip.locations[2].latitude : undefined,
+            desLong3: (trip.locations[3]!== undefined)? trip.locations[3].longitude : undefined,
+            desLat3: (trip.locations[3]!== undefined)? trip.locations[3].latitude : undefined,
+            distance: searchingDriverDto.distance,
+            carTypeId: String(trip.carType)
+        };
+        let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
+
+        this.apiResponse.data = [{
+            driver: driverAppFindDriverRequest,
+            locations: trip.locations,
+            paymentMethod: paymentMethod,
+            totalAmount: totalAmount
+        }]
+        // send API driver app
+        // let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
+        // if (!searchingStatus) {
+        //     this.apiResponse.status = HttpStatus.NOT_FOUND
+        // }
+        return this.apiResponse;
+    }
+
+    async sendFindDriverToDriverApp(url: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
+        // Send request data to driver app
+        const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
+        if (Object.keys(data).length == 2) {
+            return false;
+        }
+        return true;
+    }
+
+    async handleExternalGetApi(api: string) {
+        const {data} = await firstValueFrom(this.httpService.get(api))
+        return data;
+    }
+
+    async handleExternalPostApi(api, data: any){
+        const res = await firstValueFrom(this.httpService.post(api, data)
+            .pipe(
+            map((response) => {
+                return response.data;
+            })
+        ));
+        return res;
     }
 }
