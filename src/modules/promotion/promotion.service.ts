@@ -26,7 +26,7 @@ export class PromotionService {
       const promo = this.promotionRepository.create(createPromotionDto);
       this.apiResponse.data = await this.promotionRepository.save(promo);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -53,11 +53,11 @@ export class PromotionService {
         return this.apiResponse;
       }
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
- 
+
   async findAvailablePromotion(userId: string) {
     this.apiResponse = new ResponseResult();
     const currentDate = new Date();
@@ -67,7 +67,7 @@ export class PromotionService {
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -80,7 +80,7 @@ export class PromotionService {
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -90,11 +90,11 @@ export class PromotionService {
     const currentDate = new Date();
     try {
       this.apiResponse.data = await this.promotionRepository.find({
-        where: { userId: userId, code: Like(`%${keyword}%`),status: PromotionStatus.AVAILABLE, expiredDate: MoreThanOrEqual(currentDate) },
+        where: { userId: userId, code: Like(`%${keyword}%`), status: PromotionStatus.AVAILABLE, expiredDate: MoreThanOrEqual(currentDate) },
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -103,12 +103,11 @@ export class PromotionService {
     this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.promotionRepository.find({
-        where: {booking: bookingId },
+        where: { booking: bookingId },
         order: { ['expiredDate']: 'ASC' }
       });
     } catch (error) {
-      this.apiResponse.errorMessage = error;
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -118,7 +117,7 @@ export class PromotionService {
     try {
       this.apiResponse.data = await this.promotionRepository.findOne(id);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -128,7 +127,7 @@ export class PromotionService {
     try {
       const getPromotion = await this.promotionRepository.findOne(id);
       if (Object.keys(getPromotion).length !== 0) {
-          await this.promotionRepository.delete(id);
+        await this.promotionRepository.delete(id);
       }
       else {
         this.apiResponse.status = HttpStatus.NOT_FOUND;
@@ -136,7 +135,7 @@ export class PromotionService {
         return this.apiResponse;
       }
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }

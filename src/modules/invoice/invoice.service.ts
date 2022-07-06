@@ -50,7 +50,7 @@ export class InvoiceService {
 
       this.apiResponse.data = await this.invoiceRepository.save(newPayment);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -78,7 +78,7 @@ export class InvoiceService {
         return this.apiResponse;
       }
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -117,8 +117,8 @@ export class InvoiceService {
         return this.apiResponse;
       }
     }
-    catch (err) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    catch (error) {
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -131,7 +131,7 @@ export class InvoiceService {
         relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -144,7 +144,7 @@ export class InvoiceService {
         relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -157,7 +157,7 @@ export class InvoiceService {
         relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -170,7 +170,7 @@ export class InvoiceService {
         relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }

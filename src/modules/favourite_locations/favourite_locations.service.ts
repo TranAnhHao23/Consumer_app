@@ -1,4 +1,4 @@
-import { HttpCode, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpCode, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
@@ -24,7 +24,7 @@ export class FavouriteLocationsService {
         newFavouriteLocation,
       );
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -40,7 +40,7 @@ export class FavouriteLocationsService {
         id: updateFavouriteLocationDto.id,
       });
     } catch (error) { 
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -53,7 +53,7 @@ export class FavouriteLocationsService {
         order: { ['createdAt']: 'DESC' },
       });
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -63,7 +63,7 @@ export class FavouriteLocationsService {
     try {
       this.apiResponse.data = await this.favouriteRepository.findOne(id);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -73,7 +73,7 @@ export class FavouriteLocationsService {
     try {
       this.apiResponse.data = await this.favouriteRepository.delete(id);
     } catch (error) {
-      this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }

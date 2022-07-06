@@ -11,6 +11,7 @@ import { HttpExceptionFilter } from 'src/shared/http-exception.filter';
 
 @ApiTags('trip')
 @Controller('v1/rhc/trips')
+
 @UseFilters(new HttpExceptionFilter())
 export class TripsController {
   constructor(
