@@ -8,8 +8,10 @@ import { NoteForDriverDto } from './dto/note-for-driver.dto';
 import { SetLikeBookingDto } from './dto/set-like-booking.dto';
 import { GetRecentFavoriteBookingDto } from './dto/get-recent-favorite-booking.dto';
 import { AcceptBookingDto } from './dto/accept-booking.dto';
-import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 import { SearchingDriverDto } from "./dto/searching-driver.dto";
+import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
+import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
+import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -110,8 +112,20 @@ export class BookingsController {
   }
   
   //API update booking status (Driver app)
-  @Post("driverapp/updatebookingstatus")
-  ConfirmPickupPassenger( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
-    return this.bookingsService.UpdateBookingStatus(driverAppBookingDto);
+  @Post("driverapp/confirmpickuppassenger")
+  confirmPickupPassenger( @Body() driverAppConfirmPickupPassengerDto: DriverAppConfirmPickupPassengerDto  ) {
+    return this.bookingsService.confirmPickupPassenger(driverAppConfirmPickupPassengerDto);
+  }
+
+   //API update booking status (Driver app)
+   @Post("driverapp/finishtrip")
+   finishTrip( @Body() driverAppFinishTripDto: DriverAppFinishTripDto  ) {
+     return this.bookingsService.finishtrip(driverAppFinishTripDto);
+   }
+
+    //API update booking status (Driver app)
+  @Post("driverapp/canceltrip")
+  canceltrip( @Body() driverAppCancelTripDto: DriverAppCancelTripDto  ) {
+    return this.bookingsService.cancelTrip(driverAppCancelTripDto);
   }
 }

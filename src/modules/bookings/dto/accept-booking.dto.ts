@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import {IsNumber, IsObject, IsOptional, IsString} from "class-validator";
+import {CarInfoDto} from "./car-info.dto";
+import {DriverInfoDto} from "./driver-info.dto";
 export class AcceptBookingDto {
     @ApiProperty({
         required: false
@@ -29,87 +31,11 @@ export class AcceptBookingDto {
     @IsString()
     carSize: string
 
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    carLicensePlateNumber: string
+    @ApiProperty()
+    @IsObject()
+    carInfo: CarInfoDto;
 
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    carBranch: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    carColor: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    carRegion: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    driverId: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    driverName: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    driverAvatar: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsString()
-    driverPhoneNum: string
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsNumber()
-    driverRating: number
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsNumber()
-    driverLatitude: number
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsNumber()
-    driverLongitude: number
-
-    @ApiProperty({
-        required: false
-    })
-    @IsOptional()
-    @IsNumber()
-    driverStatus: number
+    @ApiProperty()
+    @IsObject()
+    driverInfo: DriverInfoDto
 }

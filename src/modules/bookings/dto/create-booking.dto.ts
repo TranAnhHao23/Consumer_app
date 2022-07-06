@@ -7,12 +7,6 @@ export class CreateBookingDto {
         maxLength: 45,
         required: true
     })
-    carId: string;
-
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
     userId: string;
 
     @ApiProperty({
@@ -21,12 +15,6 @@ export class CreateBookingDto {
     })
     @IsUUID()
     tripId: string;
-
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    driverId: string;
 
     @ApiProperty({
         required: true
@@ -39,12 +27,6 @@ export class CreateBookingDto {
     })
     @IsUUID()
     paymentMethodId: string;
-
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    driverAppBookingId: string;
 
     // @ApiProperty({
     //     default: [
