@@ -114,9 +114,4 @@ export class BookingsController {
   ConfirmPickupPassenger( @Body() driverAppBookingDto: DriverAppBookingDto  ) {
     return this.bookingsService.UpdateBookingStatus(driverAppBookingDto);
   }
-
-  // @Get('testhandle/api/:api')
-  // sendFindDriverToDriverApp(@Param('api') api: string){
-  //    return this.bookingsService.sendFindDriverToDriverApp(api)
-  // }
 }

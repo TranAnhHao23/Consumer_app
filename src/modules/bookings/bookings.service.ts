@@ -27,9 +27,11 @@ import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 import {HttpService} from "@nestjs/axios";
-import {map} from "rxjs";
+import {firstValueFrom, lastValueFrom, map, Observable} from "rxjs";
 import {SearchingDriverDto} from "./dto/searching-driver.dto";
 import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
+import {response} from "express";
+import {DriverAppFindDriverResponseDto} from "./dto/DriverApp-FindDriver-Response.dto";
 
 export enum BookingStatus {
     CANCELED = -1,
@@ -606,9 +608,15 @@ export class BookingsService {
         // send data to FE
         let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
         let totalAmount = await this.calculatePrice(searchingDriverDto.distance, String(trip.carType));
-        // let driverAppFindDriverRequest: DriverAppFindDriverRequestDto;
+        let driverAppFindDriverRequest: DriverAppFindDriverRequestDto = {
+            depLong: trip.locations[0].longitude,
+            depLat: trip.locations[0].longitude,
+            desLong3: trip.locations[trip.locations.length-1].longitude,
+            desLat3: trip.locations[trip.locations.length-1].latitude,
+            distance: searchingDriverDto.distance,
+            carTypeId: String(trip.carType)
+        };
         let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
-        console.log(paymentMethod)
 
         this.apiResponse.data = [{
             locations: trip.locations,
@@ -616,29 +624,34 @@ export class BookingsService {
             totalAmount: totalAmount
         }]
         // send API driver app
-        // let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
+        let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
+        if (!searchingStatus) {
+            this.apiResponse.status = HttpStatus.NOT_FOUND
+        }
         return this.apiResponse;
     }
 
-    async sendFindDriverToDriverApp(api: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
+    async sendFindDriverToDriverApp(url: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
         // Send request data to driver app
-        const data = await this.handleExternalApi('post', api, driverAppFindDriverRequest);
-        if (data !== null) {
-            return true;
+        const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
+        if (Object.keys(data).length == 2) {
+            return false;
         }
-        return false;
+        return true;
     }
 
-    handleExternalApi(method: string, api: string, data: any) {
-        switch (method) {
-            case 'get':
-                return this.httpService.get<any>(api).pipe(
-                    map((res) => res.data)
-                );
-                break;
-            case 'post':
-                return this.httpService.post<any>(api, data);
-                break;
-        }
+    async handleExternalGetApi(api: string) {
+        const {data} = await firstValueFrom(this.httpService.get(api))
+        return data;
+    }
+
+    async handleExternalPostApi(api, data: any){
+        const res = await firstValueFrom(this.httpService.post(api, data)
+            .pipe(
+            map((response) => {
+                return response.data;
+            })
+        ));
+        return res;
     }
 }

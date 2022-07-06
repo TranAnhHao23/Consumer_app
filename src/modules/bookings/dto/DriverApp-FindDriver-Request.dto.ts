@@ -1,12 +1,11 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {ToNumericTrans} from "../../../shared/column-numeric-transformer";
-import {IsDecimal} from "class-validator";
+import {IsDecimal, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class DriverAppFindDriverRequestDto {
     @ApiProperty({
         required: true,
     })
-    @IsDecimal()
+    @IsNumber()
     depLong: number;
 
     @ApiProperty({
@@ -15,29 +14,25 @@ export class DriverAppFindDriverRequestDto {
     @IsDecimal()
     depLat: number;
 
-    @ApiProperty({
-        required: false
-    })
-    @IsDecimal()
-    desLong1: number;
-
-    @ApiProperty({
-        required: false
-    })
-    @IsDecimal()
-    desLat1: number;
-
-    @ApiProperty({
-        required: false
-    })
-    @IsDecimal()
-    desLong2: number;
-
-    @ApiProperty({
-        required: false
-    })
-    @IsDecimal()
-    desLat2: number;
+    // @ApiProperty()
+    // @IsDecimal()
+    // @IsOptional()
+    // desLong1: number;
+    //
+    // @ApiProperty()
+    // @IsDecimal()
+    // @IsOptional()
+    // desLat1: number;
+    //
+    // @ApiProperty()
+    // @IsDecimal()
+    // @IsOptional()
+    // desLong2: number;
+    //
+    // @ApiProperty()
+    // @IsDecimal()
+    // @IsOptional()
+    // desLat2: number;
 
     @ApiProperty({
         required: true
@@ -60,6 +55,7 @@ export class DriverAppFindDriverRequestDto {
     @ApiProperty({
         required: true
     })
+    @IsDecimal()
     carTypeId: string;
 
 
