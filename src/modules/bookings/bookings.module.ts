@@ -19,9 +19,9 @@ import { HttpModule } from "@nestjs/axios";
     Promotion,
     CarEntity,
     DriverEntity,
-    PaymentMethod,
-    HttpModule
-  ])],
+    PaymentMethod
+  ]),
+    HttpModule],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })

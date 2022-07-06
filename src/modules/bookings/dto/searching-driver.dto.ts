@@ -1,13 +1,31 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsString} from "class-validator";
+import {IsDecimal, IsNumber, IsString, IsUUID} from "class-validator";
 
 export class SearchingDriverDto {
 
-    @ApiProperty()
+    @ApiProperty({
+        required: true
+    })
     @IsString()
     tripId: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        required: true
+    })
     @IsString()
     api: string;
+
+    @ApiProperty({
+        required: true
+    })
+    @IsNumber()
+    distance: number;
+
+    @ApiProperty({
+        maxLength: 45,
+        required: true
+    })
+    @IsUUID()
+    paymentMethodId: string;
+
 }

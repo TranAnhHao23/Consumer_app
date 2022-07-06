@@ -29,6 +29,7 @@ import { DriverAppBookingDto } from './dto/DriverApp-BookingDto';
 import {HttpService} from "@nestjs/axios";
 import {map} from "rxjs";
 import {SearchingDriverDto} from "./dto/searching-driver.dto";
+import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
 
 export enum BookingStatus {
     CANCELED = -1,
@@ -566,32 +567,43 @@ export class BookingsService {
     }
 
     async findDriver(searchingDriverDto: SearchingDriverDto) {
-        this.apiResponse = new ResponseResult();
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         // send data to FE
         let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
+        let totalAmount = await this.calculatePrice(searchingDriverDto.distance, String(trip.carType));
+        // let driverAppFindDriverRequest: DriverAppFindDriverRequestDto;
+        let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
+        console.log(paymentMethod)
+
         this.apiResponse.data = [{
             locations: trip.locations,
-            payment: 'VISA',
-            totalAmount: 50
+            paymentMethod: paymentMethod,
+            totalAmount: totalAmount
         }]
         // send API driver app
-        await this.sendFindDriverToDriverApp(searchingDriverDto.api)
+        // let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
         return this.apiResponse;
     }
 
-    async sendFindDriverToDriverApp(api: string) {
-        // Call driver app API
-        let data = this.handleExternalApi(api)
+    async sendFindDriverToDriverApp(api: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
+        // Send request data to driver app
+        const data = await this.handleExternalApi('post', api, driverAppFindDriverRequest);
         if (data !== null) {
-            return data;
-        } else {
-
+            return true;
         }
+        return false;
     }
 
-    handleExternalApi(api: string) {
-        return this.httpService.get<any>(api).pipe(
-            map((res) => res.data)
-        );
+    handleExternalApi(method: string, api: string, data: any) {
+        switch (method) {
+            case 'get':
+                return this.httpService.get<any>(api).pipe(
+                    map((res) => res.data)
+                );
+                break;
+            case 'post':
+                return this.httpService.post<any>(api, data);
+                break;
+        }
     }
 }
