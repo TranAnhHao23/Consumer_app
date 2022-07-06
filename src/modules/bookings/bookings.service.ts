@@ -469,6 +469,10 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
+            if (booking.status != BookingStatus.PENDING) {
+                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
+            }
+
             // Check status and throw exception can not accept
 
             // const existDriverAndCar = await Promise.all([
