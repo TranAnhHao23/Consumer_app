@@ -22,10 +22,10 @@ export class BookingEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'car_id', length: 45 })
+  @Column({ name: 'car_id', length: 45, nullable: true })
   carId: string;
 
-  @OneToOne(() => CarEntity, car => car.booking )
+  @OneToOne(() => CarEntity, car => car.booking)
   carInfo: CarEntity
 
   @Column({ name: 'user_Id', length: 45 })
@@ -42,10 +42,10 @@ export class BookingEntity extends BaseEntity {
   @OneToMany(() => Promotion, (promotion) => promotion.booking)
   promotions: Promotion[];
 
-  @Column({ name: 'driver_id', length: 45 })
+  @Column({ name: 'driver_id', length: 45, nullable: true })
   driverId: string;
 
-  @OneToOne(() => DriverEntity, driver => driver.booking )
+  @OneToOne(() => DriverEntity, driver => driver.booking)
   driverInfo: DriverEntity
 
   @Column({ name: 'driverapp_booking_id', length: 45, nullable: true })
@@ -66,7 +66,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'promotion_amount', default: 0, transformer: new ToNumericTrans })
   promotionAmount: number;
 
-  @Column({ name: 'waiting_free_note', length: 255 })
+  @Column({ name: 'waiting_free_note', length: 255,nullable:true })
   waitingFreeNote: string;
 
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'waiting_free_amount', default: 0, transformer: new ToNumericTrans })
