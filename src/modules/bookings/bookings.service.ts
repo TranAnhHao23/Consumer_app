@@ -725,23 +725,28 @@ export class BookingsService {
         let driverAppFindDriverRequest: DriverAppFindDriverRequestDto = {
             depLong: trip.locations[0].longitude,
             depLat: trip.locations[0].longitude,
-            desLong3: trip.locations[trip.locations.length-1].longitude,
-            desLat3: trip.locations[trip.locations.length-1].latitude,
+            desLong1: trip.locations[1].longitude,
+            desLat1: trip.locations[1].latitude,
+            desLong2: (trip.locations[2]!== undefined)? trip.locations[2].longitude : undefined,
+            desLat2: (trip.locations[2]!== undefined)? trip.locations[2].latitude : undefined,
+            desLong3: (trip.locations[3]!== undefined)? trip.locations[3].longitude : undefined,
+            desLat3: (trip.locations[3]!== undefined)? trip.locations[3].latitude : undefined,
             distance: searchingDriverDto.distance,
             carTypeId: String(trip.carType)
         };
         let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
 
         this.apiResponse.data = [{
+            driver: driverAppFindDriverRequest,
             locations: trip.locations,
             paymentMethod: paymentMethod,
             totalAmount: totalAmount
         }]
         // send API driver app
-        let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
-        if (!searchingStatus) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND
-        }
+        // let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
+        // if (!searchingStatus) {
+        //     this.apiResponse.status = HttpStatus.NOT_FOUND
+        // }
         return this.apiResponse;
     }
 
