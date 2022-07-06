@@ -5,6 +5,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
@@ -457,51 +458,82 @@ export class BookingsService {
     async acceptBooking(id: string, acceptBookingDto: AcceptBookingDto) {
         this.apiResponse = new ResponseResult()
         try {
-            const booking = await this.bookingRepository.findOne(id)
+            const booking = await this.bookingRepository.findOne(id, { relations: ['trip'] })
+
+            await this.bookingRepository.update(id, {
+                driverAppBookingId: uuidv4(),
+                status: BookingStatus.WAITING
+            })
 
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            const existDriverAndCar = await Promise.all([
-                this.driverRepo.findOne({
-                    booking: booking
-                }),
-                this.carRepo.findOne({
-                    booking: booking
-                })
-            ])
-
-            if (existDriverAndCar[0] || existDriverAndCar[1]) {
-                throw new HttpException('This booking has been accepted or taken by another', HttpStatus.BAD_REQUEST)
+            if (booking.status != BookingStatus.PENDING) {
+                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
             }
 
+            // Check status and throw exception can not accept
+
+            // const existDriverAndCar = await Promise.all([
+            //     this.driverRepo.findOne({
+            //         booking: booking
+            //     }),
+            //     this.carRepo.findOne({
+            //         booking: booking
+            //     })
+            // ])
+
+            // if (existDriverAndCar[0] || existDriverAndCar[1]) {
+            //     throw new HttpException('This booking has been accepted or taken by another', HttpStatus.BAD_REQUEST)
+            // }
+
+            await Promise.all([
+                this.driverRepo.delete({ booking: booking }),
+                this.carRepo.delete({ booking: booking })
+            ])
+
             const car = this.carRepo.create({
-                carId: acceptBookingDto.carId,
-                carTypeId: acceptBookingDto.carTypeId,
-                icon: acceptBookingDto.carTypeId,
-                size: acceptBookingDto.carSize,
-                licensePlateNumber: acceptBookingDto.carLicensePlateNumber,
-                branch: acceptBookingDto.carBranch,
-                color: acceptBookingDto.carColor,
-                region: acceptBookingDto.carRegion,
+                carId: uuidv4(),
+                carTypeId: booking.trip.carType + '',
+                icon: "https://i.ibb.co/JcSvbzQ/image-2022-07-01-T08-57-48-034-Z.png",
+                size: "M",
+                licensePlateNumber: "29A-957.54",
+                branch: "Vinfast",
+                color: "Pink",
+                region: "Hanoi",
                 booking: booking
+                // carId: acceptBookingDto.carInfo.carId,
+                // carTypeId: acceptBookingDto.carInfo.carTypeId,
+                // icon: acceptBookingDto.carInfo.icon,
+                // size: acceptBookingDto.carInfo.size,
+                // licensePlateNumber: acceptBookingDto.carInfo.licensePlateNumber,
+                // branch: acceptBookingDto.carInfo.branchName,
+                // color: acceptBookingDto.carInfo.color,
+                // region: acceptBookingDto.carInfo.regionRegister,
+                // booking: booking
             })
-            const savedCar = await car.save()
 
             const driver = this.driverRepo.create({
-                driverId: acceptBookingDto.driverId,
-                name: acceptBookingDto.driverName,
-                avatar: acceptBookingDto.driverAvatar,
-                phoneNum: acceptBookingDto.driverPhoneNum,
-                rating: acceptBookingDto.driverRating,
-                latitude: acceptBookingDto.driverLatitude,
-                longitude: acceptBookingDto.driverLongitude,
-                status: acceptBookingDto.driverStatus,
+                driverId: uuidv4(),
+                name: "Peter Parker",
+                avatar: "https://i.ibb.co/7YK1Nkr/image-2022-07-06-T03-44-13-236-Z.png",
+                phoneNum: "0377256985",
+                rating: 4.8,
+                latitude: acceptBookingDto.driverInfo.latitude,
+                longitude: acceptBookingDto.driverInfo.longitude,
                 booking: booking
+                // driverId: acceptBookingDto.driverInfo.driverId,
+                // name: acceptBookingDto.driverInfo.name,
+                // avatar: acceptBookingDto.driverInfo.avatar,
+                // phoneNum: acceptBookingDto.driverInfo.phoneNumber,
+                // rating: acceptBookingDto.driverInfo.rating,
+                // latitude: acceptBookingDto.driverInfo.latitude,
+                // longitude: acceptBookingDto.driverInfo.longitude,
+                // booking: booking
             })
 
-            const savedDriver = await driver.save()
+            await Promise.all([driver.save(), car.save()])
 
             const updatedBooking = await this.bookingRepository.findOne(id, {
                 relations: ['trip', 'trip.locations', 'driverInfo', 'carInfo']
@@ -510,6 +542,7 @@ export class BookingsService {
             this.apiResponse.data = updatedBooking
 
         } catch (error) {
+            console.log(error)
             if (error instanceof HttpException) {
                 this.apiResponse.status = error.getStatus()
                 this.apiResponse.errorMessage = error.getResponse().toString()
