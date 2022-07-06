@@ -7,18 +7,7 @@ export class UpdateBookingDto {
         maxLength: 45,
         required: true
     })
-    id: string;
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    carId: string;
-
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    driverId: string;
+    id: string; 
 
     @ApiProperty({
         required: true
@@ -31,11 +20,4 @@ export class UpdateBookingDto {
     })
     @IsUUID()
     paymentMethodId: string;
-
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    driverAppBookingId: string;
-
 }

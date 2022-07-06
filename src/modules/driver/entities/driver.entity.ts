@@ -40,8 +40,8 @@ export class DriverEntity extends BaseEntity {
     @Column({ type: "decimal", precision: 10, scale: 5, name: 'longitude', default: 0, transformer: new ToNumericTrans })
     longitude: number;
 
-    @Column({ name: 'status' })
-    status: number;
+    // @Column({ name: 'status' })
+    // status: number;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;

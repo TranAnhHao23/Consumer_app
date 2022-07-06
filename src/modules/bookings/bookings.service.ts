@@ -5,6 +5,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
@@ -457,51 +458,86 @@ export class BookingsService {
     async acceptBooking(id: string, acceptBookingDto: AcceptBookingDto) {
         this.apiResponse = new ResponseResult()
         try {
-            const booking = await this.bookingRepository.findOne(id)
+            const booking = await this.bookingRepository.findOne(id, { relations: ['trip'] })
+
+            const setCarId = uuidv4();
+            const setDriverId = uuidv4();
+            await this.bookingRepository.update(id, {
+                driverAppBookingId: uuidv4(),
+                status: BookingStatus.WAITING,
+                carId: setCarId,
+                driverId: setDriverId
+            })
 
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            const existDriverAndCar = await Promise.all([
-                this.driverRepo.findOne({
-                    booking: booking
-                }),
-                this.carRepo.findOne({
-                    booking: booking
-                })
-            ])
-
-            if (existDriverAndCar[0] || existDriverAndCar[1]) {
-                throw new HttpException('This booking has been accepted or taken by another', HttpStatus.BAD_REQUEST)
+            if (booking.status != BookingStatus.PENDING) {
+                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
             }
 
+            // Check status and throw exception can not accept
+
+            // const existDriverAndCar = await Promise.all([
+            //     this.driverRepo.findOne({
+            //         booking: booking
+            //     }),
+            //     this.carRepo.findOne({
+            //         booking: booking
+            //     })
+            // ])
+
+            // if (existDriverAndCar[0] || existDriverAndCar[1]) {
+            //     throw new HttpException('This booking has been accepted or taken by another', HttpStatus.BAD_REQUEST)
+            // }
+
+            await Promise.all([
+                this.driverRepo.delete({ booking: booking }),
+                this.carRepo.delete({ booking: booking })
+            ])
+
             const car = this.carRepo.create({
-                carId: acceptBookingDto.carId,
-                carTypeId: acceptBookingDto.carTypeId,
-                icon: acceptBookingDto.carTypeId,
-                size: acceptBookingDto.carSize,
-                licensePlateNumber: acceptBookingDto.carLicensePlateNumber,
-                branch: acceptBookingDto.carBranch,
-                color: acceptBookingDto.carColor,
-                region: acceptBookingDto.carRegion,
+                carId: setCarId,
+                carTypeId: booking.trip.carType + '',
+                icon: "https://i.ibb.co/JcSvbzQ/image-2022-07-01-T08-57-48-034-Z.png",
+                size: "M",
+                licensePlateNumber: "29A-957.54",
+                branch: "Vinfast",
+                color: "Pink",
+                region: "Hanoi",
                 booking: booking
+                // carId: acceptBookingDto.carInfo.carId,
+                // carTypeId: acceptBookingDto.carInfo.carTypeId,
+                // icon: acceptBookingDto.carInfo.icon,
+                // size: acceptBookingDto.carInfo.size,
+                // licensePlateNumber: acceptBookingDto.carInfo.licensePlateNumber,
+                // branch: acceptBookingDto.carInfo.branchName,
+                // color: acceptBookingDto.carInfo.color,
+                // region: acceptBookingDto.carInfo.regionRegister,
+                // booking: booking
             })
-            const savedCar = await car.save()
 
             const driver = this.driverRepo.create({
-                driverId: acceptBookingDto.driverId,
-                name: acceptBookingDto.driverName,
-                avatar: acceptBookingDto.driverAvatar,
-                phoneNum: acceptBookingDto.driverPhoneNum,
-                rating: acceptBookingDto.driverRating,
-                latitude: acceptBookingDto.driverLatitude,
-                longitude: acceptBookingDto.driverLongitude,
-                status: acceptBookingDto.driverStatus,
+                driverId: setDriverId,
+                name: "Peter Parker",
+                avatar: "https://i.ibb.co/7YK1Nkr/image-2022-07-06-T03-44-13-236-Z.png",
+                phoneNum: "0377256985",
+                rating: 4.8,
+                latitude: acceptBookingDto.driverInfo.latitude,
+                longitude: acceptBookingDto.driverInfo.longitude,
                 booking: booking
+                // driverId: acceptBookingDto.driverInfo.driverId,
+                // name: acceptBookingDto.driverInfo.name,
+                // avatar: acceptBookingDto.driverInfo.avatar,
+                // phoneNum: acceptBookingDto.driverInfo.phoneNumber,
+                // rating: acceptBookingDto.driverInfo.rating,
+                // latitude: acceptBookingDto.driverInfo.latitude,
+                // longitude: acceptBookingDto.driverInfo.longitude,
+                // booking: booking
             })
 
-            const savedDriver = await driver.save()
+            await Promise.all([driver.save(), car.save()])
 
             const updatedBooking = await this.bookingRepository.findOne(id, {
                 relations: ['trip', 'trip.locations', 'driverInfo', 'carInfo']
@@ -510,6 +546,7 @@ export class BookingsService {
             this.apiResponse.data = updatedBooking
 
         } catch (error) {
+            console.log(error)
             if (error instanceof HttpException) {
                 this.apiResponse.status = error.getStatus()
                 this.apiResponse.errorMessage = error.getResponse().toString()
@@ -543,8 +580,10 @@ export class BookingsService {
 
                 // Update long lat driver for testing
                 if (booking.driverId != null) {
-                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
-                    if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne({
+                        where: { driverId: booking.driverId }
+                    });
+                    if (Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppCancelTripDto.longitude;
                         driverInfo.latitude = driverAppCancelTripDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -556,6 +595,7 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
+            console.log(error);
             if (error instanceof HttpException) {
                 this.apiResponse.status = error.getStatus()
                 this.apiResponse.errorMessage = error.getResponse().toString()
@@ -589,8 +629,10 @@ export class BookingsService {
 
                 // Update long lat driver for testing
                 if (booking.driverId != null) {
-                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
-                    if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne({
+                        where: { driverId: booking.driverId }
+                    });
+                    if (Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppFinishTripDto.longitude;
                         driverInfo.latitude = driverAppFinishTripDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -603,11 +645,12 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
+            console.log(error);
             if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
+                this.apiResponse.status = error.getStatus();
+                this.apiResponse.errorMessage = error.getResponse().toString();
             } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
             }
         }
         return this.apiResponse;
@@ -628,14 +671,16 @@ export class BookingsService {
 
             if (Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.PROCESSING;
-                 booking.startTime = new Date();
+                booking.startTime = new Date();
                 //booking.updatedAt = new Date();
                 await this.bookingRepository.update(booking.id, booking);
 
                 // Update long lat driver for testing
                 if (booking.driverId != null) {
-                    const driverInfo = await this.driverRepo.findOne(booking.driverId);
-                    if (booking.driverId != null) {
+                    const driverInfo = await this.driverRepo.findOne({
+                        where: { driverId: booking.driverId }
+                    });
+                    if (Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppConfirmPickupPassengerDto.longitude;
                         driverInfo.latitude = driverAppConfirmPickupPassengerDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -648,11 +693,12 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
+            console.log(error);
             if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
+                this.apiResponse.status = error.getStatus();
+                this.apiResponse.errorMessage = error.getResponse().toString();
             } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
             }
         }
         return this.apiResponse;
