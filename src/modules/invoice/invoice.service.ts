@@ -12,13 +12,15 @@ enum PaymentStatus {
   COMPLETED = 1
 }
 
-enum BookingStatus {
-  CANCELED = -1,
-  WAITING = 0,
-  PROCESSING = 1,
-  COMPLETED = 2,
-}
 
+export enum BookingStatus {
+  CANCELED = -1,
+  PENDING = 0,
+  WAITING = 1,
+  PROCESSING = 2,
+  COMPLETED = 3,
+}
+ 
 @Injectable()
 export class InvoiceService {
   constructor(
@@ -126,7 +128,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { orderNo: orderNo },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
+        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -139,7 +141,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId, invoiceStatus: PaymentStatus.PROCESSING },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
+        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -152,7 +154,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
+        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -165,7 +167,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { id: id },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations', 'booking.carInfo', 'booking.driverInfo'],
+        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
