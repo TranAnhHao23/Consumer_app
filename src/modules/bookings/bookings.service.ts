@@ -36,16 +36,9 @@ import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
+import { BookingStatus } from './entities/booking.entity';
 import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
 import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
-
-export enum BookingStatus {
-    CANCELED = -1,
-    PENDING = 0,
-    WAITING = 1,
-    PROCESSING = 2,
-    COMPLETED = 3,
-}
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
