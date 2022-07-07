@@ -36,6 +36,8 @@ import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
+import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
+import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 
 export enum BookingStatus {
     CANCELED = -1,
@@ -351,7 +353,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -772,5 +774,43 @@ export class BookingsService {
             })
         ));
         return res;
+    }
+
+    async getRatingReasons(getRatingReasonsDto: GetRatingReasonsDto){
+        const apiResponse = new ResponseResult();
+        try {
+            let booking = await this.bookingRepository.findOne(getRatingReasonsDto.bookingId, {
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+            });
+            apiResponse.data = {
+                driverInfo: booking.driverInfo,
+                reviews: [],
+                tipAmounts: [10, 20, 30, 50]
+            }
+            if (+getRatingReasonsDto.rating == 0) {
+
+            } else if (+getRatingReasonsDto.rating <= 3) {
+                apiResponse.data.reviews = ['แต่งกายไม่สุภาพ', 'คนขับไม่สุภาพ', 'ไม่ให้ความช่วยเหลือ', 'รถไม่สะอาด', 'ขับรถไม่ปลอดภัย', 'คนขับไม่ตรงโปรไฟล์', 'ทะเบียนรถไม่ถูกต้อง'];
+            } else if (+getRatingReasonsDto.rating <=5) {
+                apiResponse.data.reviews = ['แต่งกายสุภาพ', 'มารยาทดี', 'ให้ความช่วยเหลือดี', 'รถสะอาด', 'ขับรถดี'];
+            }
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        return apiResponse;
+    }
+
+    async submitRating(submitRating: SubmitRatingDto) {
+        const apiResponse = new ResponseResult();
+        try {
+            console.log(submitRating.ratingReasons)
+            apiResponse.data = 'Submit reviews into Driver App';
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        // saving driver reviews
+        return apiResponse;
     }
 }

@@ -34,4 +34,9 @@ export class AppController {
     ]
     return this.apiResponse
   }
+
+  @Get('/v1/rhc/img')
+  getImage() {
+
+  }
 }
