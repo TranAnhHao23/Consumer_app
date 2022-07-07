@@ -342,7 +342,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
