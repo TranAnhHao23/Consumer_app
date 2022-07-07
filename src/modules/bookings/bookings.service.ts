@@ -77,8 +77,6 @@ export class BookingsService {
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
-                // @ts-ignore
-                newobj.status = BookingStatus.PROCESSING;
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
