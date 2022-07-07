@@ -37,6 +37,8 @@ import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pick
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
 import { BookingStatus } from './entities/booking.entity';
+import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
+import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -75,6 +77,8 @@ export class BookingsService {
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
+                // @ts-ignore
+                newobj.status = BookingStatus.PROCESSING;
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
@@ -763,5 +767,43 @@ export class BookingsService {
             })
         ));
         return res;
+    }
+
+    async getRatingReasons(getRatingReasonsDto: GetRatingReasonsDto){
+        const apiResponse = new ResponseResult();
+        try {
+            let booking = await this.bookingRepository.findOne(getRatingReasonsDto.bookingId, {
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+            });
+            apiResponse.data = {
+                driverInfo: booking.driverInfo,
+                reviews: [],
+                tipAmounts: [10, 20, 30, 50]
+            }
+            if (+getRatingReasonsDto.rating == 0) {
+
+            } else if (+getRatingReasonsDto.rating <= 3) {
+                apiResponse.data.reviews = ['แต่งกายไม่สุภาพ', 'คนขับไม่สุภาพ', 'ไม่ให้ความช่วยเหลือ', 'รถไม่สะอาด', 'ขับรถไม่ปลอดภัย', 'คนขับไม่ตรงโปรไฟล์', 'ทะเบียนรถไม่ถูกต้อง'];
+            } else if (+getRatingReasonsDto.rating <=5) {
+                apiResponse.data.reviews = ['แต่งกายสุภาพ', 'มารยาทดี', 'ให้ความช่วยเหลือดี', 'รถสะอาด', 'ขับรถดี'];
+            }
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        return apiResponse;
+    }
+
+    async submitRating(submitRating: SubmitRatingDto) {
+        const apiResponse = new ResponseResult();
+        try {
+            console.log(submitRating.ratingReasons)
+            apiResponse.data = 'Submit reviews into Driver App';
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        // saving driver reviews
+        return apiResponse;
     }
 }
