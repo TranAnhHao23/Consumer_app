@@ -36,14 +36,7 @@ import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
-
-export enum BookingStatus {
-    CANCELED = -1,
-    PENDING = 0,
-    WAITING = 1,
-    PROCESSING = 2,
-    COMPLETED = 3,
-}
+import { BookingStatus } from './entities/booking.entity';
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -82,8 +75,6 @@ export class BookingsService {
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
-                // @ts-ignore
-                newobj.status = BookingStatus.PROCESSING;
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();

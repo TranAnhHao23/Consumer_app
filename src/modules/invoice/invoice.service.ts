@@ -6,21 +6,14 @@ import { BookingEntity } from '../bookings/entities/booking.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
+import { BookingStatus } from '../bookings/entities/booking.entity';
+
 enum PaymentStatus {
   FAILED = -1,
   PROCESSING = 0,
   COMPLETED = 1
 }
 
-
-export enum BookingStatus {
-  CANCELED = -1,
-  PENDING = 0,
-  WAITING = 1,
-  PROCESSING = 2,
-  COMPLETED = 3,
-}
- 
 @Injectable()
 export class InvoiceService {
   constructor(

@@ -9,8 +9,7 @@ import {TripEntity} from '../trips/entities/trip.entity'
 import {ResponseResult} from "../../shared/ResponseResult";
 import {query} from "express";
 import { GetFrequentLocationDto } from './dto/get-frequent-location.dto';
-import { BookingStatus } from '../bookings/bookings.service';
-
+import { BookingStatus } from '../bookings/entities/booking.entity';
 
 export enum LocationMilestone {
     SOURCE = 0,
