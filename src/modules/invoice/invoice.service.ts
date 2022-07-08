@@ -32,7 +32,9 @@ export class InvoiceService {
         where: { booking: createInvoiceDto.bookingId }
       });
       if (Object.keys(existedBooking).length !== 0) {
-        throw new HttpException("The booking has been existed in another invoice!", HttpStatus.NOT_ACCEPTABLE)
+        this.apiResponse.status = HttpStatus.NOT_ACCEPTABLE;
+        this.apiResponse.errorMessage = "The booking has been existed in another invoice!";
+        return this.apiResponse;
       }
       else {
         const newPayment = this.invoiceRepository.create(createInvoiceDto);
@@ -52,6 +54,7 @@ export class InvoiceService {
       }
     } catch (error) {
       this.apiResponse.status = error.status;
+
     }
     return this.apiResponse;
   }
