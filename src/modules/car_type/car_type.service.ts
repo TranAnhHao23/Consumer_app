@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateCarTypeDto} from './dto/create-car_type.dto';
 import {UpdateCarTypeDto} from './dto/update-car_type.dto';
 import {InjectConnection, InjectRepository} from '@nestjs/typeorm';
@@ -45,7 +45,6 @@ export class CarTypeService {
                 },
             })
             let carDetails = await this.getCarDetailByIdCar(idCar);
-            // @ts-ignore
             carTypeEntity.carDetails = carDetails.data;
             this.apiResponse.data = carTypeEntity;
         } catch (error) {
@@ -70,7 +69,7 @@ export class CarTypeService {
     }
 
     async searchCarByLocation(searchCarByLocationDto: SearchCarByLocationDto) {
-        this.apiResponse = new ResponseResult(201);
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             const cars = await this.carRepo.find({
                 select: ['typeName', 'carIcon', 'latitude', 'longitude'],

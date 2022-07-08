@@ -2,14 +2,13 @@ import {
     HttpException,
     HttpStatus,
     Injectable,
-    InternalServerErrorException,
-    NotFoundException,
+    InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { createQueryBuilder, In, Repository, ReturningStatementNotSupportedError } from 'typeorm';
+import { createQueryBuilder, In, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -27,18 +26,19 @@ import { AcceptBookingDto } from './dto/accept-booking.dto';
 import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
+import {HttpService} from "@nestjs/axios";
+import {firstValueFrom, lastValueFrom, map, Observable} from "rxjs";
+import {SearchingDriverDto} from "./dto/searching-driver.dto";
+import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
+import {response} from "express";
+import {DriverAppFindDriverResponseDto} from "./dto/DriverApp-FindDriver-Response.dto";
 import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
-
-export enum BookingStatus {
-    CANCELED = -1,
-    PENDING = 0,
-    WAITING = 1,
-    PROCESSING = 2,
-    COMPLETED = 3,
-}
+import { BookingStatus } from './entities/booking.entity';
+import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
+import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -66,6 +66,7 @@ export class BookingsService {
         private readonly driverRepo: Repository<DriverEntity>,
         @InjectRepository(PaymentMethod)
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
+        private readonly httpService: HttpService
     ) {
     }
 
@@ -76,8 +77,6 @@ export class BookingsService {
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
             if (Object.keys(getTrip).length !== 0) {
-                // @ts-ignore
-                newobj.status = BookingStatus.PENDING;
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
@@ -345,7 +344,7 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
             this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -414,8 +413,8 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            if (booking.status != BookingStatus.PROCESSING) {
-                throw new HttpException('Booking is not proccessing. You can not update', HttpStatus.BAD_REQUEST)
+            if (booking.status != BookingStatus.PENDING) {
+                throw new HttpException('Booking is in proccess or completed. You can not update', HttpStatus.BAD_REQUEST)
             }
             await this.bookingRepository.update(bookingId, {
                 noteForDriver: noteForDriverDto.noteForDriver
@@ -535,6 +534,7 @@ export class BookingsService {
                 // latitude: acceptBookingDto.driverInfo.latitude,
                 // longitude: acceptBookingDto.driverInfo.longitude,
                 // booking: booking
+
             })
 
             await Promise.all([driver.save(), car.save()])
@@ -708,5 +708,100 @@ export class BookingsService {
         return await this.bookingRepository.findOne(id, {
             relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
         });
+    }
+
+    async findDriver(searchingDriverDto: SearchingDriverDto) {
+        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+        // send data to FE
+        let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
+        let totalAmount = await this.calculatePrice(searchingDriverDto.distance, String(trip.carType));
+        let driverAppFindDriverRequest: DriverAppFindDriverRequestDto = {
+            depLong: trip.locations[0].longitude,
+            depLat: trip.locations[0].longitude,
+            desLong1: trip.locations[1].longitude,
+            desLat1: trip.locations[1].latitude,
+            desLong2: (trip.locations[2]!== undefined)? trip.locations[2].longitude : undefined,
+            desLat2: (trip.locations[2]!== undefined)? trip.locations[2].latitude : undefined,
+            desLong3: (trip.locations[3]!== undefined)? trip.locations[3].longitude : undefined,
+            desLat3: (trip.locations[3]!== undefined)? trip.locations[3].latitude : undefined,
+            distance: searchingDriverDto.distance,
+            carTypeId: String(trip.carType)
+        };
+        let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
+
+        this.apiResponse.data = [{
+            driver: driverAppFindDriverRequest,
+            locations: trip.locations,
+            paymentMethod: paymentMethod,
+            totalAmount: totalAmount
+        }]
+        // send API driver app
+        // let searchingStatus = await this.sendFindDriverToDriverApp(searchingDriverDto.api, driverAppFindDriverRequest)
+        // if (!searchingStatus) {
+        //     this.apiResponse.status = HttpStatus.NOT_FOUND
+        // }
+        return this.apiResponse;
+    }
+
+    async sendFindDriverToDriverApp(url: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
+        // Send request data to driver app
+        const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
+        if (Object.keys(data).length == 2) {
+            return false;
+        }
+        return true;
+    }
+
+    async handleExternalGetApi(api: string) {
+        const {data} = await firstValueFrom(this.httpService.get(api))
+        return data;
+    }
+
+    async handleExternalPostApi(api, data: any){
+        const res = await firstValueFrom(this.httpService.post(api, data)
+            .pipe(
+            map((response) => {
+                return response.data;
+            })
+        ));
+        return res;
+    }
+
+    async getRatingReasons(getRatingReasonsDto: GetRatingReasonsDto){
+        const apiResponse = new ResponseResult();
+        try {
+            let booking = await this.bookingRepository.findOne(getRatingReasonsDto.bookingId, {
+                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+            });
+            apiResponse.data = {
+                driverInfo: booking.driverInfo,
+                reviews: [],
+                tipAmounts: [10, 20, 30, 50]
+            }
+            if (+getRatingReasonsDto.rating == 0) {
+
+            } else if (+getRatingReasonsDto.rating <= 3) {
+                apiResponse.data.reviews = ['แต่งกายไม่สุภาพ', 'คนขับไม่สุภาพ', 'ไม่ให้ความช่วยเหลือ', 'รถไม่สะอาด', 'ขับรถไม่ปลอดภัย', 'คนขับไม่ตรงโปรไฟล์', 'ทะเบียนรถไม่ถูกต้อง'];
+            } else if (+getRatingReasonsDto.rating <=5) {
+                apiResponse.data.reviews = ['แต่งกายสุภาพ', 'มารยาทดี', 'ให้ความช่วยเหลือดี', 'รถสะอาด', 'ขับรถดี'];
+            }
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        return apiResponse;
+    }
+
+    async submitRating(submitRating: SubmitRatingDto) {
+        const apiResponse = new ResponseResult();
+        try {
+            console.log(submitRating.ratingReasons)
+            apiResponse.data = 'Submit reviews into Driver App';
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error.message;
+        }
+        // saving driver reviews
+        return apiResponse;
     }
 }

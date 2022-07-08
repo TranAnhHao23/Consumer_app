@@ -9,6 +9,7 @@ import { Promotion } from '../promotion/entities/promotion.entity';
 import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
+import { HttpModule } from "@nestjs/axios";
 
 
 @Module({
@@ -19,7 +20,8 @@ import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
     CarEntity,
     DriverEntity,
     PaymentMethod
-  ])],
+  ]),
+    HttpModule],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })

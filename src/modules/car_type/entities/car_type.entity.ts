@@ -43,8 +43,11 @@ export class CarTypeEntity extends BaseEntity {
   @Column({ name: 'category', select: false})
   category: string;
 
-  @Column('json',{ name: 'car_size', nullable: true})
-  carSize: string;
+  @Column({name: 'category_id', select: false})
+  categoryId: string;
+
+  // @Column('json',{ name: 'car_size', nullable: true})
+  // carSize: string;
 
   @OneToMany(() => CarDetailEntity, carDetail => carDetail.carType)
   carDetails: CarDetailEntity[]
