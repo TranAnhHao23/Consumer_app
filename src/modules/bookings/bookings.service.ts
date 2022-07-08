@@ -413,8 +413,8 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            if (booking.status != BookingStatus.PROCESSING) {
-                throw new HttpException('Booking is not proccessing. You can not update', HttpStatus.BAD_REQUEST)
+            if (booking.status != BookingStatus.PENDING) {
+                throw new HttpException('Booking is in proccess or completed. You can not update', HttpStatus.BAD_REQUEST)
             }
             await this.bookingRepository.update(bookingId, {
                 noteForDriver: noteForDriverDto.noteForDriver
