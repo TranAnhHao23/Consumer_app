@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
@@ -27,23 +27,31 @@ export class InvoiceService {
   async create(createInvoiceDto: CreateInvoiceDto) {
     this.apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
-      const newPayment = this.invoiceRepository.create(createInvoiceDto);
-      newPayment.invoiceStatus = PaymentStatus.PROCESSING;
-
-      // Add booking
-      const getBooking = await this.bookingRepository.findOne(createInvoiceDto.bookingId);
-      if (Object.keys(getBooking).length !== 0) {
-        newPayment.booking = getBooking;
-        newPayment.amount = (getBooking.price + getBooking.tipAmount + getBooking.waitingFreeAmount) - getBooking.promotionAmount;
-      } else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Booking is required";
-        return this.apiResponse;
+      // Check existed booking
+      const existedBooking = await this.invoiceRepository.findOne({
+        where: { booking: createInvoiceDto.bookingId }
+      });
+      if (Object.keys(existedBooking).length !== 0) {
+        throw new HttpException("The booking has been existed in another invoice!", HttpStatus.NOT_ACCEPTABLE)
       }
+      else {
+        const newPayment = this.invoiceRepository.create(createInvoiceDto);
+        newPayment.invoiceStatus = PaymentStatus.PROCESSING;
 
-      this.apiResponse.data = await this.invoiceRepository.save(newPayment);
+        // Add booking
+        const getBooking = await this.bookingRepository.findOne(createInvoiceDto.bookingId);
+        if (Object.keys(getBooking).length !== 0) {
+          newPayment.booking = getBooking;
+          newPayment.amount = (getBooking.price + getBooking.tipAmount + getBooking.waitingFreeAmount) - getBooking.promotionAmount;
+        } else {
+          this.apiResponse.status = HttpStatus.NOT_FOUND;
+          this.apiResponse.errorMessage = "Booking is required";
+          return this.apiResponse;
+        }
+        this.apiResponse.data = await this.invoiceRepository.save(newPayment);
+      }
     } catch (error) {
-        this.apiResponse.status = error.status;
+      this.apiResponse.status = error.status;
     }
     return this.apiResponse;
   }
@@ -121,7 +129,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { orderNo: orderNo },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.carInfo', 'booking.driverInfo', 'booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = error.status;
@@ -134,7 +142,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId, invoiceStatus: PaymentStatus.PROCESSING },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.carInfo', 'booking.driverInfo', 'booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = error.status;
@@ -147,7 +155,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { userId: userId },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.carInfo', 'booking.driverInfo', 'booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = error.status;
@@ -160,7 +168,7 @@ export class InvoiceService {
     try {
       this.apiResponse.data = await this.invoiceRepository.findOne({
         where: { id: id },
-        relations: ['booking.carInfo','booking.driverInfo','booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
+        relations: ['booking.carInfo', 'booking.driverInfo', 'booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });
     } catch (error) {
       this.apiResponse.status = error.status;
