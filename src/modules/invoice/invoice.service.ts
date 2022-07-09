@@ -50,7 +50,7 @@ export class InvoiceService {
       }
     } catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -71,13 +71,11 @@ export class InvoiceService {
         }
       }
       else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Invoice not found";
-        return this.apiResponse;
+        throw new HttpException("Invoice not found", HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -114,7 +112,7 @@ export class InvoiceService {
     }
     catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -128,6 +126,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -141,6 +140,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -154,6 +154,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -167,6 +168,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
