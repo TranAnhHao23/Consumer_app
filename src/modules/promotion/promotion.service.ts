@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { startWith } from 'rxjs';
 import { ResponseResult } from 'src/shared/ResponseResult';
@@ -27,6 +27,7 @@ export class PromotionService {
       this.apiResponse.data = await this.promotionRepository.save(promo);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -38,22 +39,19 @@ export class PromotionService {
       const getPromotion = await this.promotionRepository.findOne(id);
 
       if (updatePromotion.userId === "") {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "UserId is required";
-        return this.apiResponse;
+        throw new HttpException("UserId is required", HttpStatus.NOT_FOUND);
       }
 
-      if (Object.keys(getPromotion).length !== 0) {
+      if (getPromotion != null && Object.keys(getPromotion).length !== 0) {
         await this.promotionRepository.update({ id: id }, updatePromotion);
         this.apiResponse.data = await this.promotionRepository.findOne(id);
       }
       else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Promotion not found";
-        return this.apiResponse;
+        throw new HttpException("Promotion not found", HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -68,6 +66,7 @@ export class PromotionService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -81,6 +80,7 @@ export class PromotionService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -95,6 +95,7 @@ export class PromotionService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -108,6 +109,7 @@ export class PromotionService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -118,6 +120,7 @@ export class PromotionService {
       this.apiResponse.data = await this.promotionRepository.findOne(id);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -126,16 +129,15 @@ export class PromotionService {
     this.apiResponse = new ResponseResult();
     try {
       const getPromotion = await this.promotionRepository.findOne(id);
-      if (Object.keys(getPromotion).length !== 0) {
+      if (getPromotion != null && Object.keys(getPromotion).length !== 0) {
         await this.promotionRepository.delete(id);
       }
       else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Promotion not found";
-        return this.apiResponse;
+        throw new HttpException("Promotion not found",HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }

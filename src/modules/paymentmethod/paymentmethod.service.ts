@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
@@ -21,6 +21,7 @@ export class PaymentmethodService {
       this.apiResponse.data = await this.paymentmethodRepository.save(newPaymentmethod);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -32,6 +33,7 @@ export class PaymentmethodService {
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -40,7 +42,7 @@ export class PaymentmethodService {
     this.apiResponse = new ResponseResult();
     try {
       const payment = await this.paymentmethodRepository.findOne(id);
-      if (Object.keys(payment).length !== 0) {
+      if (payment != null && Object.keys(payment).length !== 0) {
 
         // update all = false
         const allPayments = await this.paymentmethodRepository.find({
@@ -57,11 +59,11 @@ export class PaymentmethodService {
         await this.paymentmethodRepository.update(id, payment);
         this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
       } else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        return this.apiResponse;
+        throw new HttpException("NOT_FOUND", HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -72,6 +74,7 @@ export class PaymentmethodService {
       this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -85,6 +88,7 @@ export class PaymentmethodService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -97,6 +101,7 @@ export class PaymentmethodService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }

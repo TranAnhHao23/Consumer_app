@@ -29,7 +29,8 @@ export class CarTypeService {
                 order: {['orders']: 'ASC'}
             });
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }
@@ -48,7 +49,8 @@ export class CarTypeService {
             carTypeEntity.carDetails = carDetails.data;
             this.apiResponse.data = carTypeEntity;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }
@@ -63,7 +65,8 @@ export class CarTypeService {
                 .getMany()
             this.apiResponse.data = query
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }
@@ -87,7 +90,8 @@ export class CarTypeService {
             }
             this.apiResponse.data = cars;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }
@@ -117,7 +121,8 @@ export class CarTypeService {
             }
             this.apiResponse.data = result;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }

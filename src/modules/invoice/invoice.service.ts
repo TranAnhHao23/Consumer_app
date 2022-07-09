@@ -31,7 +31,7 @@ export class InvoiceService {
       const existedBooking = await this.invoiceRepository.findOne({
         where: { booking: createInvoiceDto.bookingId }
       });
-      if (Object.keys(existedBooking).length !== 0) {
+      if (existedBooking != null && Object.keys(existedBooking).length !== 0) {
         throw new HttpException("The booking has been existed in another invoice", HttpStatus.NOT_ACCEPTABLE)
       }
       else {
@@ -40,7 +40,7 @@ export class InvoiceService {
 
         // Add booking
         const getBooking = await this.bookingRepository.findOne(createInvoiceDto.bookingId);
-        if (Object.keys(getBooking).length !== 0) {
+        if (getBooking != null && Object.keys(getBooking).length !== 0) {
           newPayment.booking = getBooking;
           newPayment.amount = (getBooking.price + getBooking.tipAmount + getBooking.waitingFreeAmount) - getBooking.promotionAmount;
         } else {
@@ -50,7 +50,7 @@ export class InvoiceService {
       }
     } catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -61,7 +61,7 @@ export class InvoiceService {
       const updateInvoice = this.invoiceRepository.create(updateInvoiceDto);
       const getInvoice = await this.invoiceRepository.findOne(id);
 
-      if (Object.keys(getInvoice).length !== 0) {
+      if (getInvoice != null && Object.keys(getInvoice).length !== 0) {
         if (getInvoice.invoiceStatus == PaymentStatus.COMPLETED || getInvoice.invoiceStatus == PaymentStatus.FAILED) {
           throw new HttpException("You cannot update processed invoice", HttpStatus.EXPECTATION_FAILED) 
         } else {
@@ -71,13 +71,11 @@ export class InvoiceService {
         }
       }
       else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Invoice not found";
-        return this.apiResponse;
+        throw new HttpException("Invoice not found", HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -89,7 +87,7 @@ export class InvoiceService {
         where: { id: id },
         relations: ['booking'],
       });
-      if (Object.keys(getPayment).length !== 0) {
+      if (getPayment != null && Object.keys(getPayment).length !== 0) {
         if (getPayment.invoiceStatus == PaymentStatus.COMPLETED) {
           throw new HttpException("Invoice has been processed", HttpStatus.EXPECTATION_FAILED) 
         }
@@ -114,7 +112,7 @@ export class InvoiceService {
     }
     catch (error) {
       this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error.message;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -128,6 +126,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -141,6 +140,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -154,6 +154,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -167,6 +168,7 @@ export class InvoiceService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }

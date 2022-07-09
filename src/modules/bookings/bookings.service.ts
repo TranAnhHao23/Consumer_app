@@ -26,19 +26,19 @@ import { AcceptBookingDto } from './dto/accept-booking.dto';
 import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
-import {HttpService} from "@nestjs/axios";
-import {firstValueFrom, lastValueFrom, map, Observable} from "rxjs";
-import {SearchingDriverDto} from "./dto/searching-driver.dto";
-import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
-import {response} from "express";
-import {DriverAppFindDriverResponseDto} from "./dto/DriverApp-FindDriver-Response.dto";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
+import { SearchingDriverDto } from "./dto/searching-driver.dto";
+import { DriverAppFindDriverRequestDto } from "./dto/DriverApp-FindDriver-Request.dto";
+import { response } from "express";
+import { DriverAppFindDriverResponseDto } from "./dto/DriverApp-FindDriver-Response.dto";
 import { DriverAppCancelTripDto } from './dto/DriverApp-Cancel-Trip.dto';
 import { DriverAppConfirmPickupPassengerDto } from './dto/DriverApp-Confirm-Pickup-Passenger.dto';
 import { DriverAppFinishTripDto } from './dto/DriverApp-Finish-Trip.dto';
 import { NotFoundError } from 'rxjs';
 import { BookingStatus } from './entities/booking.entity';
-import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
-import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
+import { GetRatingReasonsDto } from "./dto/Get-Rating-Reasons.dto";
+import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -75,7 +75,7 @@ export class BookingsService {
         try {
             const booking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
-                .select([ 'booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
+                .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
                 .where({ userId: userId })
                 .andWhere(`trip.start_time is null`)
                 .andWhere(`booking.status IN (${[BookingStatus.PENDING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
@@ -91,11 +91,11 @@ export class BookingsService {
             }
 
             const cancelBookingsInHour = await this.bookingRepository.createQueryBuilder('booking')
-            .where(`booking.user_Id = '${userId}'`)
-            .andWhere(`booking.status = ${BookingStatus.CANCELED}`)
-            .andWhere(`booking.cancel_time >= :time`, { time: new Date(new Date().getTime() - 60 * 60 * 1000 )})
-            .orderBy(`booking.cancel_time`, 'DESC')
-            .getMany()
+                .where(`booking.user_Id = '${userId}'`)
+                .andWhere(`booking.status = ${BookingStatus.CANCELED}`)
+                .andWhere(`booking.cancel_time >= :time`, { time: new Date(new Date().getTime() - 60 * 60 * 1000) })
+                .orderBy(`booking.cancel_time`, 'DESC')
+                .getMany()
 
             if (cancelBookingsInHour.length >= 3) {
                 apiResponse.data = {
@@ -108,7 +108,7 @@ export class BookingsService {
             apiResponse.data = {
                 isAvailable: true
             }
-            
+
         } catch (error) {
             apiResponse.status = error.status
             apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
@@ -125,7 +125,7 @@ export class BookingsService {
                 .andWhere(`booking.status = ${BookingStatus.PENDING}`)
                 .getOne()
             console.log(laterBooking)
-            
+
             apiResponse.data = {
                 booking: laterBooking
             }
@@ -139,7 +139,7 @@ export class BookingsService {
     async create(createBookingDto: CreateBookingDto) {
         const apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
-            const isAvailableToBookNow = await this.checkBookingAvailability(createBookingDto.userId)            
+            const isAvailableToBookNow = await this.checkBookingAvailability(createBookingDto.userId)
             // Validate Promotion
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
@@ -164,7 +164,7 @@ export class BookingsService {
                 throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
             }
 
-            if (Object.keys(getTrip).length !== 0) {
+            if (getTrip != null && Object.keys(getTrip).length !== 0) {
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
                 newobj.startTime = new Date();
@@ -175,7 +175,7 @@ export class BookingsService {
 
                 // Add payment method
                 const getPaymentMethod = await this.paymentMethodRepository.findOne(createBookingDto.paymentMethodId);
-                if (Object.keys(getPaymentMethod).length !== 0) {
+                if (getPaymentMethod != null && Object.keys(getPaymentMethod).length !== 0) {
                     newobj.paymentMethod = getPaymentMethod;
                 } else {
                     throw new HttpException("Payment method is required", HttpStatus.NOT_FOUND)
@@ -256,10 +256,8 @@ export class BookingsService {
 
             // check payment method
             const getPaymentMethod = await this.paymentMethodRepository.findOne(updateBookingDto.paymentMethodId);
-            if (Object.keys(getPaymentMethod).length === 0) {
-                this.apiResponse.status = HttpStatus.NOT_FOUND;
-                this.apiResponse.errorMessage = "Payment method is required";
-                return this.apiResponse;
+            if (getPaymentMethod != null && Object.keys(getPaymentMethod).length === 0) {
+                throw new HttpException("Payment method is required", HttpStatus.NOT_FOUND)
             }
             else
                 cvobj.paymentMethod = getPaymentMethod;
@@ -272,7 +270,8 @@ export class BookingsService {
 
             this.apiResponse.data = getbooking;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -297,13 +296,14 @@ export class BookingsService {
             if (promotions !== null && promotions.length > 0)
                 for (const promo of promotions) {
                     const getPromo = await this.promotionRepository.findOne({ where: { userId: promo.userId, id: promo.id, code: promo.code } });
-                    if (Object.keys(getPromo).length !== 0) {
+                    if (getPromo != null && Object.keys(getPromo).length !== 0) {
                         getPromo.booking = booking;
                         await this.promotionRepository.update(getPromo.id, getPromo);
                     }
                 }
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -319,12 +319,8 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.OK
             this.apiResponse.data = { id, isLiked: setLikeBookingDto.isLike }
         } catch (error) {
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse
     }
@@ -355,7 +351,8 @@ export class BookingsService {
                 take: top
             });
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -393,7 +390,8 @@ export class BookingsService {
             })
             this.apiResponse.data = bookings
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
 
         return this.apiResponse
@@ -431,23 +429,24 @@ export class BookingsService {
         this.apiResponse = new ResponseResult();
         try {
             this.apiResponse.data = await this.bookingRepository.findOne(id, {
-                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
 
-    async remove(id: string) {
-        this.apiResponse = new ResponseResult();
-        try {
-            await this.bookingRepository.delete(id);
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
-        }
-        return this.apiResponse;
-    }
+    // async remove(id: string) {
+    //     this.apiResponse = new ResponseResult();
+    //     try {
+    //         await this.bookingRepository.delete(id);
+    //     } catch (error) {
+    //         this.apiResponse.status = HttpStatus.NOT_FOUND;
+    //     }
+    //     return this.apiResponse;
+    // }
 
     async getCancelReasonList() {
         this.apiResponse = new ResponseResult();
@@ -455,7 +454,8 @@ export class BookingsService {
             // It's possible if we đon't use reason# to be a keys
             this.apiResponse.data = Object.keys(CancelReason).map(key => CancelReason[key]);
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -502,12 +502,8 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.CREATED
             this.apiResponse.data = updatedBooking
         } catch (error) {
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse
     }
@@ -517,7 +513,8 @@ export class BookingsService {
         try {
             this.apiResponse.data = EmergencyCall.PHONE_NUMBER;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -624,13 +621,8 @@ export class BookingsService {
             this.apiResponse.data = updatedBooking
 
         } catch (error) {
-            console.log(error)
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
 
         return this.apiResponse
@@ -649,7 +641,7 @@ export class BookingsService {
             // for testing
             const booking = await this.bookingRepository.findOne(driverAppCancelTripDto.booking_id);
 
-            if (Object.keys(booking).length !== 0) {
+            if (booking != null && Object.keys(booking).length !== 0) {
                 booking.cancelReason = driverAppCancelTripDto.cancelReason;
                 booking.status = BookingStatus.CANCELED;
                 booking.updatedAt = new Date();
@@ -661,7 +653,7 @@ export class BookingsService {
                     const driverInfo = await this.driverRepo.findOne({
                         where: { driverId: booking.driverId }
                     });
-                    if (Object.keys(driverInfo).length !== 0) {
+                    if (driverInfo != null && Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppCancelTripDto.longitude;
                         driverInfo.latitude = driverAppCancelTripDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -673,13 +665,8 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -697,7 +684,7 @@ export class BookingsService {
             // for testing
             const booking = await this.bookingRepository.findOne(driverAppFinishTripDto.booking_id);
 
-            if (Object.keys(booking).length !== 0) {
+            if (booking != null && Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.COMPLETED;
                 booking.arrivedTime = new Date();
                 booking.updatedAt = new Date();
@@ -710,7 +697,7 @@ export class BookingsService {
                     const driverInfo = await this.driverRepo.findOne({
                         where: { driverId: booking.driverId }
                     });
-                    if (Object.keys(driverInfo).length !== 0) {
+                    if (driverInfo != null && Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppFinishTripDto.longitude;
                         driverInfo.latitude = driverAppFinishTripDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -723,13 +710,8 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus();
-                this.apiResponse.errorMessage = error.getResponse().toString();
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -747,7 +729,7 @@ export class BookingsService {
             // for testing
             const booking = await this.bookingRepository.findOne(driverAppConfirmPickupPassengerDto.booking_id);
 
-            if (Object.keys(booking).length !== 0) {
+            if (booking != null && Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.PROCESSING;
                 booking.startTime = new Date();
                 //booking.updatedAt = new Date();
@@ -758,7 +740,7 @@ export class BookingsService {
                     const driverInfo = await this.driverRepo.findOne({
                         where: { driverId: booking.driverId }
                     });
-                    if (Object.keys(driverInfo).length !== 0) {
+                    if (driverInfo != null && Object.keys(driverInfo).length !== 0) {
                         driverInfo.longitude = driverAppConfirmPickupPassengerDto.longitude;
                         driverInfo.latitude = driverAppConfirmPickupPassengerDto.latitude
                         await this.driverRepo.update(driverInfo.id, driverInfo);
@@ -791,21 +773,21 @@ export class BookingsService {
     async findDriver(searchingDriverDto: SearchingDriverDto) {
         this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         // send data to FE
-        let trip = await this.tripRepository.findOne({id: searchingDriverDto.tripId}, {relations:['locations']});
+        let trip = await this.tripRepository.findOne({ id: searchingDriverDto.tripId }, { relations: ['locations'] });
         let totalAmount = await this.calculatePrice(searchingDriverDto.distance, String(trip.carType));
         let driverAppFindDriverRequest: DriverAppFindDriverRequestDto = {
             depLong: trip.locations[0].longitude,
             depLat: trip.locations[0].longitude,
             desLong1: trip.locations[1].longitude,
             desLat1: trip.locations[1].latitude,
-            desLong2: (trip.locations[2]!== undefined)? trip.locations[2].longitude : undefined,
-            desLat2: (trip.locations[2]!== undefined)? trip.locations[2].latitude : undefined,
-            desLong3: (trip.locations[3]!== undefined)? trip.locations[3].longitude : undefined,
-            desLat3: (trip.locations[3]!== undefined)? trip.locations[3].latitude : undefined,
+            desLong2: (trip.locations[2] !== undefined) ? trip.locations[2].longitude : undefined,
+            desLat2: (trip.locations[2] !== undefined) ? trip.locations[2].latitude : undefined,
+            desLong3: (trip.locations[3] !== undefined) ? trip.locations[3].longitude : undefined,
+            desLat3: (trip.locations[3] !== undefined) ? trip.locations[3].latitude : undefined,
             distance: searchingDriverDto.distance,
             carTypeId: String(trip.carType)
         };
-        let paymentMethod = await this.paymentMethodRepository.findOne({id: searchingDriverDto.paymentMethodId})
+        let paymentMethod = await this.paymentMethodRepository.findOne({ id: searchingDriverDto.paymentMethodId })
 
         this.apiResponse.data = [{
             driver: driverAppFindDriverRequest,
@@ -824,32 +806,32 @@ export class BookingsService {
     async sendFindDriverToDriverApp(url: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
         // Send request data to driver app
         const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
-        if (Object.keys(data).length == 2) {
+        if (data != null && Object.keys(data).length == 2) {
             return false;
         }
         return true;
     }
 
     async handleExternalGetApi(api: string) {
-        const {data} = await firstValueFrom(this.httpService.get(api))
+        const { data } = await firstValueFrom(this.httpService.get(api))
         return data;
     }
 
-    async handleExternalPostApi(api, data: any){
+    async handleExternalPostApi(api, data: any) {
         const res = await firstValueFrom(this.httpService.post(api, data)
             .pipe(
-            map((response) => {
-                return response.data;
-            })
-        ));
+                map((response) => {
+                    return response.data;
+                })
+            ));
         return res;
     }
 
-    async getRatingReasons(getRatingReasonsDto: GetRatingReasonsDto){
+    async getRatingReasons(getRatingReasonsDto: GetRatingReasonsDto) {
         const apiResponse = new ResponseResult();
         try {
             let booking = await this.bookingRepository.findOne(getRatingReasonsDto.bookingId, {
-                relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
+                relations: ['driverInfo', 'carInfo', 'paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
             apiResponse.data = {
                 driverInfo: booking.driverInfo,
@@ -860,7 +842,7 @@ export class BookingsService {
 
             } else if (+getRatingReasonsDto.rating <= 3) {
                 apiResponse.data.reviews = ['แต่งกายไม่สุภาพ', 'คนขับไม่สุภาพ', 'ไม่ให้ความช่วยเหลือ', 'รถไม่สะอาด', 'ขับรถไม่ปลอดภัย', 'คนขับไม่ตรงโปรไฟล์', 'ทะเบียนรถไม่ถูกต้อง'];
-            } else if (+getRatingReasonsDto.rating <=5) {
+            } else if (+getRatingReasonsDto.rating <= 5) {
                 apiResponse.data.reviews = ['แต่งกายสุภาพ', 'มารยาทดี', 'ให้ความช่วยเหลือดี', 'รถสะอาด', 'ขับรถดี'];
             }
         } catch (error) {
