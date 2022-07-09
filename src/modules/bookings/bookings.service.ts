@@ -422,29 +422,20 @@ export class BookingsService {
         this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
             let bookingCancel = await this.bookingRepository.findOne(cancelBookingDto.id);
-            let cancelTimes = await this.bookingRepository.createQueryBuilder()
-                .where('status = -1')
-                .andWhere('user_Id = :userId', { userId: cancelBookingDto.userId })
-                .andWhere('cancel_time > :earlierTime', { earlierTime: new Date(new Date().getTime() - 60 * 60 * 1000) })
-                .andWhere('cancel_time < :laterTime', { laterTime: new Date() })
-                .getCount();
-            if (cancelTimes < 3) {
-                if (bookingCancel !== null && bookingCancel.status !== BookingStatus.CANCELED) {
-                    bookingCancel.cancelReason = cancelBookingDto.cancelReason;
-                    bookingCancel.status = BookingStatus.CANCELED;
-                    bookingCancel.cancelTime = new Date();
-                    await this.bookingRepository.update(bookingCancel.id, bookingCancel);
-                    cancelTimes++;
-                } else {
-                    throw new HttpException("Couldn't find booking", HttpStatus.NOT_FOUND);
-                }
+            if (bookingCancel.status !== BookingStatus.COMPLETED && bookingCancel.status !== BookingStatus.PROCESSING) {
+                bookingCancel.cancelReason = cancelBookingDto.cancelReason;
+                bookingCancel.status = BookingStatus.CANCELED;
+                bookingCancel.cancelTime = new Date();
+                await this.bookingRepository.update(bookingCancel.id, bookingCancel);
+            } else {
+                throw new HttpException("You can not cancel this booking!", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (cancelTimes == 3) {
-                throw new HttpException("Bad request", HttpStatus.BAD_REQUEST);
-            }
-            this.apiResponse.data = { cancelTimes: cancelTimes };
+            this.apiResponse.data = {
+                booking: bookingCancel
+            };
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.errorMessage = error.message;
+            this.apiResponse.status = error.status;
         }
         return this.apiResponse;
     }
