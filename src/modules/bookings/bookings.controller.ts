@@ -36,8 +36,8 @@ export class BookingsController {
     constructor(private readonly bookingsService: BookingsService) {}
 
     @Get('/checkbookingavailability')
-    async checkBookingvAilability(@Query('userId') userId: string, @Res() res: Response) {
-        const result = await this.bookingsService.checkBookingvAilability(userId)
+    async checkBookingAvailability(@Query('userId') userId: string, @Res() res: Response) {
+        const result = await this.bookingsService.checkBookingAvailability(userId)
         return res.status(result.status).json(result)
     }
 
