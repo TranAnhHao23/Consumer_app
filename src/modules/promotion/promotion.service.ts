@@ -42,7 +42,7 @@ export class PromotionService {
         throw new HttpException("UserId is required", HttpStatus.NOT_FOUND);
       }
 
-      if (Object.keys(getPromotion).length !== 0) {
+      if (getPromotion != null && Object.keys(getPromotion).length !== 0) {
         await this.promotionRepository.update({ id: id }, updatePromotion);
         this.apiResponse.data = await this.promotionRepository.findOne(id);
       }
@@ -129,7 +129,7 @@ export class PromotionService {
     this.apiResponse = new ResponseResult();
     try {
       const getPromotion = await this.promotionRepository.findOne(id);
-      if (Object.keys(getPromotion).length !== 0) {
+      if (getPromotion != null && Object.keys(getPromotion).length !== 0) {
         await this.promotionRepository.delete(id);
       }
       else {

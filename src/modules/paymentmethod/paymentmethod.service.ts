@@ -42,7 +42,7 @@ export class PaymentmethodService {
     this.apiResponse = new ResponseResult();
     try {
       const payment = await this.paymentmethodRepository.findOne(id);
-      if (Object.keys(payment).length !== 0) {
+      if (payment != null && Object.keys(payment).length !== 0) {
 
         // update all = false
         const allPayments = await this.paymentmethodRepository.find({
