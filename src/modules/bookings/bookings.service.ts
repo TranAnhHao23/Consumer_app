@@ -70,7 +70,7 @@ export class BookingsService {
     ) {
     }
 
-    async checkbookingavailability(userId: string) {
+    async checkBookingvAilability(userId: string) {
         const apiResponse = new ResponseResult
         try {
             const booking = await this.bookingRepository.createQueryBuilder('booking')
