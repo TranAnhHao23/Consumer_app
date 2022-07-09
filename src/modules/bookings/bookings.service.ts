@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { createQueryBuilder, In, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -73,16 +73,46 @@ export class BookingsService {
     async checkbookingavailability(userId: string) {
         const apiResponse = new ResponseResult
         try {
+            const booking = await this.bookingRepository.createQueryBuilder('booking')
+                .innerJoin('trip', 'trip')
+                .where({ userId: userId })
+                .andWhere(`trip.startTime is null`)
+                .andWhere(`booking.status IN (${[BookingStatus.PENDING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
+                .orderBy({ 'booking.updatedAt': 'DESC' })
+                .getOne()
+
+            if (booking) {
+                apiResponse.data = {
+                    isAvailable: false,
+                    booking: booking
+                }
+                throw new HttpException('A booking is in progress', HttpStatus.NOT_ACCEPTABLE)
+            }
+
+            const cancelBookingsInHour = await this.bookingRepository.find({
+                where: {
+                    userId: userId,
+                    status: BookingStatus.CANCELED,
+                    cancelTime: MoreThan(new Date(new Date().getTime() - 60 * 60 * 1000))
+                },
+                order: { cancelTime: 'DESC' }
+            })
+
+            if (cancelBookingsInHour.length >= 3) {
+                apiResponse.data = {
+                    isAvailable: false,
+                    lockTo: new Date(new Date(cancelBookingsInHour[0].cancelTime).getTime() + 3 * 60 * 60 * 1000)
+                }
+                throw new HttpException('Your account is locked because of canceling booking too 3 times in an hour', HttpStatus.NOT_ACCEPTABLE)
+            }
+
             apiResponse.data = {
                 isAvailable: true
             }
             
         } catch (error) {
-            if (error instanceof HttpException) throw error
-            else {
-                apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-                apiResponse.errorMessage = 'INTERNAL_SERVER_ERROR'
-            }
+            apiResponse.status = error.status
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return apiResponse
     }
