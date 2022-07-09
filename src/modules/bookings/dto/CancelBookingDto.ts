@@ -10,17 +10,17 @@ export class CancelBookingDto {
     })
     cancelReason: string;
 
-    @ApiProperty({
-        maxLength: 45,
-        required: true
-    })
-    userId: string;
+    // @ApiProperty({
+    //     maxLength: 45,
+    //     required: true
+    // })
+    // userId: string;
 
-    @ApiProperty({
-        maxLength: 45,
-        required: false
-    })
-    driverAppBookingId: string;
+    // @ApiProperty({
+    //     maxLength: 45,
+    //     required: false
+    // })
+    // driverAppBookingId: string;
 
 
 }
