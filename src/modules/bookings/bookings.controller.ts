@@ -35,6 +35,12 @@ import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 export class BookingsController {
     constructor(private readonly bookingsService: BookingsService) {}
 
+    @Get('/checkbookingavailability')
+    async checkbookingavailability(@Query('userId') userId: string, @Res() res: Response) {
+        const result = await this.bookingsService.checkbookingavailability(userId)
+        return res.status(result.status).json(result)
+    }
+
     @Post()
     async create(@Body() createBookingDto: CreateBookingDto, @Res() res: Response) {
         const result = await this.bookingsService.create(createBookingDto);
