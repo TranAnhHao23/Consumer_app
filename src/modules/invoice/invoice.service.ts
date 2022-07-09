@@ -32,9 +32,7 @@ export class InvoiceService {
         where: { booking: createInvoiceDto.bookingId }
       });
       if (Object.keys(existedBooking).length !== 0) {
-        this.apiResponse.status = HttpStatus.NOT_ACCEPTABLE;
-        this.apiResponse.errorMessage = "The booking has been existed in another invoice!";
-        return this.apiResponse;
+        throw new HttpException("The booking has been existed in another invoice", HttpStatus.NOT_ACCEPTABLE)
       }
       else {
         const newPayment = this.invoiceRepository.create(createInvoiceDto);
@@ -46,15 +44,13 @@ export class InvoiceService {
           newPayment.booking = getBooking;
           newPayment.amount = (getBooking.price + getBooking.tipAmount + getBooking.waitingFreeAmount) - getBooking.promotionAmount;
         } else {
-          this.apiResponse.status = HttpStatus.NOT_FOUND;
-          this.apiResponse.errorMessage = "Booking is required";
-          return this.apiResponse;
+          throw new HttpException("Booking is required", HttpStatus.NOT_FOUND) 
         }
         this.apiResponse.data = await this.invoiceRepository.save(newPayment);
       }
     } catch (error) {
       this.apiResponse.status = error.status;
-
+      this.apiResponse.errorMessage = error.message;
     }
     return this.apiResponse;
   }
@@ -67,9 +63,7 @@ export class InvoiceService {
 
       if (Object.keys(getInvoice).length !== 0) {
         if (getInvoice.invoiceStatus == PaymentStatus.COMPLETED || getInvoice.invoiceStatus == PaymentStatus.FAILED) {
-          this.apiResponse.status = HttpStatus.EXPECTATION_FAILED;
-          this.apiResponse.errorMessage = "You cannot update processed invoice";
-          return this.apiResponse;
+          throw new HttpException("You cannot update processed invoice", HttpStatus.EXPECTATION_FAILED) 
         } else {
           updateInvoice.invoiceStatus = PaymentStatus.PROCESSING;
           await this.invoiceRepository.update({ id: id }, updateInvoice);
@@ -83,6 +77,7 @@ export class InvoiceService {
       }
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error.message;
     }
     return this.apiResponse;
   }
@@ -96,9 +91,7 @@ export class InvoiceService {
       });
       if (Object.keys(getPayment).length !== 0) {
         if (getPayment.invoiceStatus == PaymentStatus.COMPLETED) {
-          this.apiResponse.status = HttpStatus.EXPECTATION_FAILED;
-          this.apiResponse.errorMessage = "Invoice has been processed";
-          return this.apiResponse;
+          throw new HttpException("Invoice has been processed", HttpStatus.EXPECTATION_FAILED) 
         }
         else {
           getPayment.invoiceStatus = PaymentStatus.COMPLETED;
@@ -115,14 +108,13 @@ export class InvoiceService {
 
           return await this.findOne(id);
         }
-      } else {
-        this.apiResponse.status = HttpStatus.NOT_FOUND;
-        this.apiResponse.errorMessage = "Invoice not found";
-        return this.apiResponse;
+      } else { 
+        throw new HttpException("Invoice not found", HttpStatus.NOT_FOUND) 
       }
     }
     catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error.message;
     }
     return this.apiResponse;
   }
