@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -89,14 +89,12 @@ export class BookingsService {
                 throw new HttpException('A booking is in progress', HttpStatus.NOT_ACCEPTABLE)
             }
 
-            const cancelBookingsInHour = await this.bookingRepository.find({
-                where: {
-                    userId: userId,
-                    status: BookingStatus.CANCELED,
-                    cancelTime: MoreThan(new Date(new Date().getTime() - 60 * 60 * 1000))
-                },
-                order: { cancelTime: 'DESC' }
-            })
+            const cancelBookingsInHour = await this.bookingRepository.createQueryBuilder('booking')
+            .where(`booking.user_Id = '${userId}'`)
+            .andWhere(`booking.status = ${BookingStatus.CANCELED}`)
+            .andWhere(`booking.cancel_time >= :time`, { time: new Date(new Date().getTime() - 60 * 60 * 1000 )})
+            .orderBy(`booking.cancel_time`, 'DESC')
+            .getMany()
 
             if (cancelBookingsInHour.length >= 3) {
                 apiResponse.data = {
