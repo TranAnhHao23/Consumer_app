@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateLocationDto} from './dto/create-location.dto';
 import {UpdateLocationDto} from './dto/update-location.dto';
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
@@ -132,7 +132,8 @@ export class LocationsService {
 
             this.apiResponse.data = frequentLocations
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
         }
         return this.apiResponse;
     }

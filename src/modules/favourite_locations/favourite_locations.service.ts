@@ -25,6 +25,7 @@ export class FavouriteLocationsService {
       );
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -39,8 +40,9 @@ export class FavouriteLocationsService {
       this.apiResponse.data = await this.favouriteRepository.findOne({
         id: updateFavouriteLocationDto.id,
       });
-    } catch (error) { 
+    } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -54,6 +56,7 @@ export class FavouriteLocationsService {
       });
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -64,6 +67,7 @@ export class FavouriteLocationsService {
       this.apiResponse.data = await this.favouriteRepository.findOne(id);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
@@ -74,6 +78,7 @@ export class FavouriteLocationsService {
       this.apiResponse.data = await this.favouriteRepository.delete(id);
     } catch (error) {
       this.apiResponse.status = error.status;
+      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
     return this.apiResponse;
   }
