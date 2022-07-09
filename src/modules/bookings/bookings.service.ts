@@ -74,9 +74,10 @@ export class BookingsService {
         const apiResponse = new ResponseResult
         try {
             const booking = await this.bookingRepository.createQueryBuilder('booking')
-                .innerJoin('trip', 'trip')
+                .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
+                .select([ 'booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
                 .where({ userId: userId })
-                .andWhere(`trip.startTime is null`)
+                .andWhere(`trip.start_time is null`)
                 .andWhere(`booking.status IN (${[BookingStatus.PENDING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
                 .orderBy({ 'booking.updatedAt': 'DESC' })
                 .getOne()
@@ -115,12 +116,54 @@ export class BookingsService {
         return apiResponse
     }
 
-    async create(createBookingDto: CreateBookingDto) {
-        this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+    async getBookingLater(userId: string) {
+        const apiResponse = new ResponseResult()
         try {
+            const laterBooking = await this.bookingRepository.createQueryBuilder('booking')
+                .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
+                .where(`trip.start_time is not null`)
+                .andWhere(`booking.status = ${BookingStatus.PENDING}`)
+                .getOne()
+            console.log(laterBooking)
+            
+            apiResponse.data = {
+                booking: laterBooking
+            }
+        } catch (error) {
+            apiResponse.status = error.status
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+        }
+        return apiResponse
+    }
+
+    async create(createBookingDto: CreateBookingDto) {
+        const apiResponse = new ResponseResult(HttpStatus.CREATED);
+        try {
+            const isAvailableToBookNow = await this.checkBookingAvailability(createBookingDto.userId)            
             // Validate Promotion
             const newobj = this.bookingRepository.create(createBookingDto);
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
+
+            const booking = await this.bookingRepository.findOne({ trip: getTrip })
+            if (booking) {
+                apiResponse.data = { booking }
+                throw new HttpException('This trip has been booked', HttpStatus.NOT_ACCEPTABLE)
+            }
+
+            if (getTrip.startTime != null) {
+                const laterBooking = (await this.getBookingLater(createBookingDto.userId)).data?.booking
+
+                if (laterBooking) {
+                    apiResponse.data = { booking: laterBooking }
+                    throw new HttpException('An advanced booking already exists', HttpStatus.NOT_ACCEPTABLE)
+                }
+            }
+
+            if (!isAvailableToBookNow.data?.isAvailable && getTrip.startTime == null) {
+                apiResponse.data = isAvailableToBookNow.data
+                throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
+            }
+
             if (Object.keys(getTrip).length !== 0) {
                 newobj.trip = getTrip;
                 newobj.bookingStartTime = new Date(new Date().toUTCString());
@@ -135,9 +178,7 @@ export class BookingsService {
                 if (Object.keys(getPaymentMethod).length !== 0) {
                     newobj.paymentMethod = getPaymentMethod;
                 } else {
-                    this.apiResponse.status = HttpStatus.NOT_FOUND;
-                    this.apiResponse.errorMessage = "Payment method is required";
-                    return this.apiResponse;
+                    throw new HttpException("Payment method is required", HttpStatus.NOT_FOUND)
                 }
 
                 const addBooking = await this.bookingRepository.save(newobj);
@@ -151,14 +192,15 @@ export class BookingsService {
                 // calculate booking promotion
                 // await this.calculatePromotion(addBooking, createBookingDto.promotions);
 
-                this.apiResponse.data = addBooking;
+                apiResponse.data = addBooking;
 
             } else
-                throw new InternalServerErrorException();
+                throw new HttpException('Trip not found', HttpStatus.NOT_FOUND)
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
-        return this.apiResponse;
+        return apiResponse;
     }
 
     async calculatePrice(distance: number, carId: string) {
