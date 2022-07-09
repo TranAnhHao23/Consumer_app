@@ -145,24 +145,24 @@ export class BookingsService {
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
 
             const booking = await this.bookingRepository.findOne({ trip: getTrip })
-            if (booking) {
-                apiResponse.data = { booking }
-                throw new HttpException('This trip has been booked', HttpStatus.NOT_ACCEPTABLE)
-            }
+            // if (booking) {
+            //     apiResponse.data = { booking }
+            //     throw new HttpException('This trip has been booked', HttpStatus.NOT_ACCEPTABLE)
+            // }
 
-            if (getTrip.startTime != null) {
-                const laterBooking = (await this.getBookingLater(createBookingDto.userId)).data?.booking
+            // if (getTrip.startTime != null) {
+            //     const laterBooking = (await this.getBookingLater(createBookingDto.userId)).data?.booking
 
-                if (laterBooking) {
-                    apiResponse.data = { booking: laterBooking }
-                    throw new HttpException('An advanced booking already exists', HttpStatus.NOT_ACCEPTABLE)
-                }
-            }
+            //     if (laterBooking) {
+            //         apiResponse.data = { booking: laterBooking }
+            //         throw new HttpException('An advanced booking already exists', HttpStatus.NOT_ACCEPTABLE)
+            //     }
+            // }
 
-            if (!isAvailableToBookNow.data?.isAvailable && getTrip.startTime == null) {
-                apiResponse.data = isAvailableToBookNow.data
-                throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
-            }
+            // if (!isAvailableToBookNow.data?.isAvailable && getTrip.startTime == null) {
+            //     apiResponse.data = isAvailableToBookNow.data
+            //     throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
+            // }
 
             if (getTrip != null && Object.keys(getTrip).length !== 0) {
                 newobj.trip = getTrip;
