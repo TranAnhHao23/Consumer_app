@@ -257,9 +257,7 @@ export class BookingsService {
             // check payment method
             const getPaymentMethod = await this.paymentMethodRepository.findOne(updateBookingDto.paymentMethodId);
             if (Object.keys(getPaymentMethod).length === 0) {
-                this.apiResponse.status = HttpStatus.NOT_FOUND;
-                this.apiResponse.errorMessage = "Payment method is required";
-                return this.apiResponse;
+                throw new HttpException("Payment method is required", HttpStatus.NOT_FOUND)
             }
             else
                 cvobj.paymentMethod = getPaymentMethod;
@@ -272,7 +270,8 @@ export class BookingsService {
 
             this.apiResponse.data = getbooking;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -303,7 +302,8 @@ export class BookingsService {
                     }
                 }
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -319,12 +319,8 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.OK
             this.apiResponse.data = { id, isLiked: setLikeBookingDto.isLike }
         } catch (error) {
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse
     }
@@ -355,7 +351,8 @@ export class BookingsService {
                 take: top
             });
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -393,7 +390,8 @@ export class BookingsService {
             })
             this.apiResponse.data = bookings
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
 
         return this.apiResponse
@@ -434,20 +432,21 @@ export class BookingsService {
                 relations: ['driverInfo', 'carInfo','paymentMethod', 'trip', 'trip.locations', 'promotions'],
             });
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
 
-    async remove(id: string) {
-        this.apiResponse = new ResponseResult();
-        try {
-            await this.bookingRepository.delete(id);
-        } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
-        }
-        return this.apiResponse;
-    }
+    // async remove(id: string) {
+    //     this.apiResponse = new ResponseResult();
+    //     try {
+    //         await this.bookingRepository.delete(id);
+    //     } catch (error) {
+    //         this.apiResponse.status = HttpStatus.NOT_FOUND;
+    //     }
+    //     return this.apiResponse;
+    // }
 
     async getCancelReasonList() {
         this.apiResponse = new ResponseResult();
@@ -455,7 +454,8 @@ export class BookingsService {
             // It's possible if we đon't use reason# to be a keys
             this.apiResponse.data = Object.keys(CancelReason).map(key => CancelReason[key]);
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -502,12 +502,8 @@ export class BookingsService {
             this.apiResponse.status = HttpStatus.CREATED
             this.apiResponse.data = updatedBooking
         } catch (error) {
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse
     }
@@ -517,7 +513,8 @@ export class BookingsService {
         try {
             this.apiResponse.data = EmergencyCall.PHONE_NUMBER;
         } catch (error) {
-            this.apiResponse.status = HttpStatus.NOT_FOUND;
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -624,13 +621,8 @@ export class BookingsService {
             this.apiResponse.data = updatedBooking
 
         } catch (error) {
-            console.log(error)
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
 
         return this.apiResponse
@@ -673,13 +665,8 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus()
-                this.apiResponse.errorMessage = error.getResponse().toString()
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
@@ -723,13 +710,8 @@ export class BookingsService {
             } else
                 throw new NotFoundException();
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                this.apiResponse.status = error.getStatus();
-                this.apiResponse.errorMessage = error.getResponse().toString();
-            } else {
-                this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
+            this.apiResponse.status = error.status;
+            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return this.apiResponse;
     }
