@@ -70,6 +70,23 @@ export class BookingsService {
     ) {
     }
 
+    async checkbookingavailability(userId: string) {
+        const apiResponse = new ResponseResult
+        try {
+            apiResponse.data = {
+                isAvailable: true
+            }
+            
+        } catch (error) {
+            if (error instanceof HttpException) throw error
+            else {
+                apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR
+                apiResponse.errorMessage = 'INTERNAL_SERVER_ERROR'
+            }
+        }
+        return apiResponse
+    }
+
     async create(createBookingDto: CreateBookingDto) {
         this.apiResponse = new ResponseResult(HttpStatus.CREATED);
         try {
