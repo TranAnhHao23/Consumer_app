@@ -1,5 +1,6 @@
 import { CarEntity } from 'src/modules/car/entities/car.entity';
 import { DriverEntity } from 'src/modules/driver/entities/driver.entity';
+import { Invoice } from 'src/modules/invoice/entities/invoice.entity';
 import { PaymentMethod } from 'src/modules/paymentmethod/entities/paymentmethod.entity';
 import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
@@ -106,6 +107,9 @@ export class BookingEntity extends BaseEntity {
 
   @Column({ name: 'is_liked', default: false })
   isLiked: boolean;
+
+  @OneToOne(() => Invoice, invoice => invoice.booking)
+  invoice: Invoice
 
   @Column({ name: 'created_at' })
   @CreateDateColumn()

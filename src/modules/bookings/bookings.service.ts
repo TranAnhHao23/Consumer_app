@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseResult } from 'src/shared/ResponseResult';
-import { LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { In, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { TripEntity } from '../trips/entities/trip.entity';
 import { CancelBookingDto } from './dto/CancelBookingDto';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -39,6 +39,7 @@ import { NotFoundError } from 'rxjs';
 import { BookingStatus } from './entities/booking.entity';
 import { GetRatingReasonsDto } from "./dto/Get-Rating-Reasons.dto";
 import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
+import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-history.dto';
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -357,21 +358,36 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async getBookingHistory(userId: string, top: number) {
-        this.apiResponse = new ResponseResult();
-        if (top == 0)
-            top = 5;
+    async getBookingHistory(getBookingHistoryDto: GetBookingHistoryDto) {
+        const apiResponse = new ResponseResult()
         try {
-            this.apiResponse.data = await this.bookingRepository.find({
-                where: { userId: userId },
-                order: { ['createdAt']: 'DESC' },
-                relations: ['paymentMethod', 'trip', 'trip.locations', 'promotions'],
-                take: top
-            });
+            let filterStatus = Object.values(BookingStatus).filter(elem => typeof(elem) != "string")
+            switch(+getBookingHistoryDto.status) {
+                case BookingHistoryStatus.ON_GOING:
+                    filterStatus = [BookingStatus.WAITING, BookingStatus.PROCESSING]
+                    break
+                case BookingHistoryStatus.COMPLETED:
+                    filterStatus = [BookingStatus.COMPLETED]
+                    break
+                case BookingHistoryStatus.CANCELED:
+                    filterStatus = [BookingStatus.CANCELED]
+                    break
+            }
+
+            const bookings = await this.bookingRepository.find({
+                where: { 
+                    userId: getBookingHistoryDto.userId,
+                    status: In(filterStatus)
+                },
+                relations: ['trip', 'trip.locations', 'invoice'],
+                take: getBookingHistoryDto.limit
+            })
+            apiResponse.data = bookings
         } catch (error) {
-            this.apiResponse.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            apiResponse.status = error.status
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
-        return this.apiResponse;
+        return apiResponse
     }
 
     async getRecentFavoriteBooking(getRecentFavoriteBookingDto: GetRecentFavoriteBookingDto) {
