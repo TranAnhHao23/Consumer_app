@@ -79,7 +79,7 @@ export class BookingsService {
                 .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
                 .where({ userId: userId })
                 .andWhere(`trip.start_time is null`)
-                .andWhere(`booking.status IN (${[BookingStatus.PENDING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
+                .andWhere(`booking.status IN (${[BookingStatus.CONFIRMED, BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
                 .orderBy({ 'booking.updatedAt': 'DESC' })
                 .getOne()
 
@@ -123,7 +123,7 @@ export class BookingsService {
             const laterBooking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
                 .where(`trip.start_time is not null`)
-                .andWhere(`booking.status = ${BookingStatus.PENDING}`)
+                .andWhere(`booking.status IN (${BookingStatus.CONFIRMED}, ${BookingStatus.SEARCHING})`)
                 .getOne()
             console.log(laterBooking)
 
@@ -507,8 +507,8 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            if (booking.status != BookingStatus.PENDING) {
-                throw new HttpException('Booking is in proccess or completed. You can not update', HttpStatus.BAD_REQUEST)
+            if (booking.status != BookingStatus.CONFIRMED) {
+                throw new HttpException('Booking is in progress or completed. You can not update', HttpStatus.BAD_REQUEST)
             }
             await this.bookingRepository.update(bookingId, {
                 noteForDriver: noteForDriverDto.noteForDriver
@@ -563,7 +563,7 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            if (booking.status != BookingStatus.PENDING) {
+            if (booking.status in [BookingStatus.CANCELED, BookingStatus.WAITING, BookingStatus.PROCESSING, BookingStatus.COMPLETED]) {
                 throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
             }
 

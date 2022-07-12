@@ -20,7 +20,8 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 
 export enum BookingStatus {
   CANCELED = -1,
-  PENDING = 0,
+  CONFIRMED = null,
+  SEARCHING = 0,
   WAITING = 1,
   PROCESSING = 2,
   COMPLETED = 3,
@@ -60,7 +61,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'driverapp_booking_id', length: 45, nullable: true })
   driverAppBookingId: string;
 
-  @Column({ name: 'status', default: BookingStatus.PENDING })
+  @Column({ name: 'status', default: BookingStatus.CONFIRMED })
   status: number;
 
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
