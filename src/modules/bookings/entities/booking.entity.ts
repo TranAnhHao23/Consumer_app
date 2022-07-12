@@ -1,5 +1,6 @@
 import { CarEntity } from 'src/modules/car/entities/car.entity';
 import { DriverEntity } from 'src/modules/driver/entities/driver.entity';
+import { Invoice } from 'src/modules/invoice/entities/invoice.entity';
 import { PaymentMethod } from 'src/modules/paymentmethod/entities/paymentmethod.entity';
 import { Promotion } from 'src/modules/promotion/entities/promotion.entity';
 import { ToNumericTrans } from 'src/shared/column-numeric-transformer';
@@ -19,7 +20,8 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 
 export enum BookingStatus {
   CANCELED = -1,
-  PENDING = 0,
+  CONFIRMED = null,
+  SEARCHING = 0,
   WAITING = 1,
   PROCESSING = 2,
   COMPLETED = 3,
@@ -59,7 +61,7 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'driverapp_booking_id', length: 45, nullable: true })
   driverAppBookingId: string;
 
-  @Column({ name: 'status', default: BookingStatus.PENDING })
+  @Column({ name: 'status', default: BookingStatus.CONFIRMED })
   status: number;
 
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
@@ -106,6 +108,9 @@ export class BookingEntity extends BaseEntity {
 
   @Column({ name: 'is_liked', default: false })
   isLiked: boolean;
+
+  @OneToOne(() => Invoice, invoice => invoice.booking)
+  invoice: Invoice
 
   @Column({ name: 'created_at' })
   @CreateDateColumn()
