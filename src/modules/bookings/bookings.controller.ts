@@ -28,6 +28,7 @@ import {HttpExceptionFilter} from "../../shared/http-exception.filter";
 import {Response} from "express";
 import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
 import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
+import { GetBookingHistoryDto } from './dto/get-booking-history.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -97,13 +98,9 @@ export class BookingsController {
         return res.status(result.status).json(result);
     }
 
-    @Get('getbookinghistory/:userId/:top')
-    async getBookingHistory(
-        @Param('userId') userId: string,
-        @Param('top') top: number,
-        @Res() res: Response
-    ) {
-        const result = await this.bookingsService.getBookingHistory(userId,+top);
+    @Get('getbookinghistory')
+    async getBookingHistory(@Query() getBookingHistoryDto: GetBookingHistoryDto, @Res() res: Response) {
+        const result = await this.bookingsService.getBookingHistory(getBookingHistoryDto);
         return res.status(result.status).json(result);
     }
 
