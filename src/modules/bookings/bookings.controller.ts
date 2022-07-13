@@ -29,6 +29,7 @@ import {Response} from "express";
 import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
 import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 import { GetBookingHistoryDto } from './dto/get-booking-history.dto';
+import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -56,11 +57,11 @@ export class BookingsController {
         return res.status(result.status).json(result);
     }
 
-    @Patch('notefordriver/:id')
-    async oteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto, @Res() res: Response) {
-        const result = await this.bookingsService.noteForDriver(id, noteForDriverDto);
-        return res.status(result.status).json(result);
-    }
+    // @Patch('notefordriver/:id')
+    // async oteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto, @Res() res: Response) {
+    //     const result = await this.bookingsService.noteForDriver(id, noteForDriverDto);
+    //     return res.status(result.status).json(result);
+    // }
 
     @Get('getbyuserid/:userId')
     async getbyUserId(@Param('userId') userId: string, @Res() res: Response) {
@@ -177,5 +178,11 @@ export class BookingsController {
     async canceltrip( @Body() driverAppCancelTripDto: DriverAppCancelTripDto, @Res() res: Response) {
         const result = await this.bookingsService.cancelTrip(driverAppCancelTripDto);
         return res.status(result.status).json(result);
+    }
+
+    @Get('driverapp/search')
+    async getSearchingNumber(@Query() getSearchingNumberDto: GetSearchingNumberDto, @Res() res: Response) {
+        const result = await this.bookingsService.getSearchingNumber(getSearchingNumberDto)
+        return res.status(result.status).json(result)
     }
 }
