@@ -49,4 +49,17 @@ export class UpsertDraftingTripDto {
     @IsOptional()
     @IsDateString()
     startTime: Date
+
+    @ApiProperty({
+        required: true,
+        default: false
+    })
+    isSilent: boolean;
+
+    @ApiProperty({
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    noteForDriver: string;
 }

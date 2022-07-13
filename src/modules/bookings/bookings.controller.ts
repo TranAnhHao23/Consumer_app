@@ -57,11 +57,11 @@ export class BookingsController {
         return res.status(result.status).json(result);
     }
 
-    @Patch('notefordriver/:id')
-    async oteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto, @Res() res: Response) {
-        const result = await this.bookingsService.noteForDriver(id, noteForDriverDto);
-        return res.status(result.status).json(result);
-    }
+    // @Patch('notefordriver/:id')
+    // async oteForDriver(@Param('id') id: string, @Body() noteForDriverDto: NoteForDriverDto, @Res() res: Response) {
+    //     const result = await this.bookingsService.noteForDriver(id, noteForDriverDto);
+    //     return res.status(result.status).json(result);
+    // }
 
     @Get('getbyuserid/:userId')
     async getbyUserId(@Param('userId') userId: string, @Res() res: Response) {
