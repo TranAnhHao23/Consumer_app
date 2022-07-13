@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export enum BookingHistoryStatus {
     ON_GOING = 0,
@@ -14,17 +14,27 @@ export class GetBookingHistoryDto {
     userId: string
 
     @ApiProperty({
-        default: 10
-    })
-    @Type(() => Number)
-    @IsNumber()
-    limit: number
-
-    @ApiProperty({
+        description: "Ongoing: 0, Completed: 1, Canceled: -1, All: null",
         required: false
     })
     @Type(() => Number)
     @IsOptional()
     @IsNumber()
     status: number
+
+    @ApiProperty({
+        default: 1
+    })
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
+    page: number
+
+    @ApiProperty({
+        default: 10
+    })
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
+    pageSize: number
 }
