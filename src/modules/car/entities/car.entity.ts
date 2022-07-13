@@ -1,10 +1,12 @@
 import { BookingEntity } from 'src/modules/bookings/entities/booking.entity';
+import { CarTypeEntity } from 'src/modules/car_type/entities/car_type.entity';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -24,8 +26,9 @@ export class CarEntity extends BaseEntity {
   // @Column({ name: 'driver_id' })
   // driverId: string;
 
-  @Column({ name: 'cartype_id' })
-  carTypeId: string;
+  @ManyToOne(() => CarTypeEntity, { eager: true })
+  @JoinColumn({ name: 'car_type_id' })
+  carType: CarTypeEntity
 
   @Column({ name: 'icon', length: 255 })
   icon: string;

@@ -40,6 +40,7 @@ import { BookingStatus } from './entities/booking.entity';
 import { GetRatingReasonsDto } from "./dto/Get-Rating-Reasons.dto";
 import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
 import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-history.dto';
+import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -67,6 +68,8 @@ export class BookingsService {
         private readonly driverRepo: Repository<DriverEntity>,
         @InjectRepository(PaymentMethod)
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
+        @InjectRepository(CarTypeEntity)
+        private readonly carTypeRepo: Repository<CarTypeEntity>,
         private readonly httpService: HttpService
     ) {
     }
@@ -408,7 +411,7 @@ export class BookingsService {
                     userId: getRecentFavoriteBookingDto.userId,
                     status: BookingStatus.COMPLETED
                 },
-                relations: ['paymentMethod', 'trip', 'trip.locations'],
+                relations: ['paymentMethod', 'trip', 'trip.locations', 'carInfo'],
                 order: { isLiked: 'DESC', startTime: 'DESC' },
                 take: getRecentFavoriteBookingDto.limit
             })
@@ -595,15 +598,17 @@ export class BookingsService {
                 this.carRepo.delete({ booking: booking })
             ])
 
+            const carType = await this.carTypeRepo.findOne(booking.trip.carType)
+
             const car = this.carRepo.create({
                 carId: setCarId,
-                carTypeId: booking.trip.carType + '',
                 icon: "https://i.ibb.co/JcSvbzQ/image-2022-07-01-T08-57-48-034-Z.png",
                 size: "M",
                 licensePlateNumber: "29A-957.54",
                 branch: "Vinfast",
                 color: "Pink",
                 region: "Hanoi",
+                carType: carType,
                 booking: booking
                 // carId: acceptBookingDto.carInfo.carId,
                 // carTypeId: acceptBookingDto.carInfo.carTypeId,
