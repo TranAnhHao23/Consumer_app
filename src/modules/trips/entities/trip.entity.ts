@@ -39,4 +39,10 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'updated_at'})
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({name: 'is_silent_trip'})
+    isSilent: boolean;
+
+    @Column({ name: 'note_for_driver', length: 255, nullable: true })
+    noteForDriver: string;
 }

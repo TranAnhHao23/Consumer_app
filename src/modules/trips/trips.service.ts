@@ -111,6 +111,8 @@ export class TripsService {
           deviceId: upsertDraftingTripDto.deviceId,
           carType: upsertDraftingTripDto.carType,
           startTime: upsertDraftingTripDto.startTime,
+          isSilent: upsertDraftingTripDto.isSilent,
+          noteForDriver: upsertDraftingTripDto.noteForDriver,
           isDrafting: true
         });
         savedDraftingTrip = await newDraftingTrip.save();
@@ -120,6 +122,12 @@ export class TripsService {
         }
         if ('startTime' in upsertDraftingTripDto) {
           draftingTrip.startTime = upsertDraftingTripDto.startTime
+        }
+        if ('isSilent' in upsertDraftingTripDto) {
+          draftingTrip.isSilent = upsertDraftingTripDto.isSilent
+        }
+        if ('noteForDriver' in upsertDraftingTripDto) {
+          draftingTrip.noteForDriver = upsertDraftingTripDto.noteForDriver
         }
         savedDraftingTrip = await draftingTrip.save();
       }
