@@ -79,7 +79,7 @@ export class BookingsService {
                 .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
                 .where({ userId: userId })
                 .andWhere(`trip.start_time is null`)
-                .andWhere(`booking.status IN (${[BookingStatus.CONFIRMED, BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
+                .andWhere(`booking.status IN (${[BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]}) OR booking.status = ${BookingStatus.CONFIRMED}`)
                 .orderBy({ 'booking.updatedAt': 'DESC' })
                 .getOne()
 
