@@ -374,15 +374,23 @@ export class BookingsService {
                     break
             }
 
-            const bookings = await this.bookingRepository.find({
+            const { pageSize, page } = getBookingHistoryDto
+            const [bookings, count] = await this.bookingRepository.findAndCount({
                 where: { 
                     userId: getBookingHistoryDto.userId,
                     status: In(filterStatus)
                 },
                 relations: ['trip', 'trip.locations', 'invoice'],
-                take: getBookingHistoryDto.limit
+                take: pageSize,
+                skip: (page - 1) * pageSize
             })
-            apiResponse.data = bookings
+            apiResponse.data = {
+                currentPage: +page,
+                pageSize: +pageSize,
+                totalCount: bookings.length,
+                totalPage: Math.ceil(count/pageSize),
+                bookings
+            }
         } catch (error) {
             apiResponse.status = error.status
             apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
