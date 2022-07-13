@@ -40,6 +40,7 @@ import { BookingStatus } from './entities/booking.entity';
 import { GetRatingReasonsDto } from "./dto/Get-Rating-Reasons.dto";
 import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
 import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-history.dto';
+import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -879,5 +880,24 @@ export class BookingsService {
         }
         // saving driver reviews
         return apiResponse;
+    }
+
+    async getSearchingNumber(getSearchingNumberDto: GetSearchingNumberDto) {
+        const apiResponse = new ResponseResult()
+        try {
+            const count = await this.bookingRepository.createQueryBuilder('booking')
+                .innerJoin('location', 'loc', 'booking.trip_id = loc.trip_id')
+                .where('loc.milestone = 0')
+                .andWhere(`6371 * ACOS(SIN(RADIANS(loc.latitude)) * SIN(RADIANS(${getSearchingNumberDto.depLat})) + COS(RADIANS(loc.latitude)) * COS(RADIANS(${getSearchingNumberDto.depLat})) * COS(RADIANS(loc.longitude-${getSearchingNumberDto.depLong}))) <= ${getSearchingNumberDto.distance}`)
+                .getCount()
+            
+            apiResponse.data = {
+                passengerCount: count
+            }
+        } catch (error) {
+            apiResponse.status = error.status
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+        }
+        return apiResponse
     }
 }
