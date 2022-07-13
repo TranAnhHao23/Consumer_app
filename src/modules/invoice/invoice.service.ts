@@ -148,7 +148,7 @@ export class InvoiceService {
   async findByUserId(userId: string) {
     this.apiResponse = new ResponseResult();
     try {
-      this.apiResponse.data = await this.invoiceRepository.findOne({
+      this.apiResponse.data = await this.invoiceRepository.find({
         where: { userId: userId },
         relations: ['booking.carInfo', 'booking.driverInfo', 'booking.paymentMethod', 'booking', 'booking.trip', 'booking.trip.locations'],
       });

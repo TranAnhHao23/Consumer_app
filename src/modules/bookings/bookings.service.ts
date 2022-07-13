@@ -41,6 +41,7 @@ import { GetRatingReasonsDto } from "./dto/Get-Rating-Reasons.dto";
 import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
 import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-history.dto';
 import { CarTypeEntity } from '../car_type/entities/car_type.entity';
+import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -104,7 +105,7 @@ export class BookingsService {
             if (cancelBookingsInHour.length >= 3) {
                 apiResponse.data = {
                     isAvailable: false,
-                    lockTo: new Date(new Date(cancelBookingsInHour[0].cancelTime).getTime() + 3 * 60 * 60 * 1000)
+                    lockTo: new Date(new Date(cancelBookingsInHour[0].cancelTime).getTime() + 60 * 1000) // 3 * 60 * 60 * 1000
                 }
                 throw new HttpException('Your account is locked because of canceling booking too 3 times in an hour', HttpStatus.NOT_ACCEPTABLE)
             }
@@ -509,31 +510,31 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async noteForDriver(bookingId: string, noteForDriverDto: NoteForDriverDto) {
-        this.apiResponse = new ResponseResult()
-        try {
-            const booking = await this.bookingRepository.findOne(bookingId)
-
-            if (!booking) {
-                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
-            }
-
-            if (booking.status != BookingStatus.CONFIRMED) {
-                throw new HttpException('Booking is in progress or completed. You can not update', HttpStatus.BAD_REQUEST)
-            }
-            await this.bookingRepository.update(bookingId, {
-                noteForDriver: noteForDriverDto.noteForDriver
-            })
-
-            const updatedBooking = await this.bookingRepository.findOne(bookingId, { relations: ['trip'] })
-            this.apiResponse.status = HttpStatus.CREATED
-            this.apiResponse.data = updatedBooking
-        } catch (error) {
-            this.apiResponse.status = error.status;
-            this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
-        }
-        return this.apiResponse
-    }
+    // async noteForDriver(bookingId: string, noteForDriverDto: NoteForDriverDto) {
+    //     this.apiResponse = new ResponseResult()
+    //     try {
+    //         const booking = await this.bookingRepository.findOne(bookingId)
+    //
+    //         if (!booking) {
+    //             throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+    //         }
+    //
+    //         if (booking.status != BookingStatus.CONFIRMED) {
+    //             throw new HttpException('Booking is in progress or completed. You can not update', HttpStatus.BAD_REQUEST)
+    //         }
+    //         await this.bookingRepository.update(bookingId, {
+    //             noteForDriver: noteForDriverDto.noteForDriver
+    //         })
+    //
+    //         const updatedBooking = await this.bookingRepository.findOne(bookingId, { relations: ['trip'] })
+    //         this.apiResponse.status = HttpStatus.CREATED
+    //         this.apiResponse.data = updatedBooking
+    //     } catch (error) {
+    //         this.apiResponse.status = error.status;
+    //         this.apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+    //     }
+    //     return this.apiResponse
+    // }
 
     async getEmergencyInformation() {
         this.apiResponse = new ResponseResult()
@@ -892,5 +893,24 @@ export class BookingsService {
         }
         // saving driver reviews
         return apiResponse;
+    }
+
+    async getSearchingNumber(getSearchingNumberDto: GetSearchingNumberDto) {
+        const apiResponse = new ResponseResult()
+        try {
+            const count = await this.bookingRepository.createQueryBuilder('booking')
+                .innerJoin('location', 'loc', 'booking.trip_id = loc.trip_id')
+                .where('loc.milestone = 0')
+                .andWhere(`6371 * ACOS(SIN(RADIANS(loc.latitude)) * SIN(RADIANS(${getSearchingNumberDto.depLat})) + COS(RADIANS(loc.latitude)) * COS(RADIANS(${getSearchingNumberDto.depLat})) * COS(RADIANS(loc.longitude-${getSearchingNumberDto.depLong}))) <= ${getSearchingNumberDto.distance}`)
+                .getCount()
+            
+            apiResponse.data = {
+                passengerCount: count
+            }
+        } catch (error) {
+            apiResponse.status = error.status
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+        }
+        return apiResponse
     }
 }
