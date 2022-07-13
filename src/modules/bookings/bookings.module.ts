@@ -10,6 +10,7 @@ import { CarEntity } from '../car/entities/car.entity';
 import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { HttpModule } from "@nestjs/axios";
+import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 
 
 @Module({
@@ -19,7 +20,8 @@ import { HttpModule } from "@nestjs/axios";
     Promotion,
     CarEntity,
     DriverEntity,
-    PaymentMethod
+    PaymentMethod,
+    CarTypeEntity
   ]),
     HttpModule],
   controllers: [BookingsController],
