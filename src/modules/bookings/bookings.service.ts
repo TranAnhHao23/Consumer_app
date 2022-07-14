@@ -129,7 +129,7 @@ export class BookingsService {
             const laterBooking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
                 // .where(`trip.start_time is not null`)
-                .where(`trip.trip_type = 1`)
+                .where(`trip.is_trip_later = 1`)
                 .andWhere(`booking.user_Id = :userId`, {userId: userId})
                 .andWhere(`booking.status IN (${BookingStatus.CONFIRMED}, ${BookingStatus.SEARCHING})`)
                 .getOne()
