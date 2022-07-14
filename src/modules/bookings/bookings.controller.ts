@@ -185,4 +185,9 @@ export class BookingsController {
         const result = await this.bookingsService.getSearchingNumber(getSearchingNumberDto)
         return res.status(result.status).json(result)
     }
+
+    @Get('getbookinglater/:userId')
+    async getBookingLater(@Param('userId') userId: string){
+        return this.bookingsService.getBookingLater(userId)
+    }
 }

@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsDate, IsDateString, IsNumber, IsOptional, IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsArray, IsBoolean, IsDate, IsDateString, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator"
 import { CreateTripLocationDto } from "./create-trip-location.dto"
 
 export class UpsertDraftingTripDto {
@@ -8,7 +9,8 @@ export class UpsertDraftingTripDto {
     deviceId: string
 
     @ApiProperty({
-        required: false
+        required: false,
+        default: 1
     })
     @IsNumber()
     @IsOptional()
@@ -17,32 +19,41 @@ export class UpsertDraftingTripDto {
     @ApiProperty({
         default: [
             {
-                "longitude": 0,
-                "latitude": 0,
-                "address": "string",
-                "note": "string",
-                "googleId": "string",
-                "referenceId": "string",
-                "addressName": "string"
+                "longitude": 105.7860011,
+                "latitude": 21.0299603,
+                "address": "Tầng 11 Thành Công Building, 80 P. Dịch Vọng Hậu, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam",
+                "note": null,
+                "googleId": "ChIJbzbSrSqrNTER_N28zFBgNhE",
+                "referenceId": "ChIJbzbSrSqrNTER_N28zFBgNhE",
+                "addressName": "Công ty cổ phần Công nghệ thông tin YooPay Việt Nam"
             },
             {
-                "longitude": 1,
-                "latitude": 1,
-                "address": "string",
-                "note": "string",
-                "googleId": "string",
-                "referenceId": "string",
-                "addressName": "string"
+                "longitude": 105.8346667,
+                "latitude": 21.0368973,
+                "address": "2 Hùng Vương, Điện Biên, Ba Đình, Hà Nội 100000, Vietnam",
+                "note": null,
+                "googleId": "ChIJtUXBXqGrNTERWQijhBhESRs",
+                "referenceId": "ChIJtUXBXqGrNTERWQijhBhESRs",
+                "addressName": "2 Hùng Vương"
             }
         ],
         required: false
     })
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateTripLocationDto)
     @IsOptional()
-    locations: [CreateTripLocationDto]
+    locations: CreateTripLocationDto[]
 
     @ApiProperty({
-        description: 'Use for booking later. If book now, then startTime = null.',
+        default: false,
+        required: false
+    })
+    @IsBoolean()
+    @IsOptional()
+    isTripLater: boolean;
+
+    @ApiProperty({
         default: null,
         required: false
     })
@@ -54,6 +65,8 @@ export class UpsertDraftingTripDto {
         required: true,
         default: false
     })
+    @IsOptional()
+    @IsBoolean()
     isSilent: boolean;
 
     @ApiProperty({

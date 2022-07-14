@@ -6,14 +6,17 @@ import {TripEntity} from "./entities/trip.entity";
 import { ResponseResult } from "../../shared/ResponseResult";
 import { LocationsService } from '../locations/locations.service';
 import { LocationEntity } from '../locations/entities/location.entity';
+import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
       TripEntity,
-      LocationEntity
+      LocationEntity,
+      CarTypeEntity
     ]),
   ],
   controllers: [TripsController],
-  providers: [TripsService, LocationsService, ResponseResult]
+  providers: [TripsService, LocationsService, ResponseResult],
+  exports: [TripsService]
 })
 export class TripsModule {}
