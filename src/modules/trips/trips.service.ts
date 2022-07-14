@@ -99,7 +99,7 @@ export class TripsService {
   }
 
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
-    this.apiResponse = new ResponseResult(HttpStatus.CREATED)
+    const apiResponse = new ResponseResult(HttpStatus.CREATED)
     try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
@@ -145,14 +145,13 @@ export class TripsService {
         await this.upsertLocationsForTrip(savedDraftingTrip, upsertDraftingTripDto.locations)
       }
 
-      this.apiResponse.status = HttpStatus.CREATED
-      this.apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
+      apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
     } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
 
-    return this.apiResponse
+    return apiResponse
   }
 
   // async copyTripToDrafting(copyTriptoDraftDto: CopyTripToDrafting) {
