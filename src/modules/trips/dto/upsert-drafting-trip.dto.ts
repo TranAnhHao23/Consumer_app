@@ -43,7 +43,14 @@ export class UpsertDraftingTripDto {
     locations: [CreateTripLocationDto]
 
     @ApiProperty({
-        description: 'Use for booking later. If book now, then startTime = null.',
+        default: false,
+        required: false
+    })
+    @IsBoolean()
+    @IsOptional()
+    isTripLater: boolean;
+
+    @ApiProperty({
         default: null,
         required: false
     })

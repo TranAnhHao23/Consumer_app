@@ -16,6 +16,7 @@ import { CarTypeEntity } from '../car_type/entities/car_type.entity';
     ]),
   ],
   controllers: [TripsController],
-  providers: [TripsService, LocationsService, ResponseResult]
+  providers: [TripsService, LocationsService, ResponseResult],
+  exports: [TripsService]
 })
 export class TripsModule {}

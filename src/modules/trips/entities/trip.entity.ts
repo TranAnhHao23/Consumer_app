@@ -45,4 +45,7 @@ export class TripEntity extends BaseEntity{
 
     @Column({ name: 'note_for_driver', length: 255, nullable: true })
     noteForDriver: string;
+
+    @Column({ name: 'is_trip_later', default: false})
+    isTripLater: boolean;
 }

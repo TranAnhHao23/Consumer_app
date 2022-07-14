@@ -42,6 +42,7 @@ import { SubmitRatingDto } from "./dto/Submit-Rating.dto";
 import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-history.dto';
 import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
+import {TripsService} from "../trips/trips.service";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -71,7 +72,8 @@ export class BookingsService {
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
         @InjectRepository(CarTypeEntity)
         private readonly carTypeRepo: Repository<CarTypeEntity>,
-        private readonly httpService: HttpService
+        private readonly httpService: HttpService,
+        private readonly tripService: TripsService,
     ) {
     }
 
@@ -80,9 +82,9 @@ export class BookingsService {
         try {
             const booking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
-                .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time'])
+                .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time', 'trip.is_trip_later'])
                 .where({ userId: userId })
-                .andWhere(`trip.start_time is null`)
+                .andWhere(`trip.is_trip_later = 0`)
                 .andWhere(`booking.status IN (${[BookingStatus.CONFIRMED, BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
                 .orderBy({ 'booking.updatedAt': 'DESC' })
                 .getOne()
@@ -126,7 +128,9 @@ export class BookingsService {
         try {
             const laterBooking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
-                .where(`trip.start_time is not null`)
+                // .where(`trip.start_time is not null`)
+                .where(`trip.is_trip_later = 1`)
+                .andWhere(`booking.user_Id = :userId`, {userId: userId})
                 .andWhere(`booking.status IN (${BookingStatus.CONFIRMED}, ${BookingStatus.SEARCHING})`)
                 .getOne()
             console.log(laterBooking)
@@ -150,24 +154,28 @@ export class BookingsService {
             const getTrip = await this.tripRepository.findOne(createBookingDto.tripId);
 
             const booking = await this.bookingRepository.findOne({ trip: getTrip })
-            // if (booking) {
-            //     apiResponse.data = { booking }
-            //     throw new HttpException('This trip has been booked', HttpStatus.NOT_ACCEPTABLE)
-            // }
+            if (booking) {
+                apiResponse.data = { booking }
+                throw new HttpException('This trip has been booked', HttpStatus.NOT_ACCEPTABLE)
+            }
 
-            // if (getTrip.startTime != null) {
-            //     const laterBooking = (await this.getBookingLater(createBookingDto.userId)).data?.booking
+            if (getTrip.startTime && this.tripService.isValidStartTime(getTrip.startTime)) {
+                throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
+            }
 
-            //     if (laterBooking) {
-            //         apiResponse.data = { booking: laterBooking }
-            //         throw new HttpException('An advanced booking already exists', HttpStatus.NOT_ACCEPTABLE)
-            //     }
-            // }
+            if (getTrip.isTripLater) {
+                const laterBooking = (await this.getBookingLater(createBookingDto.userId)).data?.booking
 
-            // if (!isAvailableToBookNow.data?.isAvailable && getTrip.startTime == null) {
-            //     apiResponse.data = isAvailableToBookNow.data
-            //     throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
-            // }
+                if (laterBooking) {
+                    apiResponse.data = { booking: laterBooking }
+                    throw new HttpException('An advanced booking already exists', HttpStatus.NOT_ACCEPTABLE)
+                }
+            }
+
+            if (!isAvailableToBookNow.data?.isAvailable && !getTrip.isTripLater) {
+                apiResponse.data = isAvailableToBookNow.data
+                throw new HttpException(isAvailableToBookNow.errorMessage, isAvailableToBookNow.status)
+            }
 
             if (getTrip != null && Object.keys(getTrip).length !== 0) {
                 newobj.trip = getTrip;

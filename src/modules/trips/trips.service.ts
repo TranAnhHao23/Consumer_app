@@ -53,7 +53,7 @@ export class TripsService {
   // }
 
   async getDraftingTripByDeviceId(getDraftingTripDto: GetDraftingTripDto) {
-    this.apiResponse = new ResponseResult()
+    const apiResponse = new ResponseResult()
     try {
       const draftingTrip = await this.tripRepo.findOne({
         deviceId: getDraftingTripDto.deviceId,
@@ -64,15 +64,15 @@ export class TripsService {
         throw new HttpException('There is not any drafting trip', HttpStatus.NOT_FOUND)
       }
 
-      this.apiResponse.data = draftingTrip
+      apiResponse.data = draftingTrip
     } catch(error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
-    return this.apiResponse
+    return apiResponse
   }
 
-  private isValidStartTime(startTime: Date) {
+  isValidStartTime(startTime: Date) {
     const nowInMsec = (new Date()).getTime()
     const startTimeInMsec = (new Date(startTime)).getTime()
     const difftime = startTimeInMsec - nowInMsec
@@ -101,8 +101,12 @@ export class TripsService {
   async upsertDraftingTrip(upsertDraftingTripDto: UpsertDraftingTripDto) {
     const apiResponse = new ResponseResult(HttpStatus.CREATED)
     try {
-      if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
-        throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
+      if ((!upsertDraftingTripDto.isTripLater && upsertDraftingTripDto.startTime) || (upsertDraftingTripDto.isTripLater && upsertDraftingTripDto.startTime == null)){
+        throw new HttpException('Start time in this trip type is not acceptable', HttpStatus.NOT_ACCEPTABLE);
+      } else {
+        if (upsertDraftingTripDto.isTripLater && !this.isValidStartTime(upsertDraftingTripDto.startTime )) {
+          throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
+        }
       }
 
       const carType = await this.carTypeRepo.findOne(upsertDraftingTripDto.carType)
@@ -119,6 +123,7 @@ export class TripsService {
         const newDraftingTrip = this.tripRepo.create({
           deviceId: upsertDraftingTripDto.deviceId,
           carType: upsertDraftingTripDto.carType,
+          isTripLater: upsertDraftingTripDto.isTripLater,
           startTime: upsertDraftingTripDto.startTime,
           isSilent: upsertDraftingTripDto.isSilent,
           noteForDriver: upsertDraftingTripDto.noteForDriver,
@@ -128,6 +133,9 @@ export class TripsService {
       } else {
         if ('carType' in upsertDraftingTripDto) {
           draftingTrip.carType = upsertDraftingTripDto.carType
+        }
+        if ('isTripLater' in upsertDraftingTripDto) {
+          draftingTrip.isTripLater = upsertDraftingTripDto.isTripLater
         }
         if ('startTime' in upsertDraftingTripDto) {
           draftingTrip.startTime = upsertDraftingTripDto.startTime
