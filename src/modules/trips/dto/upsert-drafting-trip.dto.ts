@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsDate, IsDateString, IsNumber, IsOptional, IsString } from "class-validator"
+import {IsArray, IsDate, IsDateString, IsNumber, IsNumberString, IsOptional, IsString} from "class-validator"
 import { CreateTripLocationDto } from "./create-trip-location.dto"
 
 export class UpsertDraftingTripDto {
@@ -42,7 +42,14 @@ export class UpsertDraftingTripDto {
     locations: [CreateTripLocationDto]
 
     @ApiProperty({
-        description: 'Use for booking later. If book now, then startTime = null.',
+        default: false,
+        required: false
+    })
+    @IsNumber()
+    @IsOptional()
+    isTripLater: boolean;
+
+    @ApiProperty({
         default: null,
         required: false
     })

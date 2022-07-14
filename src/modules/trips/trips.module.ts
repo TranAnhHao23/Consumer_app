@@ -14,6 +14,7 @@ import { LocationEntity } from '../locations/entities/location.entity';
     ]),
   ],
   controllers: [TripsController],
-  providers: [TripsService, LocationsService, ResponseResult]
+  providers: [TripsService, LocationsService, ResponseResult],
+  exports: [TripsService]
 })
 export class TripsModule {}

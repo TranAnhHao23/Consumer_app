@@ -11,6 +11,7 @@ import { DriverEntity } from '../driver/entities/driver.entity';
 import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { HttpModule } from "@nestjs/axios";
 import { CarTypeEntity } from '../car_type/entities/car_type.entity';
+import { TripsModule } from "../trips/trips.module";
 
 
 @Module({
@@ -23,7 +24,8 @@ import { CarTypeEntity } from '../car_type/entities/car_type.entity';
     PaymentMethod,
     CarTypeEntity
   ]),
-    HttpModule],
+    HttpModule,
+    TripsModule,],
   controllers: [BookingsController],
   providers: [BookingsService,ResponseResult]
 })
