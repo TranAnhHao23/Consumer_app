@@ -12,6 +12,7 @@ import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 import { stringify } from 'querystring';
 import { CreateTripLocationDto } from './dto/create-trip-location.dto';
 import {TripAgainDto} from "./dto/trip-again.dto";
+import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 
 @Injectable()
 export class TripsService {
@@ -21,6 +22,9 @@ export class TripsService {
 
     @InjectRepository(LocationEntity)
     private readonly locationRepo: Repository<LocationEntity>,
+
+    @InjectRepository(CarTypeEntity)
+    private readonly carTypeRepo: Repository<CarTypeEntity>,
 
     private readonly locationService: LocationsService,
 
@@ -99,6 +103,11 @@ export class TripsService {
     try {
       if (upsertDraftingTripDto.startTime && !this.isValidStartTime(upsertDraftingTripDto.startTime)) {
         throw new HttpException('Value of startTime is invalid', HttpStatus.BAD_REQUEST)
+      }
+
+      const carType = await this.carTypeRepo.findOne(upsertDraftingTripDto.carType)
+      if (!carType) {
+        throw new HttpException('Car type not found', HttpStatus.NOT_FOUND)
       }
 
       let savedDraftingTrip;

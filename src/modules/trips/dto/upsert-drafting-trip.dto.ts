@@ -8,7 +8,8 @@ export class UpsertDraftingTripDto {
     deviceId: string
 
     @ApiProperty({
-        required: false
+        required: false,
+        default: 1
     })
     @IsNumber()
     @IsOptional()
