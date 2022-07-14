@@ -82,11 +82,10 @@ export class BookingsService {
         try {
             const booking = await this.bookingRepository.createQueryBuilder('booking')
                 .innerJoin('trip', 'trip', 'booking.trip_id = trip.id')
-                .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time', 'trip.trip_type'])
+                .select(['booking.id', 'booking.trip_id', 'trip.id', 'trip.start_time', 'trip.is_trip_later'])
                 .where({ userId: userId })
-                // .andWhere(`trip.start_time is null`)
-                .andWhere(`trip.trip_type = 0`)
-                .andWhere(`booking.status IN (${[BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]}) OR booking.status = ${BookingStatus.CONFIRMED}`)
+                .andWhere(`trip.is_trip_later = 0`)
+                .andWhere(`booking.status IN (${[BookingStatus.CONFIRMED, BookingStatus.SEARCHING, BookingStatus.WAITING, BookingStatus.PROCESSING]})`)
                 .orderBy({ 'booking.updatedAt': 'DESC' })
                 .getOne()
 

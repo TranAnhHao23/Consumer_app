@@ -20,7 +20,7 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 
 export enum BookingStatus {
   CANCELED = -1,
-  CONFIRMED = null,
+  CONFIRMED = 4,
   SEARCHING = 0,
   WAITING = 1,
   PROCESSING = 2,

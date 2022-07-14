@@ -12,6 +12,7 @@ import { CopyTripToDrafting } from './dto/copy-trip-to-drafting.dto';
 import { stringify } from 'querystring';
 import { CreateTripLocationDto } from './dto/create-trip-location.dto';
 import {TripAgainDto} from "./dto/trip-again.dto";
+import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 
 @Injectable()
 export class TripsService {
@@ -22,8 +23,12 @@ export class TripsService {
     @InjectRepository(LocationEntity)
     private readonly locationRepo: Repository<LocationEntity>,
 
+    @InjectRepository(CarTypeEntity)
+    private readonly carTypeRepo: Repository<CarTypeEntity>,
+
     private readonly locationService: LocationsService,
 
+    private apiResponse: ResponseResult,
   ) {}
 
   // create(createTripDto: CreateTripDto) {
@@ -104,6 +109,11 @@ export class TripsService {
         }
       }
 
+      const carType = await this.carTypeRepo.findOne(upsertDraftingTripDto.carType)
+      if (!carType) {
+        throw new HttpException('Car type not found', HttpStatus.NOT_FOUND)
+      }
+
       let savedDraftingTrip;
       const draftingTrip = (await this.getDraftingTripByDeviceId({
         deviceId: upsertDraftingTripDto.deviceId,
@@ -143,7 +153,6 @@ export class TripsService {
         await this.upsertLocationsForTrip(savedDraftingTrip, upsertDraftingTripDto.locations)
       }
 
-      apiResponse.status = HttpStatus.CREATED
       apiResponse.data = await this.tripRepo.findOne(savedDraftingTrip.id, { relations: ['locations'] })
     } catch (error) {
       apiResponse.status = error.status;
