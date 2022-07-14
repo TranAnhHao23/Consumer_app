@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsBoolean, IsDate, IsDateString, IsNumber, IsOptional, IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsArray, IsBoolean, IsDate, IsDateString, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator"
 import { CreateTripLocationDto } from "./create-trip-location.dto"
 
 export class UpsertDraftingTripDto {
@@ -39,8 +40,10 @@ export class UpsertDraftingTripDto {
         required: false
     })
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateTripLocationDto)
     @IsOptional()
-    locations: [CreateTripLocationDto]
+    locations: CreateTripLocationDto[]
 
     @ApiProperty({
         default: false,
