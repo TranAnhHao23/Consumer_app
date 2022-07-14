@@ -79,7 +79,7 @@ export class TripsService {
     return difftime >= 1 * 3600 * 1000
   }
 
-  private async upsertLocationsForTrip(trip: TripEntity, locations: [CreateTripLocationDto]) {
+  private async upsertLocationsForTrip(trip: TripEntity, locations: CreateTripLocationDto[]) {
     if (locations.length >= 4) {
       throw new HttpException('Exceed number of destinations', HttpStatus.BAD_REQUEST)
     }
