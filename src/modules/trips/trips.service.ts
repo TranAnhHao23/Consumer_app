@@ -127,6 +127,7 @@ export class TripsService {
           startTime: upsertDraftingTripDto.startTime,
           isSilent: upsertDraftingTripDto.isSilent,
           noteForDriver: upsertDraftingTripDto.noteForDriver,
+          totalTime: upsertDraftingTripDto.totalTime,
           isDrafting: true
         });
         savedDraftingTrip = await newDraftingTrip.save();
@@ -145,6 +146,9 @@ export class TripsService {
         }
         if ('noteForDriver' in upsertDraftingTripDto) {
           draftingTrip.noteForDriver = upsertDraftingTripDto.noteForDriver
+        }
+        if ('totalTime' in upsertDraftingTripDto) {
+          draftingTrip.totalTime = upsertDraftingTripDto.totalTime
         }
         savedDraftingTrip = await draftingTrip.save();
       }
