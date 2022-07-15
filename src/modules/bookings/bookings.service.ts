@@ -109,7 +109,9 @@ export class BookingsService {
                     isAvailable: false,
                     lockTo: new Date(new Date(cancelBookingsInHour[0].cancelTime).getTime() + 60 * 1000) // 3 * 60 * 60 * 1000
                 }
-                throw new HttpException('Your account is locked because of canceling booking too 3 times in an hour', HttpStatus.NOT_ACCEPTABLE)
+
+                // Open for testing
+                // throw new HttpException('Your account is locked because of canceling booking too 3 times in an hour', HttpStatus.NOT_ACCEPTABLE)
             }
 
             apiResponse.data = {
