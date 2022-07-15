@@ -572,6 +572,14 @@ export class BookingsService {
         try {
             const booking = await this.bookingRepository.findOne(id, { relations: ['trip'] })
 
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+
+            if (booking.status == BookingStatus.CANCELED || booking.status == BookingStatus.WAITING || booking.status == BookingStatus.PROCESSING || booking.status == BookingStatus.COMPLETED) {
+                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
+            }
+
             const setCarId = uuidv4();
             const setDriverId = uuidv4();
             await this.bookingRepository.update(id, {
@@ -581,13 +589,7 @@ export class BookingsService {
                 driverId: setDriverId
             })
 
-            if (!booking) {
-                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
-            }
 
-            if (booking.status in [BookingStatus.CANCELED, BookingStatus.WAITING, BookingStatus.PROCESSING, BookingStatus.COMPLETED]) {
-                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
-            }
 
             // Check status and throw exception can not accept
 
