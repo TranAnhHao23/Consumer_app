@@ -20,11 +20,11 @@ import { TripEntity } from '../../trips/entities/trip.entity';
 
 export enum BookingStatus {
   CANCELED = -1,
-  CONFIRMED = 4,
-  SEARCHING = 0,
-  WAITING = 1,
-  PROCESSING = 2,
-  COMPLETED = 3,
+  CONFIRMED = 0,
+  SEARCHING = 1,
+  WAITING = 2,
+  PROCESSING = 3,
+  COMPLETED = 4,
 }
 
 @Entity({ name: 'booking' })
