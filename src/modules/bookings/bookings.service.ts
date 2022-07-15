@@ -576,7 +576,7 @@ export class BookingsService {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
             }
 
-            if (booking.status in [BookingStatus.CANCELED, BookingStatus.WAITING, BookingStatus.PROCESSING, BookingStatus.COMPLETED]) {
+            if (booking.status == BookingStatus.CANCELED || booking.status == BookingStatus.WAITING || booking.status == BookingStatus.PROCESSING || booking.status == BookingStatus.COMPLETED) {
                 throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
             }
 
