@@ -26,6 +26,9 @@ export class TripEntity extends BaseEntity{
     @Column({ name: 'start_time', nullable: true })
     startTime: Date;
 
+    @Column({ name: 'total_time', nullable: true})
+    totalTime: number;
+
     @Column({ name: 'copy_trip_id', type: 'uuid', length: 36, nullable: true })
     copyTripId: string
 

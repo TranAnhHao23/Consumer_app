@@ -62,6 +62,11 @@ export class UpsertDraftingTripDto {
     startTime: Date
 
     @ApiProperty({
+        required: true
+    })
+    totalTime: number;
+
+    @ApiProperty({
         required: true,
         default: false
     })
