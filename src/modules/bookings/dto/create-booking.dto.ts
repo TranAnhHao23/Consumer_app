@@ -16,10 +16,10 @@ export class CreateBookingDto {
     @IsUUID()
     tripId: string;
 
-    @ApiProperty({
-        required: true
-    })
-    distance: number;
+    // @ApiProperty({
+    //     required: true
+    // })
+    // distance: number;
 
     @ApiProperty({
         maxLength: 45,

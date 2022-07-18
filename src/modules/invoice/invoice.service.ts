@@ -31,8 +31,14 @@ export class InvoiceService {
       const existedBooking = await this.invoiceRepository.findOne({
         where: { booking: createInvoiceDto.bookingId }
       });
+      // Check booking status
+      const booking = await this.bookingRepository.findOne({
+        where: {id: createInvoiceDto.bookingId}
+      })
       if (existedBooking != null && Object.keys(existedBooking).length !== 0) {
         throw new HttpException("The booking has been existed in another invoice", HttpStatus.NOT_ACCEPTABLE)
+      } else if (booking.status == -1) {
+        throw new HttpException("The booking cancelled, none of invoice show up", HttpStatus.NOT_FOUND)
       }
       else {
         const newPayment = this.invoiceRepository.create(createInvoiceDto);

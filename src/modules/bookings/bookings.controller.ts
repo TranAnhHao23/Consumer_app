@@ -30,6 +30,7 @@ import {GetRatingReasonsDto} from "./dto/Get-Rating-Reasons.dto";
 import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 import { GetBookingHistoryDto } from './dto/get-booking-history.dto';
 import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
+import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -189,5 +190,23 @@ export class BookingsController {
     @Get('getbookinglater/:userId')
     async getBookingLater(@Param('userId') userId: string){
         return this.bookingsService.getBookingLater(userId)
+    }
+
+    @Get('driverapp/getdriverinfo/:driverId')
+    async getDriverInfoByDriverId(@Param('driverId')driverId: string, @Res() res: Response) {
+        const result = await this.bookingsService.getDriverInfoByDriverId(+driverId);
+        return res.status(result.status).json(result);
+    }
+
+    @Get('driverapp/getcarinfo/:carId')
+    async getCarInfoByCarId(@Param('carId')carId: string, @Res() res: Response) {
+        const result = await this.bookingsService.getCarInfoByCarId(+carId);
+        return res.status(result.status).json(result);
+    }
+
+    @Post('driverapp/searchdriver')
+    async searchDriverAtDriverApp(@Body() driverAppFindDriverRequestDto : DriverAppFindDriverRequestDto, @Res() res: Response) {
+        const result = await this.bookingsService.sendFindDriverToDriverApp(driverAppFindDriverRequestDto);
+        return res.status(result.status).json(result);
     }
 }
