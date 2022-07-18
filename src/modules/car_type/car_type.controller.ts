@@ -25,7 +25,7 @@ export class CarTypeController {
 
   @Post('searchcarbylocation')
   async searchCarByLocation(@Body() searchCarByLocationDto: SearchCarByLocationDto, @Res() res: Response) {
-    const result = await this.carTypeService.searchCarByLocation(searchCarByLocationDto);
+    const result = await this.carTypeService.searchCarByLocationAndDistance(searchCarByLocationDto);
     return res.status(result.status).json(result);
   }
 
