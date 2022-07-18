@@ -8,6 +8,8 @@ import {Connection} from 'mysql2';
 import {ResponseResult} from '../../shared/ResponseResult';
 import {SearchCarByLocationDto} from "./dto/search-car-by-location";
 import {CarDetailEntity} from "./entities/car_detail.entity";
+import {HttpService} from "@nestjs/axios";
+import {firstValueFrom, lastValueFrom, map} from "rxjs";
 
 @Injectable()
 export class CarTypeService {
@@ -18,6 +20,7 @@ export class CarTypeService {
         private readonly carDetailRepo: Repository<CarDetailEntity>,
         @InjectConnection() private readonly connection: Connection,
         private apiResponse: ResponseResult,
+        private readonly httpService: HttpService,
     ) {
     }
 
@@ -55,6 +58,56 @@ export class CarTypeService {
         return this.apiResponse;
     }
 
+
+    // External API: https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/search/car-types/{car_type_id}
+    // isn't done because of failing body request at GET API
+    async getCarTypeByCarTypeId(carTypeId: number) {
+        const apiResponse = new ResponseResult();
+        const headersRequest = {
+            'X-API-KEY' : process.env.X_API_KEY,
+        }
+        try {
+            let api = `https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/search/car-types/${carTypeId}`;
+            const data = await firstValueFrom(this.httpService.get(api, {headers: headersRequest}));
+            apiResponse.data = data;
+        } catch (error) {
+            if (error.response) {
+                apiResponse.status = error.response.data.statusCode;
+                apiResponse.errorMessage = error.response.data.message;
+            } else {
+                apiResponse.status = error.status;
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            }
+        }
+        return apiResponse;
+    }
+
+    // External API: https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/search/car-types
+    // isn't done because of cannot figure out the body
+    async searchCarByLocationAndDistance(searchCarByLocationDto: SearchCarByLocationDto) {
+        const apiResponse = new ResponseResult();
+        const headersRequest = {
+            'X-API-KEY' : process.env.X_API_KEY,
+        }
+        try {
+            let api = `https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/search/car-types`;
+            const data = await firstValueFrom(this.httpService.post(api, searchCarByLocationDto, {headers : headersRequest})
+                .pipe(
+                    map((res) => { return res.data})
+                ))
+            apiResponse.data = data;
+        } catch (error) {
+            if (error.response) {
+                apiResponse.status = error.response.data.statusCode;
+                apiResponse.errorMessage = error.response.data.message;
+            } else {
+                apiResponse.status = error.status;
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            }
+        }
+        return apiResponse;
+    }
+
     async getCarDetailByIdCar(idCar: string) {
         this.apiResponse = new ResponseResult();
         try {
@@ -82,7 +135,7 @@ export class CarTypeService {
                 // console.log(cars[i])
                 let distance =await this.calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto, cars[i])
                 await console.log(distance);
-                if (distance > searchCarByLocationDto.searchRadius) {
+                if (distance > searchCarByLocationDto.distance) {
                     cars.splice(i, 1);
                     i--;
                 }
@@ -128,9 +181,9 @@ export class CarTypeService {
     }
 
     async calculateDistanceBetweenCarAndConsumer(searchCarByLocationDto: SearchCarByLocationDto, car: CarTypeEntity) {
-        let dLat = Math.abs((searchCarByLocationDto.latitude - car.latitude) * (Math.PI / 180));
-        let dLong = Math.abs((searchCarByLocationDto.longitude - car.longitude) * (Math.PI / 180));
-        let la1ToRad = searchCarByLocationDto.latitude * (Math.PI / 180);
+        let dLat = Math.abs((searchCarByLocationDto.dep_lat - car.latitude) * (Math.PI / 180));
+        let dLong = Math.abs((searchCarByLocationDto.dep_lng - car.longitude) * (Math.PI / 180));
+        let la1ToRad = searchCarByLocationDto.dep_lat * (Math.PI / 180);
         let la2ToRad = car.latitude * (Math.PI / 180);
 
         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(la1ToRad) * Math.cos(la2ToRad) * Math.sin(dLong / 2) * Math.sin(dLong / 2);

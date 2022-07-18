@@ -2,15 +2,33 @@ import {IsDecimal, IsNumber, IsString} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 
 export class SearchCarByLocationDto {
-    @ApiProperty()
+    @ApiProperty({
+        required: true,
+    })
     @IsNumber()
-    longitude: number;
+    dep_lat : number;
 
-    @ApiProperty()
+    @ApiProperty({
+        required: true,
+    })
     @IsNumber()
-    latitude: number;
+    dep_lng : number;
 
-    @ApiProperty()
+    @ApiProperty({
+        required: true,
+    })
     @IsNumber()
-    searchRadius: number;
+    des_lat : number;
+
+    @ApiProperty({
+        required: true,
+    })
+    @IsNumber()
+    des_lng : number;
+
+    @ApiProperty({
+        required: true,
+    })
+    @IsNumber()
+    distance : number;
 }

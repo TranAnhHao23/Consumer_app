@@ -936,9 +936,13 @@ export class BookingsService {
                 throw new HttpException('NOT FOUND DATA!',HttpStatus.NOT_FOUND);
             }
         } catch (error) {
-            // apiResponse.status = error.status;
-            console.log(error);
-            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            if (error.response) {
+                apiResponse.status = error.response.data.statusCode;
+                apiResponse.errorMessage = error.response.data.message;
+            } else {
+                apiResponse.status = error.status;
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            }
         }
         return apiResponse;
     }
@@ -956,9 +960,13 @@ export class BookingsService {
                 throw new HttpException('NOT FOUND DATA!',HttpStatus.NOT_FOUND);
             }
         } catch (error) {
-            // apiResponse.status = error.status;
-            console.log(error);
-            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            if (error.response) {
+                apiResponse.status = error.response.data.statusCode;
+                apiResponse.errorMessage = error.response.data.message;
+            } else {
+                apiResponse.status = error.status;
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+            }
         }
         return apiResponse;
     }
@@ -972,15 +980,13 @@ export class BookingsService {
             const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
             apiResponse.data = true;
         } catch (error) {
-            if (error.message === ('Request failed with status code 404')){
-                console.log(error.message)
-                apiResponse.status = HttpStatus.NOT_FOUND
-                apiResponse.errorMessage = error.message
+            if (error.response) {
+                apiResponse.status = error.response.data.statusCode;
+                apiResponse.errorMessage = error.response.data.message;
             } else {
-                apiResponse.status = error.status
-                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+                apiResponse.status = error.status;
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
             }
-            apiResponse.data = false;
         }
         return apiResponse;
     }
