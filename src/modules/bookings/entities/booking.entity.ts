@@ -64,8 +64,8 @@ export class BookingEntity extends BaseEntity {
   @Column({ name: 'status', default: BookingStatus.CONFIRMED })
   status: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
-  distance: number;
+  // @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
+  // distance: number;
 
   @Column({ type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
   price: number;

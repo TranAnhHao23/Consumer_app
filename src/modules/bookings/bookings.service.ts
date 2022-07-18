@@ -186,7 +186,7 @@ export class BookingsService {
                 newobj.updatedAt = new Date();
 
                 // Calculate price
-                newobj.price = await this.calculatePrice(newobj.distance, getTrip.carType.toString());
+                newobj.price = await this.calculatePrice(getTrip.distance, getTrip.carType.toString());
 
                 // Add payment method
                 const getPaymentMethod = await this.paymentMethodRepository.findOne(createBookingDto.paymentMethodId);
@@ -572,6 +572,14 @@ export class BookingsService {
         try {
             const booking = await this.bookingRepository.findOne(id, { relations: ['trip'] })
 
+            if (!booking) {
+                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
+            }
+
+            if (booking.status == BookingStatus.CANCELED || booking.status == BookingStatus.WAITING || booking.status == BookingStatus.PROCESSING || booking.status == BookingStatus.COMPLETED) {
+                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
+            }
+
             const setCarId = uuidv4();
             const setDriverId = uuidv4();
             await this.bookingRepository.update(id, {
@@ -581,13 +589,7 @@ export class BookingsService {
                 driverId: setDriverId
             })
 
-            if (!booking) {
-                throw new HttpException('Booking not found', HttpStatus.NOT_FOUND)
-            }
 
-            if (booking.status in [BookingStatus.CANCELED, BookingStatus.WAITING, BookingStatus.PROCESSING, BookingStatus.COMPLETED]) {
-                throw new HttpException('This booking is no longer available to accept', HttpStatus.BAD_REQUEST)
-            }
 
             // Check status and throw exception can not accept
 
@@ -843,22 +845,19 @@ export class BookingsService {
         return this.apiResponse;
     }
 
-    async sendFindDriverToDriverApp(url: string, driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
-        // Send request data to driver app
-        const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
-        if (data != null && Object.keys(data).length == 2) {
-            return false;
-        }
-        return true;
-    }
-
     async handleExternalGetApi(api: string) {
-        const { data } = await firstValueFrom(this.httpService.get(api))
+        const headersRequest = {
+            'X-API-KEY' : process.env.X_API_KEY,
+        }
+        const { data } = await firstValueFrom(this.httpService.get(api, { headers: headersRequest}))
         return data;
     }
 
     async handleExternalPostApi(api, data: any) {
-        const res = await firstValueFrom(this.httpService.post(api, data)
+        const headersRequest = {
+            'X-API-KEY' : process.env.X_API_KEY,
+        }
+        const res = await firstValueFrom(this.httpService.post(api, data, { headers: headersRequest})
             .pipe(
                 map((response) => {
                     return response.data;
@@ -922,5 +921,67 @@ export class BookingsService {
             apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
         }
         return apiResponse
+    }
+
+    // External API: https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v2/rbh/consumer/drivers/{driver_id}/bookings - DONE
+    async getDriverInfoByDriverId(driverId: number) {
+        const apiResponse = new ResponseResult();
+        try {
+            let api = `https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/drivers/${driverId}/bookings`
+            let data = await this.handleExternalGetApi(api);
+            console.log(data !== null);
+            if (data) {
+                apiResponse.data = data.data;
+            } else {
+                throw new HttpException('NOT FOUND DATA!',HttpStatus.NOT_FOUND);
+            }
+        } catch (error) {
+            // apiResponse.status = error.status;
+            console.log(error);
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+        }
+        return apiResponse;
+    }
+
+    // External API: https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v2/rbh/consumer/cars/{car_id}/bookings
+    async getCarInfoByCarId(carId: number) {
+        const apiResponse = new ResponseResult();
+        try {
+            let api = `https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/cars/${carId}/bookings`
+            let data = await this.handleExternalGetApi(api);
+            console.log(data !== null);
+            if (data) {
+                apiResponse.data = data.data;
+            } else {
+                throw new HttpException('NOT FOUND DATA!',HttpStatus.NOT_FOUND);
+            }
+        } catch (error) {
+            // apiResponse.status = error.status;
+            console.log(error);
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR';
+        }
+        return apiResponse;
+    }
+
+    // External API: https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v2/rbh/consumer/search/driver
+    async sendFindDriverToDriverApp(driverAppFindDriverRequest: DriverAppFindDriverRequestDto) {
+        // Send request data to driver app
+        const apiResponse = new ResponseResult();
+        try {
+            let url = `https://rbh-rh-dv-dev-api.gcp.alp-robinhood.com/api/v1/rbh/consumer/search/driver`;
+            const data = await this.handleExternalPostApi(url, driverAppFindDriverRequest);
+            apiResponse.data = true;
+        } catch (error) {
+            if (error.message === ('Request failed with status code 404')){
+                console.log(error.message)
+                apiResponse.status = HttpStatus.NOT_FOUND
+                apiResponse.errorMessage = error.message
+            } else {
+                apiResponse.status = error.status
+                apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+            }
+            apiResponse.data = false;
+        }
+        return apiResponse;
     }
 }

@@ -46,6 +46,12 @@ export class UpsertDraftingTripDto {
     locations: CreateTripLocationDto[]
 
     @ApiProperty({
+        required: true,
+    })
+    @IsNumber()
+    distance: number;
+
+    @ApiProperty({
         default: false,
         required: false
     })
