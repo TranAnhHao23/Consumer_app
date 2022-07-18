@@ -25,6 +25,7 @@ import { PaymentmethodModule } from './modules/paymentmethod/paymentmethod.modul
 import { PromotionModule } from './modules/promotion/promotion.module'; 
 import { CarModule } from './modules/car/car.module';
 import { DriverModule } from './modules/driver/driver.module';
+import { PaymentTypeModule } from './payment-type/payment-type.module';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { DriverModule } from './modules/driver/driver.module';
     PaymentmethodModule,
     PromotionModule,
     CarModule,
-    DriverModule 
+    DriverModule,
+    PaymentTypeModule,
   ],
   controllers: [AppController],
   providers: [
