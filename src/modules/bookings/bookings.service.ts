@@ -43,6 +43,7 @@ import { BookingHistoryStatus, GetBookingHistoryDto } from './dto/get-booking-hi
 import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 import {TripsService} from "../trips/trips.service";
+import {LocationEntity} from "../locations/entities/location.entity";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -72,6 +73,8 @@ export class BookingsService {
         private readonly paymentMethodRepository: Repository<PaymentMethod>,
         @InjectRepository(CarTypeEntity)
         private readonly carTypeRepo: Repository<CarTypeEntity>,
+        @InjectRepository(LocationEntity)
+        private readonly locationRepository: Repository<LocationEntity>,
         private readonly httpService: HttpService,
         private readonly tripService: TripsService,
     ) {
@@ -769,14 +772,13 @@ export class BookingsService {
             // });
 
             // for testing
-            const booking = await this.bookingRepository.findOne(driverAppConfirmPickupPassengerDto.booking_id);
+            const booking = await this.bookingRepository.findOne(driverAppConfirmPickupPassengerDto.booking_id, {relations: ['trip']});
 
             if (booking != null && Object.keys(booking).length !== 0) {
                 booking.status = BookingStatus.PROCESSING;
                 booking.startTime = new Date();
                 //booking.updatedAt = new Date();
                 await this.bookingRepository.update(booking.id, booking);
-
                 // Update long lat driver for testing
                 if (booking.driverId != null) {
                     const driverInfo = await this.driverRepo.findOne({
@@ -788,10 +790,18 @@ export class BookingsService {
                         await this.driverRepo.update(driverInfo.id, driverInfo);
                     }
                 }
-                this.apiResponse.data = await this.findBookingById(driverAppConfirmPickupPassengerDto.booking_id);
+
+                // Setup arrivedTime -> update to Location at milestone = 0
+                const departureLocation = await this.locationRepository.createQueryBuilder()
+                    .where('trip_id = :tripId', {tripId: booking.trip.id})
+                    .andWhere('milestone = 0')
+                    .getOne();
+                departureLocation.arrivedTime = driverAppConfirmPickupPassengerDto.arrivedTime;
+                await this.locationRepository.update(departureLocation.id,departureLocation);
 
                 // calculate booking promotion
                 // await this.calculatePromotion(booking, null);
+                this.apiResponse.data = await this.findBookingById(driverAppConfirmPickupPassengerDto.booking_id);
             } else
                 throw new NotFoundException();
         } catch (error) {

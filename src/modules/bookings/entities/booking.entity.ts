@@ -67,13 +67,13 @@ export class BookingEntity extends BaseEntity {
   // @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
   // distance: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
+  @Column({ type: "decimal", precision: 20, scale: 5, name: 'price', default: 0, transformer: new ToNumericTrans })
   price: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
+  @Column({ type: "decimal", precision: 20, scale: 5, name: 'tip_amount', default: 0, transformer: new ToNumericTrans })
   tipAmount: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 5, name: 'promotion_amount', default: 0, transformer: new ToNumericTrans })
+  @Column({ type: "decimal", precision: 20, scale: 5, name: 'promotion_amount', default: 0, transformer: new ToNumericTrans })
   promotionAmount: number;
 
   @Column({ name: 'waiting_free_note', length: 255,nullable:true })

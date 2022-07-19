@@ -50,4 +50,7 @@ export class LocationEntity extends BaseEntity{
 
     @Column({ name: 'address_name', nullable: true })
     addressName: string;
+
+    @Column({ name: 'arrived_time', nullable: true })
+    arrivedTime: Date;
 }

@@ -18,4 +18,10 @@ export class DriverAppConfirmPickupPassengerDto {
     })
     @IsNumber()
     latitude: number;
+
+    @ApiProperty({
+        required: true
+    })
+    arrivedTime: Date;
+
 }

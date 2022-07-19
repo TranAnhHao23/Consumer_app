@@ -12,6 +12,7 @@ import { PaymentMethod } from '../paymentmethod/entities/paymentmethod.entity';
 import { HttpModule } from "@nestjs/axios";
 import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 import { TripsModule } from "../trips/trips.module";
+import {LocationEntity} from "../locations/entities/location.entity";
 
 
 @Module({
@@ -22,7 +23,8 @@ import { TripsModule } from "../trips/trips.module";
     CarEntity,
     DriverEntity,
     PaymentMethod,
-    CarTypeEntity
+    CarTypeEntity,
+    LocationEntity
   ]),
     HttpModule,
     TripsModule,],
