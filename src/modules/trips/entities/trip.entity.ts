@@ -8,6 +8,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {LocationEntity} from "../../locations/entities/location.entity";
+import {ToNumericTrans} from "../../../shared/column-numeric-transformer";
 
 @Entity({ name: 'trip'})
 export class TripEntity extends BaseEntity{
@@ -25,6 +26,9 @@ export class TripEntity extends BaseEntity{
 
     @Column({ name: 'start_time', nullable: true })
     startTime: Date;
+
+    @Column({ type: "decimal", precision: 10, scale: 5, name: 'distance', default: 0, transformer: new ToNumericTrans })
+    distance: number;
 
     @Column({ name: 'total_time', nullable: true})
     totalTime: number;
