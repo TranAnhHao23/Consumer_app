@@ -8,7 +8,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @UseFilters(new HttpErrorFilter())
 @ApiTags('payment-type')
-@Controller('payment-type')
+@Controller('v1/rhc/payment-type')
 export class PaymentTypeController {
   constructor(private readonly paymentTypeService: PaymentTypeService) {}
 
