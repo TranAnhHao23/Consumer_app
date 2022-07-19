@@ -44,6 +44,7 @@ import { CarTypeEntity } from '../car_type/entities/car_type.entity';
 import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 import {TripsService} from "../trips/trips.service";
 import {LocationEntity} from "../locations/entities/location.entity";
+import {DriverAppDropOffPassengerDto} from "./dto/DriverApp-DropOffPassenger.dto";
 
 enum TrackingStatus {
     SEARCHING_DRIVER = 0, // กำลังค้นหาคนขับ...
@@ -760,6 +761,67 @@ export class BookingsService {
         }
         return this.apiResponse;
     }
+
+    // Update Booking Status when drop middle destination
+    async dropOffPassenger(dropOffAtMidwayStopDto: DriverAppDropOffPassengerDto) {
+        // receive from DriverApp when driver drop off passenger at midway stops
+        const apiResponse = new ResponseResult();
+        try {
+            const booking = await this.bookingRepository.findOne(dropOffAtMidwayStopDto.booking_id, {relations: ['trip']});
+            if (booking != undefined) {
+                if (booking.status != BookingStatus.COMPLETED && booking.status != BookingStatus.CANCELED) {
+                    // Check this location is final destination or not.
+                    const dropOffLocation = await this.locationRepository.createQueryBuilder()
+                        .where('trip_id = :tripId', {tripId: booking.trip.id})
+                        .andWhere('milestone = :milestone', {milestone: dropOffAtMidwayStopDto.milestone})
+                        .getOne();
+                    if (dropOffLocation) {
+                        dropOffLocation.arrivedTime = dropOffAtMidwayStopDto.arrivedTime;
+                        await this.locationRepository.update(dropOffLocation.id, dropOffLocation);
+                        const nextLocation = await this.locationRepository.createQueryBuilder()
+                            .where('trip_id = :tripId', {tripId: booking.trip.id})
+                            .andWhere('milestone = :milestone', {milestone: (dropOffAtMidwayStopDto.milestone + 1)})
+                            .getOne();
+                        if (!nextLocation && dropOffLocation) {
+                            booking.status = BookingStatus.COMPLETED;
+                            booking.arrivedTime = new Date();
+                            booking.updatedAt = new Date();
+                            booking.waitingFreeAmount += dropOffAtMidwayStopDto.waiting_free_amount;
+                            booking.waitingFreeNote = dropOffAtMidwayStopDto.waiting_free_note;
+                            await this.bookingRepository.update(booking.id, booking);
+
+                            // Update long lat driver for testing
+                            if (booking.driverId != null) {
+                                const driverInfo = await this.driverRepo.findOne({
+                                    where: {driverId: booking.driverId}
+                                });
+                                if (driverInfo != null && Object.keys(driverInfo).length !== 0) {
+                                    driverInfo.longitude = dropOffAtMidwayStopDto.longitude;
+                                    driverInfo.latitude = dropOffAtMidwayStopDto.latitude
+                                    await this.driverRepo.update(driverInfo.id, driverInfo);
+                                }
+                            }
+                        }
+                    } else {
+                        throw new HttpException("This milestone doesn't true at this booking", HttpStatus.NOT_FOUND);
+                    }
+                    apiResponse.data = await this.findBookingById(dropOffAtMidwayStopDto.booking_id);
+                } else if (booking.status == BookingStatus.COMPLETED) {
+                    throw new HttpException("This booking has been finished", HttpStatus.CONFLICT);
+                } else if (booking.status == BookingStatus.CANCELED) {
+                    throw new HttpException("This booking has been canceled", HttpStatus.CONFLICT);
+                }
+            } else {
+                throw new HttpException("This booking isn't exist", HttpStatus.NOT_FOUND);
+            }
+        } catch (error) {
+            apiResponse.status = error.status;
+            apiResponse.errorMessage = error instanceof HttpException ? error.message : 'INTERNAL_SERVER_ERROR'
+            apiResponse.errorMessage = error.message
+        }
+        return apiResponse;
+    }
+
 
     // Update Booking Status
     async confirmPickupPassenger(driverAppConfirmPickupPassengerDto: DriverAppConfirmPickupPassengerDto) {
