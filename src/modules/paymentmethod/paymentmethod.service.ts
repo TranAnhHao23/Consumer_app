@@ -1,8 +1,10 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaymentTypeEntity } from 'src/payment-type/entities/payment-type.entity';
 import { ResponseResult } from 'src/shared/ResponseResult';
 import { Repository } from 'typeorm';
 import { CreatePaymentmethodDto } from './dto/create-paymentmethod.dto';
+import { SetDefaultPaymentMethodDto } from './dto/set-default-paymentmethod.dto';
 import { UpdatePaymentmethodDto } from './dto/update-paymentmethod.dto';
 import { PaymentMethod } from './entities/paymentmethod.entity';
 
@@ -11,73 +13,97 @@ export class PaymentmethodService {
   constructor(
     @InjectRepository(PaymentMethod)
     private readonly paymentmethodRepository: Repository<PaymentMethod>,
+
+    @InjectRepository(PaymentTypeEntity)
+    private readonly paymentTypeRepo: Repository<PaymentTypeEntity>,
+
     private apiResponse: ResponseResult,
   ) { }
 
   async create(createPaymentmethodDto: CreatePaymentmethodDto) {
-    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+    const apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
-      const newPaymentmethod = this.paymentmethodRepository.create(createPaymentmethodDto);
-      this.apiResponse.data = await this.paymentmethodRepository.save(newPaymentmethod);
+      const paymentType = await this.paymentTypeRepo.findOne(createPaymentmethodDto.paymentTypeId)
+      if (!paymentType) {
+        throw new HttpException('Payment type not found', HttpStatus.NOT_FOUND)
+      }
+      const newPaymentmethod = this.paymentmethodRepository.create({
+        ...createPaymentmethodDto,
+        cardLastDigits: createPaymentmethodDto.cardNum.slice(-4),
+        paymentType 
+      });
+      apiResponse.data = await this.paymentmethodRepository.save(newPaymentmethod);
     } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
-    return this.apiResponse;
+    return apiResponse;
   }
 
   async update(id: string, updatePaymentmethodDto: UpdatePaymentmethodDto) {
-    this.apiResponse = new ResponseResult(HttpStatus.CREATED);
+    const apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
-      await this.paymentmethodRepository.update({ id: id }, updatePaymentmethodDto);
-      this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
-    } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
-    }
-    return this.apiResponse;
-  }
-
-  async setDefaultPayment(userId: string, id: string) {
-    this.apiResponse = new ResponseResult();
-    try {
-      const payment = await this.paymentmethodRepository.findOne(id);
-      if (payment != null && Object.keys(payment).length !== 0) {
-
-        // update all = false
-        const allPayments = await this.paymentmethodRepository.find({
-          where: { userId: userId }
-        });
-        for (const element of allPayments) {
-          element.isDefault = false;
-          await this.paymentmethodRepository.update(element.id, element);
-        }
-
-        // set current = true
-        payment.isDefault = true;
-        payment.updateAt = new Date();
-        await this.paymentmethodRepository.update(id, payment);
-        this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
-      } else {
-        throw new HttpException("NOT_FOUND", HttpStatus.NOT_FOUND);
+      const paymentMethod = await this.paymentmethodRepository.findOne(id, { relations: ['paymentType'] })
+      if (!paymentMethod) {
+        throw new HttpException('Payment method not found', HttpStatus.NOT_FOUND)
       }
+
+      const paymentType = await this.paymentTypeRepo.findOne(updatePaymentmethodDto.paymentTypeId)
+      if (!paymentType) {
+        throw new HttpException('Payment type not found', HttpStatus.NOT_FOUND)
+      }
+      
+      paymentMethod.name = updatePaymentmethodDto.name
+      paymentMethod.userId = updatePaymentmethodDto.userId
+      paymentMethod.nickname = updatePaymentmethodDto.nickname
+      paymentMethod.order = updatePaymentmethodDto.order
+      paymentMethod.paymentType = paymentType
+
+      const updatedPaymentMethod = await paymentMethod.save()
+
+      apiResponse.data = updatedPaymentMethod
     } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
-    return this.apiResponse;
+    return apiResponse;
   }
 
-  async findOne(id: string) {
-    this.apiResponse = new ResponseResult();
+  async setDefaultPayment(setDefaultPaymentmethodDto: SetDefaultPaymentMethodDto) {
+    const apiResponse = new ResponseResult();
     try {
-      this.apiResponse.data = await this.paymentmethodRepository.findOne(id);
+      const paymentMethod = await this.paymentmethodRepository.findOne(setDefaultPaymentmethodDto.paymentTypeId, {relations: ['paymentType']});
+      if (!paymentMethod) {
+        throw new HttpException('Payment method not found', HttpStatus.NOT_FOUND)
+      }
+      await this.paymentmethodRepository.createQueryBuilder()
+        .update(PaymentMethod)
+        .set({
+          isDefault: false
+        })
+        .where(`user_id = '${setDefaultPaymentmethodDto.userId}'`)
+        .execute()
+
+      paymentMethod.isDefault = true
+      const newDefaultPaymentMethod = await paymentMethod.save()
+      apiResponse.data = newDefaultPaymentMethod
     } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
-    return this.apiResponse;
+    return apiResponse;
   }
+
+  // async findOne(id: string) {
+  //   this.apiResponse = new ResponseResult();
+  //   try {
+  //     this.apiResponse.data = await this.paymentmethodRepository.findOne(id, { relations: ['paymentType'] });
+  //   } catch (error) {
+  //     this.apiResponse.status = error.status;
+  //     this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+  //   }
+  //   return this.apiResponse;
+  // }
 
   async findAllByUser(userId: string) {
     this.apiResponse = new ResponseResult();
@@ -85,6 +111,7 @@ export class PaymentmethodService {
       this.apiResponse.data = await this.paymentmethodRepository.find({
         where: { userId: userId },
         order: { ['isDefault']: 'DESC', ['order']: 'ASC' },
+        relations: ['paymentType']
       });
     } catch (error) {
       this.apiResponse.status = error.status;
@@ -94,15 +121,20 @@ export class PaymentmethodService {
   }
 
   async getDefaultPayment(userId: string) {
-    this.apiResponse = new ResponseResult();
+    const apiResponse = new ResponseResult();
     try {
-      this.apiResponse.data = await this.paymentmethodRepository.findOne({
-        where: { userId: userId }
+      const defaultPaymentMethod = await this.paymentmethodRepository.findOne({
+        where: { userId, isDefault: true },
+        relations: ['paymentType']
       });
+      if (!defaultPaymentMethod) {
+        throw new HttpException('No default payment method', HttpStatus.NOT_FOUND)
+      }
+      apiResponse.data = defaultPaymentMethod
     } catch (error) {
-      this.apiResponse.status = error.status;
-      this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
     }
-    return this.apiResponse;
+    return apiResponse;
   }
 }

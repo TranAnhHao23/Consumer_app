@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Param, UseFilters, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseFilters, Res, Put } from '@nestjs/common';
 import { PaymentmethodService } from './paymentmethod.service';
 import { CreatePaymentmethodDto } from './dto/create-paymentmethod.dto';
 import { UpdatePaymentmethodDto } from './dto/update-paymentmethod.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/shared/http-exception.filter';
 import { Response } from 'express';
+import { SetDefaultPaymentMethodDto } from './dto/set-default-paymentmethod.dto';
 
 @ApiTags('payment method')
 @Controller('v1/rhc/paymentmethod')
@@ -18,17 +19,15 @@ export class PaymentmethodController {
     return res.status(result.status).json(result)
   }
 
-  @Post('update/:id')
+  @Put(':id')
   async update(@Param('id') id: string, @Body() updatePaymentmethodDto: UpdatePaymentmethodDto, @Res() res: Response) {
     const result = await this.paymentmethodService.update(id, updatePaymentmethodDto);
     return res.status(result.status).json(result)
   }
 
-  @Get('setdefaultpayment/:userId/:id')
-  async setdefaultpayment(
-    @Param('userId') userId: string,
-    @Param('id') id: string, @Res() res: Response) {
-    const result = await this.paymentmethodService.setDefaultPayment(userId, id);
+  @Post('setdefaultpayment')
+  async setdefaultpayment(@Body() setDefaultPaymentmethodDto: SetDefaultPaymentMethodDto, @Res() res: Response) {
+    const result = await this.paymentmethodService.setDefaultPayment(setDefaultPaymentmethodDto);
     return res.status(result.status).json(result)
   }
 
@@ -46,9 +45,9 @@ export class PaymentmethodController {
     return res.status(result.status).json(result)
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res: Response) {
-    const result = await this.paymentmethodService.findOne(id);
-    return res.status(result.status).json(result)
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string, @Res() res: Response) {
+  //   const result = await this.paymentmethodService.findOne(id);
+  //   return res.status(result.status).json(result)
+  // }
 }
