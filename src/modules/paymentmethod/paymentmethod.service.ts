@@ -43,7 +43,7 @@ export class PaymentmethodService {
   async update(id: string, updatePaymentmethodDto: UpdatePaymentmethodDto) {
     const apiResponse = new ResponseResult(HttpStatus.CREATED);
     try {
-      const paymentMethod = await this.paymentmethodRepository.findOne(id, { relations: ['paymentType'] })
+      const paymentMethod = await this.paymentmethodRepository.findOne({ id, isDeleted: false }, { relations: ['paymentType'] })
       if (!paymentMethod) {
         throw new HttpException('Payment method not found', HttpStatus.NOT_FOUND)
       }
@@ -72,7 +72,10 @@ export class PaymentmethodService {
   async setDefaultPayment(setDefaultPaymentmethodDto: SetDefaultPaymentMethodDto) {
     const apiResponse = new ResponseResult();
     try {
-      const paymentMethod = await this.paymentmethodRepository.findOne(setDefaultPaymentmethodDto.paymentTypeId, {relations: ['paymentType']});
+      const paymentMethod = await this.paymentmethodRepository.findOne(
+        { id: setDefaultPaymentmethodDto.paymentTypeId, isDeleted: false }, 
+        { relations: ['paymentType'] }
+      );
       if (!paymentMethod) {
         throw new HttpException('Payment method not found', HttpStatus.NOT_FOUND)
       }
@@ -109,7 +112,7 @@ export class PaymentmethodService {
     this.apiResponse = new ResponseResult();
     try {
       this.apiResponse.data = await this.paymentmethodRepository.find({
-        where: { userId: userId },
+        where: { userId: userId, isDeleted: false },
         order: { ['isDefault']: 'DESC', ['order']: 'ASC' },
         relations: ['paymentType']
       });
@@ -124,13 +127,34 @@ export class PaymentmethodService {
     const apiResponse = new ResponseResult();
     try {
       const defaultPaymentMethod = await this.paymentmethodRepository.findOne({
-        where: { userId, isDefault: true },
+        where: { userId, isDefault: true, isDeleted: false },
         relations: ['paymentType']
       });
       if (!defaultPaymentMethod) {
         throw new HttpException('No default payment method', HttpStatus.NOT_FOUND)
       }
       apiResponse.data = defaultPaymentMethod
+    } catch (error) {
+      apiResponse.status = error.status;
+      apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+    }
+    return apiResponse;
+  }
+
+  async remove(id: string) {
+    const apiResponse = new ResponseResult();
+    try {
+      const paymentMethod = await this.paymentmethodRepository.findOne(id, {
+        relations: ['paymentType']
+      });
+      if (!paymentMethod) {
+        throw new HttpException('Payment method not found', HttpStatus.NOT_FOUND)
+      }
+
+      paymentMethod.isDeleted = true
+      const removedPaymentMethod = await paymentMethod.save()
+      
+      apiResponse.data = removedPaymentMethod
     } catch (error) {
       apiResponse.status = error.status;
       apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";

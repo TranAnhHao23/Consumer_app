@@ -28,6 +28,9 @@ export class PaymentMethod extends BaseEntity{
     @Column({ name: 'card_last_digits', length: 4, nullable: true })
     cardLastDigits: string
 
+    @Column({ name: 'is_deleted', default: false, select: false })
+    isDeleted: boolean
+
     @ManyToOne(() => PaymentTypeEntity, { nullable: false })
     @JoinColumn({ name: 'payment_type_id' })
     paymentType: PaymentTypeEntity;

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseFilters, Res, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseFilters, Res, Put, Delete } from '@nestjs/common';
 import { PaymentmethodService } from './paymentmethod.service';
 import { CreatePaymentmethodDto } from './dto/create-paymentmethod.dto';
 import { UpdatePaymentmethodDto } from './dto/update-paymentmethod.dto';
@@ -42,6 +42,12 @@ export class PaymentmethodController {
   async getDefaultPayment(
     @Param('userId') userId: string, @Res() res: Response) {
     const result = await this.paymentmethodService.getDefaultPayment(userId);
+    return res.status(result.status).json(result)
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Res() res: Response) {
+    const result = await this.paymentmethodService.remove(id);
     return res.status(result.status).json(result)
   }
 
