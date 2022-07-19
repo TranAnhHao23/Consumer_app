@@ -27,7 +27,9 @@ export class CreatePaymentmethodDto {
   @IsNumber()
   order: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    default: '9999999999999999'
+  })
   @Matches(/^\d{12,19}$/, {
     message: 'Card number invalid'
   })
