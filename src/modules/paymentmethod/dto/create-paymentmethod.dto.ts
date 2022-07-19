@@ -1,38 +1,57 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsInt, IsNumber, IsOptional, IsString, Length, Matches, Max, MaxLength, Min } from "class-validator";
 
 export class CreatePaymentmethodDto {
-  @ApiProperty({
-    maxLength: 50,
-    required: true
-  })
+  @ApiProperty()
+  @IsString()
   userId: string;
 
-  @ApiProperty({
-    maxLength: 50,
-    required: true
-  })
+  @ApiProperty()
+  @IsString()
   name: string;
 
   @ApiProperty({
-    maxLength: 255,
     required: false
   })
-  icon: string;
+  @IsOptional()
+  @IsString()
+  nickname: string;
+
+  @ApiProperty()
+  @IsString()
+  paymentTypeId: string;
 
   @ApiProperty({
-    maxLength: 255,
     required: false
   })
-  note: string;
-
-  @ApiProperty({
-    required: false
-  })
+  @IsNumber()
   order: number;
 
   @ApiProperty({
-    required: true,
-    description: '0: Inactive. 1: Active',
+    default: '9999999999999999'
   })
-  status: number;
+  @Matches(/^\d{12,19}$/, {
+    message: 'Card number invalid'
+  })
+  cardNum: string;
+
+  @ApiProperty({
+    default: '111'
+  })
+  @Matches(/^\d{3}$/)
+  cardCvv: string;
+
+  @ApiProperty({
+    default: 12
+  })
+  @IsInt()
+  @Max(12)
+  @Min(1)
+  cardExpiryMonth: number;
+
+  @ApiProperty({
+    default: 25
+  })
+  @IsInt()
+  cardExpiryYear: number;
 }
