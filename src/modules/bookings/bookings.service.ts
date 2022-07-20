@@ -966,8 +966,11 @@ export class BookingsService {
     async submitRating(submitRating: SubmitRatingDto) {
         const apiResponse = new ResponseResult();
         try {
-            console.log(submitRating.ratingReasons)
-            apiResponse.data = 'Submit reviews into Driver App';
+            console.log(submitRating)
+            apiResponse.data = {
+                submitRating: submitRating,
+                status: 'Submit rating into Driver App',
+            };
         } catch (error) {
             apiResponse.status = error.status;
             apiResponse.errorMessage = error.message;
