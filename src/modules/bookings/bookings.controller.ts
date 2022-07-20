@@ -31,6 +31,7 @@ import {SubmitRatingDto} from "./dto/Submit-Rating.dto";
 import { GetBookingHistoryDto } from './dto/get-booking-history.dto';
 import { GetSearchingNumberDto } from './dto/get-searching-number.dto';
 import {DriverAppFindDriverRequestDto} from "./dto/DriverApp-FindDriver-Request.dto";
+import {DriverAppDropOffPassengerDto} from "./dto/DriverApp-DropOffPassenger.dto";
 
 @ApiTags('booking')
 @Controller('v1/rhc/bookings')
@@ -164,6 +165,12 @@ export class BookingsController {
     @Post("driverapp/confirmpickuppassenger")
     async confirmPickupPassenger( @Body() driverAppConfirmPickupPassengerDto: DriverAppConfirmPickupPassengerDto, @Res() res: Response) {
         const result = await this.bookingsService.confirmPickupPassenger(driverAppConfirmPickupPassengerDto);
+        return res.status(result.status).json(result);
+    }
+
+    @Post("driverapp/dropoffpassenger")
+    async dropOffPassenger(@Body() dropOffAtMidwayStopDto: DriverAppDropOffPassengerDto, @Res() res: Response) {
+        const result = await this.bookingsService.dropOffPassenger(dropOffAtMidwayStopDto);
         return res.status(result.status).json(result);
     }
 
