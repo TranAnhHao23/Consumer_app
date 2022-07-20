@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsArray, IsNumber, IsString, IsUUID, Max, Min} from "class-validator";
+import {IsArray, IsDecimal, IsNumber, IsOptional, IsString, IsUUID, Max, Min} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SubmitRatingDto {
@@ -19,5 +19,21 @@ export class SubmitRatingDto {
 
     @ApiProperty()
     @IsArray()
-    ratingReasons: Array<string>
+    ratingReasons: Array<string>;
+
+    @ApiProperty({
+        required: false,
+        default: 0,
+    })
+    @IsOptional()
+    @IsNumber()
+    tipAmount: number;
+
+    @ApiProperty({
+        required: false,
+        default: "",
+    })
+    @IsOptional()
+    @IsString()
+    additionalComments: string;
 }
