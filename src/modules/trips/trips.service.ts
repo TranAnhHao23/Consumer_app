@@ -80,7 +80,7 @@ export class TripsService {
   }
 
   private async upsertLocationsForTrip(trip: TripEntity, locations: CreateTripLocationDto[]) {
-    if (locations.length >= 4) {
+    if (locations.length > 4) {
       throw new HttpException('Exceed number of destinations', HttpStatus.BAD_REQUEST)
     }
     if (locations.length < 2) {
