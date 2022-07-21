@@ -21,15 +21,11 @@ async function bootstrap() {
 
     const configService: ConfigService = app.get(ConfigService);
     // Set the config options
-    const adminConfig: ServiceAccount = {
-        "projectId": configService.get<string>(process.env.FIREBASE_PROJECT_ID),
-        "privateKey": configService.get<string>(process.env.FIREBASE_PRIVATE_KEY),
-        "clientEmail": configService.get<string>(process.env.FIREBASE_CLIENT_EMAIL),
-    }
+    const adminConfig = require("C:\\Users\\tahao\\OneDrive - CMC Global\\Desktop\\Clone\\ride-hailing-consumer-api\\serviceAccountKey.json")
 
     admin.initializeApp({
         credential: admin.credential.cert(adminConfig),
-        databaseURL: "https://democustomerapp-7e120-default-rtdb.firebaseio.com/"
+        databaseURL: "https://democustomerapp-7e120-default-rtdb.firebaseio.com"
     })
 
     app.enableCors();

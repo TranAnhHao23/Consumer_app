@@ -8,8 +8,11 @@ import {Connection} from "mysql2";
 import {TripEntity} from '../trips/entities/trip.entity'
 import {ResponseResult} from "../../shared/ResponseResult";
 import {query} from "express";
-import { GetFrequentLocationDto } from './dto/get-frequent-location.dto';
-import { BookingStatus } from '../bookings/entities/booking.entity';
+import {GetFrequentLocationDto} from './dto/get-frequent-location.dto';
+import {BookingStatus} from '../bookings/entities/booking.entity';
+
+import * as admin from 'firebase-admin';
+import {NotificationDto} from "./dto/Notification.dto";
 
 export enum LocationMilestone {
     SOURCE = 0,
@@ -17,6 +20,7 @@ export enum LocationMilestone {
     DEST2 = 2,
     DEST3 = 3
 }
+
 @Injectable()
 export class LocationsService {
     constructor(
@@ -122,11 +126,11 @@ export class LocationsService {
                 .limit(parseInt(getFrequentLocationDto.limit))
                 .getRawMany())
                 .map(elem => elem.google_id)
-            
-            const frequentLocations = await Promise.all(frequentGoogleIds.map(async(frequentGoogleId) => {
+
+            const frequentLocations = await Promise.all(frequentGoogleIds.map(async (frequentGoogleId) => {
                 return await this.locationRepo.findOne({
-                    where: { googleId: frequentGoogleId },
-                    select: ['googleId', 'longitude', 'latitude', 'address', 'addressName', 'referenceId' ]
+                    where: {googleId: frequentGoogleId},
+                    select: ['googleId', 'longitude', 'latitude', 'address', 'addressName', 'referenceId']
                 })
             }))
 
@@ -137,4 +141,28 @@ export class LocationsService {
         }
         return this.apiResponse;
     }
+
+    // async sendNotificationToFirebase(notificationDto: NotificationDto) {
+    //     const apiResponse = new ResponseResult();
+    //
+    //     let fireStore = admin.firestore();
+    //     const settings = {timestampInSnapshots: true};
+    //     fireStore.settings(settings);
+    //
+    //     let notification = {
+    //         'title': notificationDto.title,
+    //         'message': notificationDto.message,
+    //         'createdTime': new Date(),
+    //     }
+    //     try {
+    //         let userRef = fireStore.collection(notificationDto.userId);
+    //         let result = await userRef.add(notification);
+    //         console.log(result);
+    //         apiResponse.data = result;
+    //     } catch (error) {
+    //         this.apiResponse.status = error.status;
+    //         this.apiResponse.errorMessage = error instanceof HttpException ? error.message : "INTERNAL_SERVER_ERROR";
+    //     }
+    //     return apiResponse;
+    // }
 }

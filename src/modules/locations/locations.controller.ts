@@ -8,6 +8,7 @@ import { ResponseResult } from 'src/shared/ResponseResult';
 import { GetFrequentLocationDto } from './dto/get-frequent-location.dto';
 import {HttpExceptionFilter} from "../../shared/http-exception.filter";
 import { Response } from 'express';
+import {NotificationDto} from "./dto/Notification.dto";
 
 
 @ApiTags('location')
@@ -50,6 +51,12 @@ export class LocationsController {
     const result = await this.locationsService.getFrequentLocations(getFrequentLocationDto);
     return res.status(result.status).json(result);
   }
+
+  // @Post('sendNotification')
+  // async sendNotificationToFirebase(@Body() notificationDto: NotificationDto, @Res() res: Response) {
+  //   const result = await this.locationsService.sendNotificationToFirebase(notificationDto);
+  //   return res.status(result.status).json(result);
+  // }
 
   // @Get()
   // findAll() {
