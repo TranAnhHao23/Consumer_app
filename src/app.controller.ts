@@ -1,7 +1,8 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
+import {Body, Controller, Get, HttpStatus, Post} from '@nestjs/common';
 import { AppService } from './app.service';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { ResponseResult } from './shared/ResponseResult';
+import {NotificationDto} from "./modules/locations/dto/Notification.dto";
 @Controller()
 export class AppController {
   constructor(
@@ -33,5 +34,10 @@ export class AppController {
       }
     ]
     return this.apiResponse
+  }
+
+  @Post('sendNotification')
+  async sendNotificationToFirebase(@Body() notificationDto: NotificationDto) {
+    return this.appService.sendNotificationToFirebase(notificationDto);
   }
 }

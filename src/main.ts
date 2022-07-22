@@ -21,7 +21,11 @@ async function bootstrap() {
 
     const configService: ConfigService = app.get(ConfigService);
     // Set the config options
-    const adminConfig = require("C:\\Users\\tahao\\OneDrive - CMC Global\\Desktop\\Clone\\ride-hailing-consumer-api\\serviceAccountKey.json")
+    const adminConfig: ServiceAccount = {
+        "projectId": process.env.FIREBASE_PROJECT_ID,
+        "privateKey": process.env.FIREBASE_PRIVATE_KEY,
+        "clientEmail": process.env.FIREBASE_CLIENT_EMAIL,
+    };
 
     admin.initializeApp({
         credential: admin.credential.cert(adminConfig),
